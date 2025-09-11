@@ -15,7 +15,7 @@ public class BossRandomPatrolAI : MonoBehaviour
     public List<GameObject> minionPrefabs;
     public float spawnInterval = 5f;
     public Transform spawnPoint;
-    
+
     private Vector2 targetPosition;
     private float spawnTimer;
     private StageManager stageManager;
@@ -36,7 +36,7 @@ public class BossRandomPatrolAI : MonoBehaviour
         {
             spawnPoint = transform;
         }
-        
+
         SetNewRandomTarget();
     }
 
@@ -52,7 +52,7 @@ public class BossRandomPatrolAI : MonoBehaviour
         {
             SetNewRandomTarget();
         }
-        
+
         transform.position = Vector2.MoveTowards(transform.position, targetPosition, stats.moveSpeed * Time.deltaTime);
     }
 
@@ -60,7 +60,7 @@ public class BossRandomPatrolAI : MonoBehaviour
     {
         float randomX = Random.Range(patrolArea.x, patrolArea.x + patrolArea.width);
         float randomY = Random.Range(patrolArea.y, patrolArea.y + patrolArea.height);
-        
+
         targetPosition = new Vector2(randomX, randomY);
     }
 
@@ -80,7 +80,7 @@ public class BossRandomPatrolAI : MonoBehaviour
 
         GameObject minionToSpawn = minionPrefabs[Random.Range(0, minionPrefabs.Count)];
         GameObject minionInstance = Instantiate(minionToSpawn, spawnPoint.position, spawnPoint.rotation);
-        
+
         EnemyStats minionStats = minionInstance.GetComponent<EnemyStats>();
         if (minionStats != null && stageManager != null)
         {
@@ -90,6 +90,22 @@ public class BossRandomPatrolAI : MonoBehaviour
                 minionStats.maxHealth = Mathf.RoundToInt(minionStats.maxHealth * multiplier);
                 minionStats.currentHealth = minionStats.maxHealth;
             }
+        }
+    }
+    
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            PlayerStats playerStats = collision.gameObject.GetComponent<PlayerStats>();
+            if (playerStats != null && stats != null)
+            {
+                playerStats.TakeDamage(stats.contactDamage);
+            }
+
+            // NOTA: Di solito non vuoi che un boss si autodistrugga al primo tocco.
+            // Se invece vuoi che anche il boss si distrugga, togli i // dalla riga qui sotto.
+            // Destroy(gameObject); 
         }
     }
 }

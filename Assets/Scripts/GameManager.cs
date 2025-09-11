@@ -1,6 +1,5 @@
 using UnityEngine;
 
-// Orchestratore generale, collega UI, nemici e progressione
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
@@ -22,22 +21,23 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-
-            // 🔥 Applica il limite FPS scelto
-            QualitySettings.vSyncCount = 0; // Disabilita vSync per rispettare targetFrameRate
+            QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = (int)targetFPS;
         }
         else Destroy(gameObject);
     }
-
-    // Metodo da chiamare quando un nemico viene sconfitto
-    public void EnemyDefeated(int coins, int xp)
+    
+    public void EnemyDefeated(int coins, int xp, int specialCurrency)
     {
-        PlayerStats player = GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerStats>();
+        PlayerStats player = FindFirstObjectByType<PlayerStats>();
         if (player != null)
         {
-            player.CollectCoin(coins); // Aggiunge coins alla sessione
+            player.CollectCoin(coins);
             player.AddXP(xp);
+            if (specialCurrency > 0)
+            {
+                player.CollectSpecialCurrency(specialCurrency);
+            }
         }
     }
 }

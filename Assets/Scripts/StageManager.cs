@@ -4,14 +4,20 @@ using System.Collections.Generic;
 
 public class StageManager : MonoBehaviour
 {
-    [Header("Prefab Nemici")]
+    [Header("Liste Prefab")]
     public List<GameObject> enemyPrefabs;
-    public List<GameObject> bossPrefabs; // Ora è una lista per contenere più boss
+    public List<GameObject> elitePrefabs;
+    public List<GameObject> bossPrefabs;
+
+    [Header("Probabilità di Spawn")]
+    [Range(0f, 1f)]
+    public float eliteSpawnChance = 0.1f;
 
     [Header("Gestione Stage")]
     public int stageNumber = 1;
-    public float growthRate = 0.15f;
-    public int enemiesPerStage = 5;
+    public float growthRate = 0.18f;
+    public int enemiesPerStage = 8;
+    public int stageToStartElites = 5;
     public float spawnY = 6f;
 
     [Header("Limiti orizzontali spawn")]
@@ -26,7 +32,6 @@ public class StageManager : MonoBehaviour
 
     void Start()
     {
-        // Controllo di sicurezza aggiornato per la lista dei boss
         if ((enemyPrefabs == null || enemyPrefabs.Count == 0) || (bossPrefabs == null || bossPrefabs.Count == 0))
         {
             Debug.LogError("Le liste dei prefab nemici o dei boss non sono state assegnate nello StageManager!");
@@ -40,6 +45,7 @@ public class StageManager : MonoBehaviour
 
     void Update()
     {
+        // CORRETTO QUI: FindGameObjectsWithTag (con la 's') restituisce una lista che possiamo contare.
         if (!isSpawningWave && GameObject.FindGameObjectsWithTag("Enemy").Length == 0)
         {
             NextStage();
@@ -64,9 +70,7 @@ public class StageManager : MonoBehaviour
     public void SpawnEnemy(Vector3 position, GameObject enemyToSpawn)
     {
         if (enemyToSpawn == null) return;
-
         GameObject e = Instantiate(enemyToSpawn, position, enemyToSpawn.transform.rotation);
-
         EnemyStats es = e.GetComponent<EnemyStats>();
         if (es != null)
         {
@@ -76,7 +80,6 @@ public class StageManager : MonoBehaviour
                 es.currentHealth = es.maxHealth;
             }
         }
-
         e.tag = "Enemy";
     }
     
@@ -86,10 +89,21 @@ public class StageManager : MonoBehaviour
         
         for (int i = 0; i < enemiesPerStage; i++)
         {
-            GameObject randomEnemyPrefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
+            GameObject prefabToSpawn;
+            
+            if (stageNumber >= stageToStartElites && elitePrefabs.Count > 0 && Random.value < eliteSpawnChance)
+            {
+                prefabToSpawn = elitePrefabs[Random.Range(0, elitePrefabs.Count)];
+            }
+            else
+            {
+                prefabToSpawn = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
+            }
+
             float xPos = Random.Range(spawnXMin, spawnXMax);
             Vector3 pos = new Vector3(xPos, spawnY, 0f);
-            SpawnEnemy(pos, randomEnemyPrefab);
+            SpawnEnemy(pos, prefabToSpawn);
+            
             float delay = Random.Range(spawnDelayMin, spawnDelayMax);
             yield return new WaitForSeconds(delay);
         }
@@ -101,13 +115,9 @@ public class StageManager : MonoBehaviour
     {
         Debug.Log($"WAVE {stageNumber}: ARRIVA UN BOSS!");
         yield return new WaitForSeconds(2.5f);
-
-        // Sceglie un boss a caso dalla nuova lista
         GameObject randomBossPrefab = bossPrefabs[Random.Range(0, bossPrefabs.Count)];
-        
         Vector3 bossSpawnPosition = new Vector3(0, spawnY, 0);
         SpawnEnemy(bossSpawnPosition, randomBossPrefab);
-
         isSpawningWave = false;
     }
 }

@@ -2,20 +2,20 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 
-// La nostra "scatola" per i dati. Ora usa le liste.
 [System.Serializable]
 public class SaveData
 {
     public int coins;
+    public int specialCurrency;
     public List<PermanentUpgradeType> savedUpgradeTypes = new List<PermanentUpgradeType>();
     public List<int> savedUpgradeLevels = new List<int>();
+    public List<SpecialUpgradeType> unlockedSpecialUpgrades = new List<SpecialUpgradeType>();
 }
 
 public static class SaveSystem
 {
     private static string saveFile = Application.persistentDataPath + "/savedata.json";
 
-    // Ora il metodo SaveGame è più semplice: riceve l'oggetto SaveData già pronto.
     public static void SaveGame(SaveData data)
     {
         string json = JsonUtility.ToJson(data, true);
@@ -34,7 +34,7 @@ public static class SaveSystem
         else
         {
             Debug.LogWarning("File di salvataggio non trovato. Creazione di nuovi dati.");
-            return new SaveData(); 
+            return new SaveData();
         }
     }
     

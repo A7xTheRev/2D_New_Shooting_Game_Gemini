@@ -9,21 +9,25 @@ public class GameOverManager : MonoBehaviour
 
     void Start()
     {
-        // Mostra i coin guadagnati nella sessione
         if (coinsEarnedText != null)
         {
             coinsEarnedText.text = "Coins obtained: " + PlayerStats.lastSessionCoins;
         }
 
-        // ✅ Somma ai coin permanenti usando ProgressionManager
-        if (ProgressionManager.Instance != null && PlayerStats.lastSessionCoins > 0)
+        if (ProgressionManager.Instance != null)
         {
-            ProgressionManager.Instance.AddCoins(PlayerStats.lastSessionCoins);
-            Debug.Log("Aggiunti " + PlayerStats.lastSessionCoins + " ai coins persistenti!");
+            if(PlayerStats.lastSessionCoins > 0)
+            {
+                ProgressionManager.Instance.AddCoins(PlayerStats.lastSessionCoins);
+            }
+            if(PlayerStats.lastSessionSpecialCurrency > 0)
+            {
+                ProgressionManager.Instance.AddSpecialCurrency(PlayerStats.lastSessionSpecialCurrency);
+            }
         }
 
-        // ✅ Resetta i coin della sessione (già salvati nei persistenti)
         PlayerStats.lastSessionCoins = 0;
+        PlayerStats.lastSessionSpecialCurrency = 0;
     }
 
     public void BackToMenu()

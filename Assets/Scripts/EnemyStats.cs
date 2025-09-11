@@ -8,11 +8,14 @@ public class EnemyStats : MonoBehaviour
     public int currentHealth;
     public float moveSpeed = 2f;
     public int contactDamage = 10;
+    public int projectileDamage = 10;
+    public float fireRate = 3f;
 
     [Header("Ricompense")]
     public int coinReward = 5;
     public int xpReward = 20;
-    
+    public int specialCurrencyReward = 0;
+
     public event Action<int, int> OnHealthChanged;
 
     void Start()
@@ -25,7 +28,6 @@ public class EnemyStats : MonoBehaviour
     {
         currentHealth -= amount;
         if (currentHealth < 0) currentHealth = 0;
-
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
         if (currentHealth <= 0)
@@ -36,7 +38,6 @@ public class EnemyStats : MonoBehaviour
 
     void Die()
     {
-        // MODIFICATO QUI
         PlayerStats player = FindFirstObjectByType<PlayerStats>();
         int finalCoinReward = coinReward;
 
@@ -45,26 +46,8 @@ public class EnemyStats : MonoBehaviour
             finalCoinReward = Mathf.RoundToInt(coinReward * player.coinDropMultiplier);
         }
         
-        GameManager.Instance?.EnemyDefeated(finalCoinReward, xpReward);
+        GameManager.Instance?.EnemyDefeated(finalCoinReward, xpReward, specialCurrencyReward);
         
         Destroy(gameObject);
-    }
-    
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        PlayerStats player = collision.gameObject.GetComponent<PlayerStats>();
-        if (player != null)
-        {
-            player.TakeDamage(contactDamage);
-        }
-    }
-    
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        PlayerStats player = other.GetComponent<PlayerStats>();
-        if (player != null)
-        {
-            player.TakeDamage(contactDamage);
-        }
     }
 }

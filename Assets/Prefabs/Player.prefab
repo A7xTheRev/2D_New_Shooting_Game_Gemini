@@ -393,14 +393,14 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5429103200845864426}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -411,7 +411,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!66 &4720019024963701253
 CompositeCollider2D:
   m_ObjectHideFlags: 0
@@ -541,16 +541,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   maxHealth: 100
   currentHealth: 0
-  damage: 10
-  attackSpeed: 1
+  damage: 12
+  attackSpeed: 1.2
   moveSpeed: 5
   currentXP: 0
-  xpToLevelUp: 100
+  xpToLevelUp: 50
   level: 1
-  xpMultiplier: 1
+  xpMultiplier: 1.2
   projectileCount: 1
   bounceCountEnemy: 0
   bounceCountWall: 0
+  healthRegenPerSecond: 0
+  critChance: 0
+  critDamageMultiplier: 2
+  projectileSizeMultiplier: 1
+  coinDropMultiplier: 1
   sessionCoins: 0
   invulnerabilityTime: 2
 --- !u!114 &21888296956570980
@@ -565,10 +570,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75ea2f5286d56e0489a38e63c132f067, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  projectilePrefab: {fileID: 6873114612449049683, guid: 53694857502658540bc977cdb1570d4d, type: 3}
   firePoint: {fileID: 5857586350389033472}
   fireCooldown: 0.5
   projectileAngleStep: 10
+  currentWeaponDamageMultiplier: 1
+  currentWeaponSpeedMultiplier: 1
+  currentWeaponAreaDamage: 0
 --- !u!114 &-1437893629385071680
 MonoBehaviour:
   m_ObjectHideFlags: 0

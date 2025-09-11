@@ -54,7 +54,7 @@ public class BossZigZagAI : MonoBehaviour
             horizontalDirection *= -1;
             directionTimer = directionChangeInterval;
         }
-        
+
         float currentVerticalSpeed = 0;
         if (!hasReachedPatrolZone)
         {
@@ -65,10 +65,10 @@ public class BossZigZagAI : MonoBehaviour
                 currentVerticalSpeed = 0;
             }
         }
-        
+
         float currentHorizontalSpeed = stats.moveSpeed;
         Vector2 moveDirection = new Vector2(currentHorizontalSpeed * horizontalDirection, currentVerticalSpeed);
-        
+
         transform.position += (Vector3)moveDirection * Time.deltaTime;
     }
 
@@ -94,16 +94,32 @@ public class BossZigZagAI : MonoBehaviour
 
         GameObject minionToSpawn = minionPrefabs[Random.Range(0, minionPrefabs.Count)];
         GameObject minionInstance = Instantiate(minionToSpawn, spawnPoint.position, spawnPoint.rotation);
-        
+
         EnemyStats minionStats = minionInstance.GetComponent<EnemyStats>();
         if (minionStats != null && stageManager != null)
         {
-            if (stageManager.stageNumber > 1) 
+            if (stageManager.stageNumber > 1)
             {
                 float multiplier = 1f + (stageManager.stageNumber - 1) * stageManager.growthRate;
                 minionStats.maxHealth = Mathf.RoundToInt(minionStats.maxHealth * multiplier);
                 minionStats.currentHealth = minionStats.maxHealth;
             }
+        }
+    }
+    
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            PlayerStats playerStats = collision.gameObject.GetComponent<PlayerStats>();
+            if (playerStats != null && stats != null)
+            {
+                playerStats.TakeDamage(stats.contactDamage);
+            }
+
+            // NOTA: Di solito non vuoi che un boss si autodistrugga al primo tocco.
+            // Se invece vuoi che anche il boss si distrugga, togli i // dalla riga qui sotto.
+            // Destroy(gameObject); 
         }
     }
 }
