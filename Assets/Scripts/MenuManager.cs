@@ -10,11 +10,11 @@ public class MenuManager : MonoBehaviour
 
     [Header("Pulsanti Arma")]
     public Button laserButton;
-    public Button mitraButton;
+    public Button standardButton; // Puoi rinominare questa variabile in "standardButton" se vuoi, ma non è obbligatorio
     public Button missileButton;
 
     [Header("FPS Settings")]
-    public TMP_Dropdown fpsDropdown; // 🔥 dropdown collegato in inspector
+    public TMP_Dropdown fpsDropdown; 
 
     public static event Action<string> OnWeaponChanged;
     private static string selectedWeapon = "Laser";
@@ -23,11 +23,9 @@ public class MenuManager : MonoBehaviour
     {
         UpdateCoinsUI();
 
-        // --- Armi ---
         string savedWeapon = PlayerPrefs.GetString("SelectedWeapon", selectedWeapon);
         HighlightSelectedWeapon(savedWeapon);
-
-        // --- FPS ---
+        
         SetupFPSDropdown();
     }
 
@@ -49,9 +47,6 @@ public class MenuManager : MonoBehaviour
         SceneManager.LoadScene("GameScene");
     }
 
-    // -------------------
-    // ARMI
-    // -------------------
     public void SelectWeapon(string weaponName)
     {
         selectedWeapon = weaponName;
@@ -71,8 +66,11 @@ public class MenuManager : MonoBehaviour
 
         if (laserButton != null)
             laserButton.image.color = (weaponName == "Laser") ? selectedColor : normalColor;
-        if (mitraButton != null)
-            mitraButton.image.color = (weaponName == "Mitra") ? selectedColor : normalColor;
+        
+        // --- MODIFICATO QUI ---
+        if (standardButton != null)
+            standardButton.image.color = (weaponName == "Standard") ? selectedColor : normalColor;
+        
         if (missileButton != null)
             missileButton.image.color = (weaponName == "Missile") ? selectedColor : normalColor;
     }
@@ -81,10 +79,8 @@ public class MenuManager : MonoBehaviour
     {
         return PlayerPrefs.GetString("SelectedWeapon", selectedWeapon);
     }
-
-    // -------------------
-    // FPS
-    // -------------------
+    
+    // ... (Il resto dello script per gli FPS e il reset rimane invariato) ...
     private void SetupFPSDropdown()
     {
         if (fpsDropdown == null) return;
@@ -92,7 +88,6 @@ public class MenuManager : MonoBehaviour
         fpsDropdown.ClearOptions();
         fpsDropdown.AddOptions(new System.Collections.Generic.List<string> { "Unlimited", "60 FPS", "90 FPS", "120 FPS" });
 
-        // Carica valore salvato
         int savedFPS = PlayerPrefs.GetInt("TargetFPS", -1);
         int index = FPSValueToIndex(savedFPS);
         fpsDropdown.value = index;
@@ -112,7 +107,7 @@ public class MenuManager : MonoBehaviour
 
     private void ApplyFPS(int fps)
     {
-        QualitySettings.vSyncCount = 0; // Disabilita vSync
+        QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = fps;
         Debug.Log("FPS limit impostato a: " + (fps == -1 ? "Unlimited" : fps.ToString()));
     }
@@ -124,7 +119,7 @@ public class MenuManager : MonoBehaviour
             case 60: return 1;
             case 90: return 2;
             case 120: return 3;
-            default: return 0; // Unlimited
+            default: return 0;
         }
     }
 
@@ -135,7 +130,7 @@ public class MenuManager : MonoBehaviour
             case 1: return 60;
             case 2: return 90;
             case 3: return 120;
-            default: return -1; // Unlimited
+            default: return -1;
         }
     }
     

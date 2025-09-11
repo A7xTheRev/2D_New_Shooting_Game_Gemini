@@ -7,9 +7,9 @@ public class PlayerController : MonoBehaviour
     private PlayerStats stats;
     private Camera cam;
     private Vector2 touchPosition;
+    private ProjectilePool projectilePool;
 
-    [Header("Proiettile")]
-    public GameObject projectilePrefab;
+    [Header("Punto di sparo")]
     public Transform firePoint;
     public float fireCooldown = 0.5f;
 
@@ -21,26 +21,29 @@ public class PlayerController : MonoBehaviour
     public float currentWeaponSpeedMultiplier = 1f;
     public float currentWeaponAreaDamage = 0f;
 
+    private string currentWeaponName;
     private float fireTimer;
 
     void Awake()
     {
         stats = GetComponent<PlayerStats>();
         cam = Camera.main;
+        ApplyWeaponStats(MenuManager.GetSelectedWeapon());
+    }
 
-        // Applica subito l'arma salvata
+    void Start()
+    {
+        projectilePool = ProjectilePool.Instance;
         ApplyWeaponStats(MenuManager.GetSelectedWeapon());
     }
 
     void OnEnable()
     {
-        // Si iscrive all'evento per aggiornare arma dinamicamente
         MenuManager.OnWeaponChanged += ApplyWeaponStats;
     }
 
     void OnDisable()
     {
-        // Rimuove iscrizione per evitare memory leak
         MenuManager.OnWeaponChanged -= ApplyWeaponStats;
     }
 
@@ -52,27 +55,26 @@ public class PlayerController : MonoBehaviour
 
     void HandleMovement()
     {
-        // 🔹 Blocca movimento se il puntatore è sopra un bottone/elemento UI
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
-
-#if UNITY_EDITOR
+            
+        #if UNITY_EDITOR
         if (Input.GetMouseButton(0))
         {
             Vector2 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
             transform.position = Vector2.Lerp(transform.position, mousePos, stats.moveSpeed * Time.deltaTime);
         }
-#else
+        #else
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
             if (EventSystem.current.IsPointerOverGameObject(touch.fingerId))
-                return; // ignora il touch sopra UI
+                return;
 
             Vector2 touchPos = cam.ScreenToWorldPoint(touch.position);
             transform.position = Vector2.Lerp(transform.position, touchPos, stats.moveSpeed * Time.deltaTime);
         }
-#endif
+        #endif
     }
 
     void HandleShooting()
@@ -87,13 +89,12 @@ public class PlayerController : MonoBehaviour
 
     void Shoot()
     {
-        if (projectilePrefab == null || firePoint == null) return;
+        if (projectilePool == null || firePoint == null || string.IsNullOrEmpty(currentWeaponName)) return;
 
         int count = stats.projectileCount;
-
         if (count == 1)
         {
-            SpawnProjectile(Vector2.up);
+            SpawnProjectile(Vector2.up, firePoint.position);
         }
         else
         {
@@ -102,15 +103,20 @@ public class PlayerController : MonoBehaviour
             {
                 float angle = startAngle + i * projectileAngleStep;
                 Vector2 dir = Quaternion.Euler(0, 0, angle) * Vector2.up;
-                SpawnProjectile(dir);
+                SpawnProjectile(dir, firePoint.position);
             }
         }
     }
 
-    void SpawnProjectile(Vector2 direction)
+    void SpawnProjectile(Vector2 direction, Vector3 position)
     {
-        GameObject proj = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
-        Projectile p = proj.GetComponent<Projectile>();
+        GameObject projGameObject = projectilePool.GetProjectileForWeapon(currentWeaponName);
+        if (projGameObject == null) return;
+
+        projGameObject.transform.position = position;
+        projGameObject.transform.rotation = firePoint.rotation; // Usa la rotazione del punto di sparo
+
+        Projectile p = projGameObject.GetComponent<Projectile>();
         if (p != null)
         {
             p.baseDamage = stats.damage;
@@ -124,7 +130,7 @@ public class PlayerController : MonoBehaviour
 
     private void ApplyWeaponStats(string weapon)
     {
-        // Reset valori default
+        currentWeaponName = weapon;
         stats.damage = 10;
         stats.attackSpeed = 1f;
         currentWeaponDamageMultiplier = 1f;
@@ -136,26 +142,22 @@ public class PlayerController : MonoBehaviour
             case "Laser":
                 stats.damage = 10;
                 stats.attackSpeed = 2f;
-                currentWeaponDamageMultiplier = 0.7f;  // danno ridotto ma rateo veloce
+                currentWeaponDamageMultiplier = 0.7f;
                 currentWeaponSpeedMultiplier = 1.5f;
                 break;
-
-            case "Mitra":
+            case "Standard":
                 stats.damage = 10;
                 stats.attackSpeed = 1f;
                 currentWeaponDamageMultiplier = 1f;
                 currentWeaponSpeedMultiplier = 1f;
                 break;
-
             case "Missile":
                 stats.damage = 20;
                 stats.attackSpeed = 0.5f;
                 currentWeaponDamageMultiplier = 1f;
                 currentWeaponSpeedMultiplier = 0.8f;
-                currentWeaponAreaDamage = 1f; // danno ad area
+                currentWeaponAreaDamage = 1f;
                 break;
         }
-
-        Debug.Log($"Arma selezionata: {weapon} | Danno: {stats.damage}, AtkSpeed: {stats.attackSpeed}, Area: {currentWeaponAreaDamage}");
     }
 }

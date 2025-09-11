@@ -1,17 +1,18 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-// Gestisce lo spawn dei nemici e lo scaling degli stage
 public class StageManager : MonoBehaviour
 {
-    [Header("Prefab Nemico")]
-    public GameObject enemyPrefab;
+    [Header("Prefab Nemici")]
+    public List<GameObject> enemyPrefabs;
+    public List<GameObject> bossPrefabs; // Ora è una lista per contenere più boss
 
     [Header("Gestione Stage")]
-    public int stageNumber = 1;          // Numero corrente dello stage
-    public float growthRate = 0.15f;     // Moltiplicatore per scalare statistiche nemici
-    public int enemiesPerStage = 5;      // Numero di nemici da spawnare per stage
-    public float spawnY = 6f;            // Altezza sopra lo schermo dove spawnare i nemici
+    public int stageNumber = 1;
+    public float growthRate = 0.15f;
+    public int enemiesPerStage = 5;
+    public float spawnY = 6f;
 
     [Header("Limiti orizzontali spawn")]
     public float spawnXMin = -8f;
@@ -20,67 +21,93 @@ public class StageManager : MonoBehaviour
     [Header("Limiti ritardo spawn")]
     public float spawnDelayMin = 0.3f;
     public float spawnDelayMax = 1f;
-
-    private Transform player;
+    
+    private bool isSpawningWave = false;
 
     void Start()
     {
-        GameObject p = GameObject.FindGameObjectWithTag("Player");
-        if (p != null) player = p.transform;
-
+        // Controllo di sicurezza aggiornato per la lista dei boss
+        if ((enemyPrefabs == null || enemyPrefabs.Count == 0) || (bossPrefabs == null || bossPrefabs.Count == 0))
+        {
+            Debug.LogError("Le liste dei prefab nemici o dei boss non sono state assegnate nello StageManager!");
+            this.enabled = false;
+            return;
+        }
+        
+        isSpawningWave = true;
         StartCoroutine(SpawnStageCoroutine());
     }
 
     void Update()
     {
-        // Controlla se non ci sono più nemici in scena
-        if (GameObject.FindGameObjectsWithTag("Enemy").Length == 0)
+        if (!isSpawningWave && GameObject.FindGameObjectsWithTag("Enemy").Length == 0)
         {
             NextStage();
         }
     }
 
-    // Spawn singolo nemico
-    public void SpawnEnemy(Vector3 position)
+    public void NextStage()
     {
-        if (enemyPrefab == null) return;
+        isSpawningWave = true; 
+        stageNumber++;
 
-        // Usa la rotazione del prefab invece che Quaternion.identity
-        GameObject e = Instantiate(enemyPrefab, position, enemyPrefab.transform.rotation);
+        if (stageNumber % 10 == 0)
+        {
+            StartCoroutine(SpawnBossCoroutine());
+        }
+        else
+        {
+            StartCoroutine(SpawnStageCoroutine());
+        }
+    }
+
+    public void SpawnEnemy(Vector3 position, GameObject enemyToSpawn)
+    {
+        if (enemyToSpawn == null) return;
+
+        GameObject e = Instantiate(enemyToSpawn, position, enemyToSpawn.transform.rotation);
 
         EnemyStats es = e.GetComponent<EnemyStats>();
         if (es != null)
         {
-            float multiplier = 1f + (stageNumber - 1) * growthRate;
-            es.maxHealth = Mathf.RoundToInt(es.maxHealth * multiplier);
-            es.currentHealth = es.maxHealth;
-            es.moveSpeed *= multiplier; // Mantiene la velocità già presente nello script nemico
-            //es.coinReward = Mathf.RoundToInt(es.coinReward * multiplier);
-            //es.xpReward = Mathf.RoundToInt(es.xpReward * multiplier);
+            if (stageNumber > 1) {
+                float multiplier = 1f + (stageNumber - 1) * growthRate;
+                es.maxHealth = Mathf.RoundToInt(es.maxHealth * multiplier);
+                es.currentHealth = es.maxHealth;
+            }
         }
 
-        e.tag = "Enemy"; // Tagga per il rilevamento automatico
+        e.tag = "Enemy";
     }
-
-    // Coroutine per spawn multiplo con ritardo variabile
+    
     private IEnumerator SpawnStageCoroutine()
     {
+        yield return new WaitForSeconds(1.5f); 
+        
         for (int i = 0; i < enemiesPerStage; i++)
         {
+            GameObject randomEnemyPrefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
             float xPos = Random.Range(spawnXMin, spawnXMax);
             Vector3 pos = new Vector3(xPos, spawnY, 0f);
-            SpawnEnemy(pos);
-
-            // Ritardo random tra spawn
+            SpawnEnemy(pos, randomEnemyPrefab);
             float delay = Random.Range(spawnDelayMin, spawnDelayMax);
             yield return new WaitForSeconds(delay);
         }
+        
+        isSpawningWave = false;
     }
 
-    // Passa al prossimo stage
-    public void NextStage()
+    private IEnumerator SpawnBossCoroutine()
     {
-        stageNumber++;
-        StartCoroutine(SpawnStageCoroutine());
+        Debug.Log($"WAVE {stageNumber}: ARRIVA UN BOSS!");
+        yield return new WaitForSeconds(2.5f);
+
+        // Sceglie un boss a caso dalla nuova lista
+        GameObject randomBossPrefab = bossPrefabs[Random.Range(0, bossPrefabs.Count)];
+        
+        Vector3 bossSpawnPosition = new Vector3(0, spawnY, 0);
+        SpawnEnemy(bossSpawnPosition, randomBossPrefab);
+
+        isSpawningWave = false;
     }
 }
