@@ -114,7 +114,11 @@ public class PlayerController : MonoBehaviour
         if (projGameObject == null) return;
 
         projGameObject.transform.position = position;
-        projGameObject.transform.rotation = firePoint.rotation; // Usa la rotazione del punto di sparo
+        projGameObject.transform.rotation = firePoint.rotation;
+
+        // --- NUOVA RIGA PER LA DIMENSIONE ---
+        // Applica il moltiplicatore della dimensione al proiettile
+        projGameObject.transform.localScale = Vector3.one * stats.projectileSizeMultiplier;
 
         Projectile p = projGameObject.GetComponent<Projectile>();
         if (p != null)

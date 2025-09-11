@@ -3,27 +3,35 @@ using UnityEngine;
 // Enum = elenco di opzioni
 public enum PowerUpType
 {
-    IncreaseDamage,      // Aumenta il danno del player
-    IncreaseAttackSpeed, // Aumenta la velocità di attacco
-    ExtraXP,             // Aumenta XP guadagnata
-    ExtraProjectiles,    // Aumenta numero di proiettili base
-    BounceEnemy,         // Rimbalzo da nemico a nemico
-    BounceWall           // Rimbalzo contro i muri
+    // Vecchi
+    IncreaseDamage,
+    IncreaseAttackSpeed,
+    ExtraXP,
+    ExtraProjectiles,
+    BounceEnemy,
+    BounceWall,
+
+    // Nuovi
+    IncreaseMaxHealth,
+    HealthRegen,
+    IncreaseMoveSpeed,
+    IncreaseCritChance,
+    IncreaseProjectileSize,
+    IncreaseCoinDrop
 }
 
-// Classe PowerUp che definisce un singolo powerup
-[System.Serializable] // Serve per farlo vedere nell'Inspector di Unity
+[System.Serializable]
 public class PowerUp
 {
-    public PowerUpType type;   // Tipo di powerup, scelto dall'enum
-    public string displayName; // Nome da mostrare al player
-    public float value;        // Valore dell’incremento (es: +10 danno)
+    public PowerUpType type;
+    public string displayName;
+    public float value;
     
-    // Metodo per applicare il powerup al player
     public void Apply(PlayerStats player)
     {
         switch(type)
         {
+            // --- VECCHI CASE ---
             case PowerUpType.IncreaseDamage:
                 player.damage += Mathf.RoundToInt(value);
                 break;
@@ -31,7 +39,7 @@ public class PowerUp
                 player.attackSpeed += value;
                 break;
             case PowerUpType.ExtraXP:
-                player.xpMultiplier += value; // Questo campo lo aggiungeremo al PlayerStats
+                player.xpMultiplier += value;
                 break;
             case PowerUpType.ExtraProjectiles:
                 player.projectileCount += Mathf.RoundToInt(value);
@@ -41,6 +49,31 @@ public class PowerUp
                 break;
             case PowerUpType.BounceWall:
                 player.bounceCountWall += Mathf.RoundToInt(value);
+                break;
+                
+            // --- NUOVI CASE ---
+            case PowerUpType.IncreaseMaxHealth:
+                int healthBonus = Mathf.RoundToInt(value);
+                player.maxHealth += healthBonus;
+                player.Heal(healthBonus); // Cura anche il giocatore
+                break;
+            case PowerUpType.HealthRegen:
+                player.healthRegenPerSecond += value;
+                break;
+            case PowerUpType.IncreaseMoveSpeed:
+                player.moveSpeed += value;
+                break;
+            case PowerUpType.IncreaseCritChance:
+                // Aumenta la probabilità di critico (es. value=0.1 per +10%)
+                player.critChance += value;
+                break;
+            case PowerUpType.IncreaseProjectileSize:
+                // Aumenta il moltiplicatore della dimensione (es. value=0.2 per +20%)
+                player.projectileSizeMultiplier += value;
+                break;
+            case PowerUpType.IncreaseCoinDrop:
+                // Aumenta il moltiplicatore delle monete (es. value=0.25 per +25%)
+                player.coinDropMultiplier += value;
                 break;
         }
     }

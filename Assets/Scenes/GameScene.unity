@@ -2142,17 +2142,35 @@ MonoBehaviour:
     displayName: Damage +5
     value: 5
   - type: 1
-    displayName: Attack Speed + 0,5
+    displayName: + Attack Speed
     value: 0.5
   - type: 2
-    displayName: Exp + 50%
+    displayName: + XP
     value: 0.5
   - type: 3
-    displayName: Projectile + 1
+    displayName: + Projectile
     value: 1
   - type: 4
-    displayName: Bounce on Enemy +1
+    displayName: + Bullet Bounce
     value: 1
+  - type: 6
+    displayName: + Max HP
+    value: 20
+  - type: 7
+    displayName: + HP Regen
+    value: 1
+  - type: 8
+    displayName: + Move Speed
+    value: 0.5
+  - type: 9
+    displayName: + Crit Chance
+    value: 0.1
+  - type: 10
+    displayName: + Bullet Size
+    value: 0.2
+  - type: 11
+    displayName: + Coins
+    value: 0.25
 --- !u!4 &1589582347
 Transform:
   m_ObjectHideFlags: 0

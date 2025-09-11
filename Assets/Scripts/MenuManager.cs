@@ -1,44 +1,131 @@
-using UnityEngine; 
+using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System;
+using System.Collections.Generic;
 
 public class MenuManager : MonoBehaviour
 {
+    [Header("UI Generale")]
     public TextMeshProUGUI coinsText;
 
     [Header("Pulsanti Arma")]
     public Button laserButton;
-    public Button standardButton; // Puoi rinominare questa variabile in "standardButton" se vuoi, ma non è obbligatorio
+    public Button standardButton;
     public Button missileButton;
 
     [Header("FPS Settings")]
-    public TMP_Dropdown fpsDropdown; 
+    public TMP_Dropdown fpsDropdown;
 
+    [Header("Pannelli Potenziamenti Permanenti")]
+    public UpgradeUIPanel healthUpgradeUI;
+    public UpgradeUIPanel damageUpgradeUI;
+    public UpgradeUIPanel attackSpeedUpgradeUI;
+    public UpgradeUIPanel moveSpeedUpgradeUI;
+
+    // Classe di supporto per organizzare gli elementi UI di ogni potenziamento
+    [System.Serializable]
+    public class UpgradeUIPanel
+    {
+        public PermanentUpgradeType upgradeType;
+        public TextMeshProUGUI levelText;
+        public TextMeshProUGUI costText;
+        public Button buyButton;
+    }
+    
     public static event Action<string> OnWeaponChanged;
-    private static string selectedWeapon = "Laser";
+    private static string selectedWeapon = "Standard";
 
     void Start()
     {
-        UpdateCoinsUI();
-
+        // Applica le impostazioni salvate all'avvio
         string savedWeapon = PlayerPrefs.GetString("SelectedWeapon", selectedWeapon);
         HighlightSelectedWeapon(savedWeapon);
-        
         SetupFPSDropdown();
+        
+        // Aggiorna tutta la UI all'avvio
+        UpdateAllUI();
     }
 
     void OnEnable()
     {
-        UpdateCoinsUI();
+        // Si iscrive all'evento del ProgressionManager.
+        // Ogni volta che le monete o i livelli cambiano, UpdateAllUI() verrà chiamata automaticamente.
+        if (ProgressionManager.Instance != null)
+        {
+            ProgressionManager.OnValuesChanged += UpdateAllUI;
+        }
+        UpdateAllUI();
     }
 
-    public void UpdateCoinsUI()
+    void OnDisable()
     {
-        if (coinsText != null && ProgressionManager.Instance != null)
+        // Rimuove l'iscrizione per evitare errori quando si cambia scena
+        if (ProgressionManager.Instance != null)
+        {
+            ProgressionManager.OnValuesChanged -= UpdateAllUI;
+        }
+    }
+    
+    // Metodo unico per aggiornare tutta la UI del menu
+    void UpdateAllUI()
+    {
+        if (ProgressionManager.Instance == null) return;
+        
+        // Aggiorna il testo delle monete
+        if (coinsText != null)
         {
             coinsText.text = "Coins: " + ProgressionManager.Instance.GetCoins();
+        }
+        
+        // Aggiorna tutti i pannelli dei potenziamenti
+        UpdateSingleUpgradeUI(healthUpgradeUI);
+        UpdateSingleUpgradeUI(damageUpgradeUI);
+        UpdateSingleUpgradeUI(attackSpeedUpgradeUI);
+        UpdateSingleUpgradeUI(moveSpeedUpgradeUI);
+    }
+
+    // Aggiorna la UI per un singolo potenziamento
+    void UpdateSingleUpgradeUI(UpgradeUIPanel panel)
+    {
+        if (panel == null || panel.levelText == null || panel.costText == null || panel.buyButton == null) return;
+
+        PermanentUpgrade upgrade = ProgressionManager.Instance.GetUpgrade(panel.upgradeType);
+        if (upgrade == null) return;
+
+        // Aggiorna il testo del livello (es. "Liv. 2/10")
+        panel.levelText.text = $"Liv. {upgrade.currentLevel}/{upgrade.maxLevel}";
+
+        // Aggiorna il costo e lo stato del pulsante
+        if (upgrade.currentLevel >= upgrade.maxLevel)
+        {
+            panel.costText.text = "MAX";
+            panel.buyButton.interactable = false; // Disabilita il pulsante se il livello è massimo
+        }
+        else
+        {
+            int cost = upgrade.GetNextLevelCost();
+            panel.costText.text = cost.ToString();
+            // Il pulsante è utilizzabile solo se il giocatore può permettersi il potenziamento
+            panel.buyButton.interactable = ProgressionManager.Instance.CanAfford(upgrade);
+        }
+    }
+
+    // Metodo chiamato dai pulsanti di acquisto
+    public void OnBuyUpgradeButtonPressed(int typeAsInt)
+    {
+        // Converte l'intero ricevuto dal pulsante nell'enum corretto
+        PermanentUpgradeType type = (PermanentUpgradeType)typeAsInt;
+        ProgressionManager.Instance.BuyUpgrade(type);
+    }
+    
+    // Metodo da collegare a un pulsante di "Reset" nella UI
+    public void OnResetButtonPressed()
+    {
+        if (ProgressionManager.Instance != null)
+        {
+            ProgressionManager.Instance.ResetProgress();
         }
     }
 
@@ -52,9 +139,6 @@ public class MenuManager : MonoBehaviour
         selectedWeapon = weaponName;
         PlayerPrefs.SetString("SelectedWeapon", weaponName);
         PlayerPrefs.Save();
-
-        Debug.Log("Arma selezionata: " + weaponName);
-
         HighlightSelectedWeapon(weaponName);
         OnWeaponChanged?.Invoke(weaponName);
     }
@@ -67,7 +151,6 @@ public class MenuManager : MonoBehaviour
         if (laserButton != null)
             laserButton.image.color = (weaponName == "Laser") ? selectedColor : normalColor;
         
-        // --- MODIFICATO QUI ---
         if (standardButton != null)
             standardButton.image.color = (weaponName == "Standard") ? selectedColor : normalColor;
         
@@ -80,13 +163,12 @@ public class MenuManager : MonoBehaviour
         return PlayerPrefs.GetString("SelectedWeapon", selectedWeapon);
     }
     
-    // ... (Il resto dello script per gli FPS e il reset rimane invariato) ...
     private void SetupFPSDropdown()
     {
         if (fpsDropdown == null) return;
 
         fpsDropdown.ClearOptions();
-        fpsDropdown.AddOptions(new System.Collections.Generic.List<string> { "Unlimited", "60 FPS", "90 FPS", "120 FPS" });
+        fpsDropdown.AddOptions(new List<string> { "Unlimited", "60 FPS", "90 FPS", "120 FPS" });
 
         int savedFPS = PlayerPrefs.GetInt("TargetFPS", -1);
         int index = FPSValueToIndex(savedFPS);
@@ -101,7 +183,6 @@ public class MenuManager : MonoBehaviour
         int fps = IndexToFPSValue(index);
         PlayerPrefs.SetInt("TargetFPS", fps);
         PlayerPrefs.Save();
-
         ApplyFPS(fps);
     }
 
@@ -109,7 +190,6 @@ public class MenuManager : MonoBehaviour
     {
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = fps;
-        Debug.Log("FPS limit impostato a: " + (fps == -1 ? "Unlimited" : fps.ToString()));
     }
 
     private int FPSValueToIndex(int fps)
@@ -131,15 +211,6 @@ public class MenuManager : MonoBehaviour
             case 2: return 90;
             case 3: return 120;
             default: return -1;
-        }
-    }
-    
-    public void ResetCoinsButton()
-    {
-        if (ProgressionManager.Instance != null)
-        {
-            ProgressionManager.Instance.ResetCoins();
-            UpdateCoinsUI();
         }
     }
 }

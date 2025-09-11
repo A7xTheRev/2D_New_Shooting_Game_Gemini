@@ -28,7 +28,8 @@ public class BossZigZagAI : MonoBehaviour
 
     void Start()
     {
-        stageManager = FindObjectOfType<StageManager>();
+        // MODIFICATO QUI
+        stageManager = FindFirstObjectByType<StageManager>();
         directionTimer = directionChangeInterval;
         spawnTimer = spawnInterval;
         horizontalDirection = Random.value < 0.5f ? 1 : -1;
@@ -57,7 +58,6 @@ public class BossZigZagAI : MonoBehaviour
         float currentVerticalSpeed = 0;
         if (!hasReachedPatrolZone)
         {
-            // La velocità di discesa è ora direttamente stats.moveSpeed
             currentVerticalSpeed = -stats.moveSpeed;
             if (transform.position.y <= patrolYPosition)
             {
@@ -66,7 +66,6 @@ public class BossZigZagAI : MonoBehaviour
             }
         }
         
-        // La velocità laterale è ora direttamente stats.moveSpeed
         float currentHorizontalSpeed = stats.moveSpeed;
         Vector2 moveDirection = new Vector2(currentHorizontalSpeed * horizontalDirection, currentVerticalSpeed);
         

@@ -151,7 +151,18 @@ public class Projectile : MonoBehaviour
     private int GetFinalDamage()
     {
         if (owner == null) return Mathf.RoundToInt(baseDamage * damageMultiplier);
-        return Mathf.RoundToInt(owner.damage * damageMultiplier);
+
+        int finalDamage = Mathf.RoundToInt(owner.damage * damageMultiplier);
+
+        // --- NUOVA LOGICA PER IL CRITICO ---
+        // Controlla se il colpo è critico
+        if (Random.value < owner.critChance) // Random.value è un numero casuale tra 0.0 e 1.0
+        {
+            Debug.Log("COLPO CRITICO!");
+            finalDamage = Mathf.RoundToInt(finalDamage * owner.critDamageMultiplier);
+        }
+
+        return finalDamage;
     }
 
     void Deactivate()

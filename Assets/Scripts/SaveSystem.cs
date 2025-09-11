@@ -1,31 +1,49 @@
 using UnityEngine;
 using System.IO;
+using System.Collections.Generic;
 
-// Sistema di salvataggio semplice dei dati (monete)
+// La nostra "scatola" per i dati. Ora usa le liste.
+[System.Serializable]
+public class SaveData
+{
+    public int coins;
+    public List<PermanentUpgradeType> savedUpgradeTypes = new List<PermanentUpgradeType>();
+    public List<int> savedUpgradeLevels = new List<int>();
+}
+
 public static class SaveSystem
 {
-    private static string coinsFile = Application.persistentDataPath + "/coins.json";
+    private static string saveFile = Application.persistentDataPath + "/savedata.json";
 
-    public static void SaveCoins(int coins)
+    // Ora il metodo SaveGame è più semplice: riceve l'oggetto SaveData già pronto.
+    public static void SaveGame(SaveData data)
     {
-        File.WriteAllText(coinsFile, coins.ToString());
+        string json = JsonUtility.ToJson(data, true);
+        File.WriteAllText(saveFile, json);
+        Debug.Log("Dati di gioco salvati in: " + saveFile);
     }
 
-    public static int LoadCoins()
+    public static SaveData LoadGame()
     {
-        if (File.Exists(coinsFile))
+        if (File.Exists(saveFile))
         {
-            string data = File.ReadAllText(coinsFile);
-            int c;
-            if (int.TryParse(data, out c)) return c;
+            string json = File.ReadAllText(saveFile);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+            return data;
         }
-        return 0;
+        else
+        {
+            Debug.LogWarning("File di salvataggio non trovato. Creazione di nuovi dati.");
+            return new SaveData(); 
+        }
     }
-
-    // 🔥 Metodo per resettare le monete
-    public static void ResetCoins()
+    
+    public static void ResetSave()
     {
-        SaveCoins(0);
-        Debug.Log("Coins resettati! Percorso file: " + coinsFile);
+        if (File.Exists(saveFile))
+        {
+            File.Delete(saveFile);
+            Debug.Log("Dati di salvataggio resettati!");
+        }
     }
 }

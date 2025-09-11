@@ -12,14 +12,13 @@ public class EnemyStats : MonoBehaviour
     [Header("Ricompense")]
     public int coinReward = 5;
     public int xpReward = 20;
-
-    // Evento per aggiornare la UI
+    
     public event Action<int, int> OnHealthChanged;
 
     void Start()
     {
         currentHealth = maxHealth;
-        OnHealthChanged?.Invoke(currentHealth, maxHealth); // notifica valori iniziali
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
     public void TakeDamage(int amount)
@@ -37,11 +36,20 @@ public class EnemyStats : MonoBehaviour
 
     void Die()
     {
-        GameManager.Instance?.EnemyDefeated(coinReward, xpReward);
+        // MODIFICATO QUI
+        PlayerStats player = FindFirstObjectByType<PlayerStats>();
+        int finalCoinReward = coinReward;
+
+        if (player != null)
+        {
+            finalCoinReward = Mathf.RoundToInt(coinReward * player.coinDropMultiplier);
+        }
+        
+        GameManager.Instance?.EnemyDefeated(finalCoinReward, xpReward);
+        
         Destroy(gameObject);
     }
-
-    // Collisione con il player
+    
     void OnCollisionEnter2D(Collision2D collision)
     {
         PlayerStats player = collision.gameObject.GetComponent<PlayerStats>();
@@ -50,8 +58,7 @@ public class EnemyStats : MonoBehaviour
             player.TakeDamage(contactDamage);
         }
     }
-
-    // Se preferisci usare collider trigger
+    
     void OnTriggerEnter2D(Collider2D other)
     {
         PlayerStats player = other.GetComponent<PlayerStats>();

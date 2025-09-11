@@ -9,7 +9,6 @@ public class BossRandomPatrolAI : MonoBehaviour
     public Rect patrolArea = new Rect(-7f, 1f, 14f, 3f);
 
     [Header("Impostazioni di Movimento")]
-    [Tooltip("Quanto vicino deve arrivare al punto target prima di sceglierne un altro.")]
     public float waypointReachedThreshold = 0.1f;
 
     [Header("Impostazioni di Spawn Minion")]
@@ -20,17 +19,17 @@ public class BossRandomPatrolAI : MonoBehaviour
     private Vector2 targetPosition;
     private float spawnTimer;
     private StageManager stageManager;
-    private EnemyStats stats; // Riferimento al componente con le statistiche
+    private EnemyStats stats;
 
     void Awake()
     {
-        // Ottiene il riferimento al componente EnemyStats sullo stesso oggetto
         stats = GetComponent<EnemyStats>();
     }
 
     void Start()
     {
-        stageManager = FindObjectOfType<StageManager>();
+        // MODIFICATO QUI
+        stageManager = FindFirstObjectByType<StageManager>();
         spawnTimer = spawnInterval;
 
         if (spawnPoint == null)
@@ -53,8 +52,7 @@ public class BossRandomPatrolAI : MonoBehaviour
         {
             SetNewRandomTarget();
         }
-
-        // Usa la velocità presa da EnemyStats
+        
         transform.position = Vector2.MoveTowards(transform.position, targetPosition, stats.moveSpeed * Time.deltaTime);
     }
 
@@ -66,7 +64,6 @@ public class BossRandomPatrolAI : MonoBehaviour
         targetPosition = new Vector2(randomX, randomY);
     }
 
-    // ... (HandleMinionSpawning e SpawnMinion rimangono invariati) ...
     void HandleMinionSpawning()
     {
         spawnTimer -= Time.deltaTime;

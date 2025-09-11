@@ -2,7 +2,6 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-
 public class PlayerStats : MonoBehaviour
 {
     [Header("Statistiche base")]
@@ -18,22 +17,27 @@ public class PlayerStats : MonoBehaviour
     public int level = 1;
 
     [Header("PowerUp")]
-    public float xpMultiplier = 1f;       // Modifica XP guadagnata
-    public int projectileCount = 1;       // Numero di proiettili base
-    public int bounceCountEnemy = 0;      // Rimbalzi verso nemici
-    public int bounceCountWall = 0;       // Rimbalzi contro muri
+    public float xpMultiplier = 1f;
+    public int projectileCount = 1;
+    public int bounceCountEnemy = 0;
+    public int bounceCountWall = 0;
+    public float healthRegenPerSecond = 0f;
+    public float critChance = 0f;
+    public float critDamageMultiplier = 2f;
+    public float projectileSizeMultiplier = 1f;
+    public float coinDropMultiplier = 1f;
 
     [Header("Coins")]
     public int sessionCoins = 0;
     public static int lastSessionCoins = 0;
 
     [Header("Danno e invulnerabilità")]
-    public float invulnerabilityTime = 1f; // secondi di invulnerabilità
+    public float invulnerabilityTime = 1f;
     private bool isInvulnerable = false;
 
-    // 🔥 Aggiunte per effetto visivo
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
+    private float regenTimer;
 
     public event Action<int, int> OnHealthChanged;
     public event Action<int, int> OnXPChanged;
@@ -42,20 +46,40 @@ public class PlayerStats : MonoBehaviour
 
     void Start()
     {
-        currentHealth = maxHealth;
+        ApplyPermanentUpgrades(); // Applica i bonus permanenti
 
-        // Prende il renderer del player
+        currentHealth = maxHealth; // Imposta la vita al massimo DOPO averla aumentata
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
             originalColor = spriteRenderer.color;
-
+    
         UpdateAllUI();
+    }
 
-        UIManager ui = GameObject.FindObjectOfType<UIManager>();
-        if (ui != null)
+    void ApplyPermanentUpgrades()
+    {
+        if (ProgressionManager.Instance == null) return;
+
+        // Applica i bonus alle statistiche base
+        maxHealth += (int)ProgressionManager.Instance.GetTotalBonus(PermanentUpgradeType.Health);
+        damage += (int)ProgressionManager.Instance.GetTotalBonus(PermanentUpgradeType.Damage);
+        attackSpeed += ProgressionManager.Instance.GetTotalBonus(PermanentUpgradeType.AttackSpeed);
+        moveSpeed += ProgressionManager.Instance.GetTotalBonus(PermanentUpgradeType.MoveSpeed);
+    
+        Debug.Log("Potenziamenti permanenti applicati!");
+    }
+    
+    void Update()
+    {
+        if (healthRegenPerSecond > 0 && currentHealth < maxHealth)
         {
-            OnLevelUp += ui.UpdateLevelUI;
-            OnXPChanged += ui.UpdateXPUI;
+            regenTimer += Time.deltaTime;
+            if (regenTimer >= 1f)
+            {
+                int healthToRegen = Mathf.FloorToInt(healthRegenPerSecond);
+                Heal(healthToRegen);
+                regenTimer -= 1f;
+            }
         }
     }
 
@@ -69,7 +93,7 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        if (isInvulnerable) return; // Se è invulnerabile, ignora il danno
+        if (isInvulnerable) return;
 
         currentHealth -= amount;
         if (currentHealth < 0) currentHealth = 0;
@@ -89,27 +113,20 @@ public class PlayerStats : MonoBehaviour
     private System.Collections.IEnumerator InvulnerabilityCoroutine()
     {
         isInvulnerable = true;
-
         float elapsed = 0f;
         while (elapsed < invulnerabilityTime)
         {
             if (spriteRenderer != null)
             {
-                // Rosso e semitrasparente
                 spriteRenderer.color = new Color(1f, 0f, 0f, 0.5f);
                 yield return new WaitForSeconds(0.1f);
-
-                // Colore originale
                 spriteRenderer.color = originalColor;
                 yield return new WaitForSeconds(0.1f);
             }
-
             elapsed += 0.2f;
         }
-
         if (spriteRenderer != null)
             spriteRenderer.color = originalColor;
-
         isInvulnerable = false;
     }
 
@@ -122,9 +139,7 @@ public class PlayerStats : MonoBehaviour
 
     public void AddXP(int amount)
     {
-        // Applica il moltiplicatore XP
         int finalXP = Mathf.RoundToInt(amount * xpMultiplier);
-
         currentXP += finalXP;
         while (currentXP >= xpToLevelUp)
         {
@@ -141,8 +156,8 @@ public class PlayerStats : MonoBehaviour
         xpToLevelUp = Mathf.RoundToInt(xpToLevelUp * 1.2f);
         Debug.Log("Player salito a livello: " + level);
 
-        // Mostra powerup
-        PowerUpManager manager = FindObjectOfType<PowerUpManager>();
+        // MODIFICATO QUI
+        PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
         if (manager != null)
         {
             List<PowerUp> options = manager.GetRandomPowerUps(3);
@@ -156,22 +171,10 @@ public class PlayerStats : MonoBehaviour
         OnSessionCoinsChanged?.Invoke(sessionCoins);
     }
 
-    public void EndSession()
-    {
-        lastSessionCoins = sessionCoins; // 🔥 Salva i coins ottenuti in questa partita
-        ProgressionManager.Instance.AddCoins(sessionCoins);
-        sessionCoins = 0;
-        OnSessionCoinsChanged?.Invoke(sessionCoins);
-    }
-
     private void Die()
     {
         Debug.Log("Player morto");
-
-        // Salva i coin della partita per GameOver
         lastSessionCoins = sessionCoins;
-
-        // Non chiamiamo EndSession() qui!
         UnityEngine.SceneManagement.SceneManager.LoadScene("GameOver");
     }
 }
