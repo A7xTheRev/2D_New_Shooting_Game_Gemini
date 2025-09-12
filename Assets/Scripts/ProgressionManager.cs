@@ -29,6 +29,7 @@ public class ProgressionManager : MonoBehaviour
         }
         else
         {
+            // Se esiste già un'istanza, questo duplicato si autodistrugge.
             Destroy(gameObject);
         }
     }
@@ -67,7 +68,7 @@ public class ProgressionManager : MonoBehaviour
         SaveData data = new SaveData();
         data.coins = coins;
         data.specialCurrency = specialCurrency;
-
+        
         data.savedUpgradeTypes.Clear();
         data.savedUpgradeLevels.Clear();
         foreach (var pair in upgradeLevels)
@@ -84,7 +85,6 @@ public class ProgressionManager : MonoBehaviour
                 data.unlockedSpecialUpgrades.Add(pair.Key);
             }
         }
-
         SaveSystem.SaveGame(data);
     }
     
@@ -122,7 +122,6 @@ public class ProgressionManager : MonoBehaviour
             coins -= cost;
             upgradeToBuy.currentLevel++;
             upgradeLevels[type] = upgradeToBuy.currentLevel;
-            
             SaveData();
             OnValuesChanged?.Invoke();
         }

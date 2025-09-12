@@ -12,12 +12,13 @@ public class SceneButtonLoader : MonoBehaviour
         // Riporta il gioco in tempo normale
         Time.timeScale = 1f;
 
-        // Salva i coin della sessione per GameOver
-        PlayerStats player = GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerStats>();
+        // Trova il player e salva ENTRAMBE le valute della sessione
+        PlayerStats player = FindFirstObjectByType<PlayerStats>();
         if (player != null)
         {
             PlayerStats.lastSessionCoins = player.sessionCoins;
-            Debug.Log("Button premuto - Coins salvati: " + PlayerStats.lastSessionCoins);
+            PlayerStats.lastSessionSpecialCurrency = player.sessionSpecialCurrency; // ECCO LA RIGA MANCANTE
+            Debug.Log("Pulsante Quit premuto - Valute salvate.");
         }
 
         // Carica la scena GameOver

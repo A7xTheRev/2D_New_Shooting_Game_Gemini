@@ -545,9 +545,9 @@ MonoBehaviour:
   attackSpeed: 1.2
   moveSpeed: 5
   currentXP: 0
-  xpToLevelUp: 50
+  xpToLevelUp: 75
   level: 1
-  xpMultiplier: 1.2
+  xpMultiplier: 1
   projectileCount: 1
   bounceCountEnemy: 0
   bounceCountWall: 0
@@ -557,7 +557,10 @@ MonoBehaviour:
   projectileSizeMultiplier: 1
   coinDropMultiplier: 1
   sessionCoins: 0
+  sessionSpecialCurrency: 0
   invulnerabilityTime: 2
+  startBlinkInterval: 0.2
+  endBlinkInterval: 0.05
 --- !u!114 &21888296956570980
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -54,7 +54,8 @@ public class PlayerStats : MonoBehaviour
     private float regenTimer;
     private int playerLayer;
     private int enemyLayer;
-    
+    private bool secondChanceAvailable = true;
+
     void Awake()
     {
         playerLayer = LayerMask.NameToLayer("Player");
@@ -66,10 +67,35 @@ public class PlayerStats : MonoBehaviour
     void Start()
     {
         ApplyPermanentUpgrades();
+
+        if (ProgressionManager.Instance != null && ProgressionManager.Instance.IsSpecialUpgradeUnlocked(SpecialUpgradeType.StartingPowerUp))
+        {
+            Debug.Log("POTENZIAMENTO SPECIALE: Partenza Vantaggiosa ATTIVO!");
+            PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
+            if (manager != null)
+            {
+                List<PowerUp> options = manager.GetRandomPowerUps(1);
+                if (options.Count > 0)
+                {
+                    PowerUp startingPowerUp = options[0];
+                    startingPowerUp.Apply(this);
+                    Debug.Log($"Ottenuto potenziamento iniziale: {startingPowerUp.displayName}");
+
+                    // --- NUOVA LOGICA: INVIA LA NOTIFICA ALLA UI ---
+                    UIManager uiManager = FindFirstObjectByType<UIManager>();
+                    if (uiManager != null)
+                    {
+                        uiManager.ShowNotification($"Starting PowerUP:\n{startingPowerUp.displayName}", 4f); // Mostra per 4 secondi
+                    }
+                }
+            }
+        }
+        
         currentHealth = maxHealth;
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
             originalColor = spriteRenderer.color;
+        
         UpdateAllUI();
     }
 
@@ -91,7 +117,7 @@ public class PlayerStats : MonoBehaviour
     {
         Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
     }
-    
+
     public void TakeDamage(int amount)
     {
         if (isInvulnerable) return;
@@ -139,7 +165,7 @@ public class PlayerStats : MonoBehaviour
         sessionSpecialCurrency += amount;
         OnSessionSpecialCurrencyChanged?.Invoke(sessionSpecialCurrency);
     }
-    
+
     private void ApplyPermanentUpgrades()
     {
         if (ProgressionManager.Instance == null) return;
@@ -170,7 +196,7 @@ public class PlayerStats : MonoBehaviour
             PowerUpUI.Instance.ShowPowerUpChoices(options, this);
         }
     }
-    
+
     private System.Collections.IEnumerator InvulnerabilityCoroutine()
     {
         isInvulnerable = true;
@@ -197,9 +223,28 @@ public class PlayerStats : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log("Player morto");
-        lastSessionCoins = sessionCoins;
-        lastSessionSpecialCurrency = sessionSpecialCurrency;
-        UnityEngine.SceneManagement.SceneManager.LoadScene("GameOver");
+        if (ProgressionManager.Instance != null && ProgressionManager.Instance.IsSpecialUpgradeUnlocked(SpecialUpgradeType.SecondChance) && secondChanceAvailable)
+        {
+            Debug.Log("SECONDA CHANCE ATTIVATA!");
+            
+            currentHealth = maxHealth / 2;
+            OnHealthChanged?.Invoke(currentHealth, maxHealth);
+            StartCoroutine(InvulnerabilityCoroutine());
+            
+            secondChanceAvailable = false;
+
+            UIManager uiManager = FindFirstObjectByType<UIManager>();
+            if (uiManager != null)
+            {
+                uiManager.UpdateSecondChanceUI(false);
+            }
+        }
+        else
+        {
+            Debug.Log("Player morto, salvataggio valute di sessione.");
+            lastSessionCoins = sessionCoins;
+            lastSessionSpecialCurrency = sessionSpecialCurrency;
+            UnityEngine.SceneManagement.SceneManager.LoadScene("GameOver");
+        }
     }
 }

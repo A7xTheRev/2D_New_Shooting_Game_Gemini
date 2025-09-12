@@ -18,6 +18,7 @@ public class GameOverTrigger : MonoBehaviour
         {
             PlayerStats.lastSessionCoins = player.sessionCoins;
             PlayerStats.lastSessionSpecialCurrency = player.sessionSpecialCurrency;
+            Debug.Log("Fine partita forzata - valute salvate.");
         }
         
         SceneManager.LoadScene("GameOver");

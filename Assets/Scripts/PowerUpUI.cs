@@ -8,11 +8,13 @@ public class PowerUpUI : MonoBehaviour
     public static PowerUpUI Instance;
 
     [Header("UI Panel")]
-    public GameObject panel;             // Contenitore principale (intestazione + buttonsContainer)
-    public Transform buttonsContainer;   // Contenitore solo per i bottoni
-    public Button buttonPrefab;          // Prefab del bottone powerup
+    public GameObject panel;
+    public Transform buttonsContainer;
+    public Button buttonPrefab;
+    public Button rerollButton; // Riferimento al nuovo pulsante
 
     private PlayerStats currentPlayer;
+    private bool rerollUsedThisLevel;
 
     void Awake()
     {
@@ -20,23 +22,36 @@ public class PowerUpUI : MonoBehaviour
             Instance = this;
         else
             Destroy(gameObject);
+        
+        panel.SetActive(false); // Assicurati che sia nascosto all'avvio
     }
 
     public void ShowPowerUpChoices(List<PowerUp> options, PlayerStats player)
     {
-        if (options == null || options.Count == 0)
-        {
-            Debug.LogWarning("Nessun powerup disponibile da mostrare!");
-            return;
-        }
+        if (options == null || options.Count == 0) return;
 
         currentPlayer = player;
         panel.SetActive(true);
-
-        // Blocca il gioco
         Time.timeScale = 0f;
 
-        // Rimuove eventuali bottoni vecchi senza toccare l'intestazione
+        // Gestione del pulsante Reroll
+        if (rerollButton != null)
+        {
+            bool canReroll = ProgressionManager.Instance.IsSpecialUpgradeUnlocked(SpecialUpgradeType.PowerUpReroll);
+            rerollButton.gameObject.SetActive(canReroll); // Mostra il pulsante solo se sbloccato
+            if (canReroll)
+            {
+                rerollUsedThisLevel = false;
+                rerollButton.interactable = true; // Riattiva il pulsante per il nuovo livello
+            }
+        }
+        
+        PopulateChoices(options);
+    }
+
+    private void PopulateChoices(List<PowerUp> options)
+    {
+        // Rimuove i vecchi pulsanti delle scelte
         foreach (Transform child in buttonsContainer)
             Destroy(child.gameObject);
 
@@ -46,23 +61,34 @@ public class PowerUpUI : MonoBehaviour
             Button b = Instantiate(buttonPrefab, buttonsContainer);
             b.GetComponentInChildren<TextMeshProUGUI>().text = pu.displayName;
 
-            PowerUp capturedPU = pu; // cattura variabile locale
-            b.onClick.AddListener(() => ApplyPowerUp(capturedPU));
+            b.onClick.AddListener(() => ApplyPowerUp(pu));
+        }
+    }
+
+    public void OnRerollButtonPressed()
+    {
+        if (rerollUsedThisLevel || currentPlayer == null) return;
+
+        rerollUsedThisLevel = true;
+        rerollButton.interactable = false; // Puoi rilanciare solo una volta per livello
+
+        Debug.Log("Rilancio delle opzioni di power-up!");
+        
+        // Chiede 3 nuove opzioni e ripopola la UI
+        PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
+        if (manager != null)
+        {
+            List<PowerUp> newOptions = manager.GetRandomPowerUps(3);
+            PopulateChoices(newOptions);
         }
     }
 
     private void ApplyPowerUp(PowerUp pu)
     {
-        if (currentPlayer == null)
-        {
-            Debug.LogWarning("Player non assegnato!");
-            return;
-        }
+        if (currentPlayer == null) return;
 
-        Debug.Log("CLICK su: " + pu.displayName + " | Player = " + currentPlayer.name);
         pu.Apply(currentPlayer);
 
-        // Chiudi pannello e sblocca il gioco
         panel.SetActive(false);
         Time.timeScale = 1f;
     }

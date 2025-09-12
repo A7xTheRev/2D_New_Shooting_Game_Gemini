@@ -7,8 +7,14 @@ using System.Collections.Generic;
 
 public class MenuManager : MonoBehaviour
 {
+    [Header("Pannelli Schermate")]
+    public GameObject mainPanel;
+    public GameObject storePanel;
+    public GameObject hangarPanel;
+
     [Header("UI Generale")]
     public TextMeshProUGUI coinsText;
+    public TextMeshProUGUI specialCurrencyText;
 
     [Header("Pulsanti Arma")]
     public Button laserButton;
@@ -18,13 +24,17 @@ public class MenuManager : MonoBehaviour
     [Header("FPS Settings")]
     public TMP_Dropdown fpsDropdown;
 
-    [Header("Pannelli Potenziamenti Permanenti")]
+    [Header("Pannelli Potenziamenti Normali")]
     public UpgradeUIPanel healthUpgradeUI;
     public UpgradeUIPanel damageUpgradeUI;
     public UpgradeUIPanel attackSpeedUpgradeUI;
     public UpgradeUIPanel moveSpeedUpgradeUI;
 
-    // Classe di supporto per organizzare gli elementi UI di ogni potenziamento
+    [Header("Pannelli Potenziamenti Speciali")]
+    public SpecialUpgradeUIPanel secondChanceUpgradeUI;
+    public SpecialUpgradeUIPanel startingPowerUpUI;
+    public SpecialUpgradeUIPanel rerollUpgradeUI;
+
     [System.Serializable]
     public class UpgradeUIPanel
     {
@@ -33,25 +43,31 @@ public class MenuManager : MonoBehaviour
         public TextMeshProUGUI costText;
         public Button buyButton;
     }
+
+    [System.Serializable]
+    public class SpecialUpgradeUIPanel
+    {
+        public SpecialUpgradeType upgradeType;
+        public TextMeshProUGUI descriptionText;
+        public TextMeshProUGUI costText;
+        public Button buyButton;
+        public GameObject unlockedIndicator;
+    }
     
     public static event Action<string> OnWeaponChanged;
     private static string selectedWeapon = "Standard";
 
     void Start()
     {
-        // Applica le impostazioni salvate all'avvio
+        ShowMainPanel();
         string savedWeapon = PlayerPrefs.GetString("SelectedWeapon", selectedWeapon);
         HighlightSelectedWeapon(savedWeapon);
         SetupFPSDropdown();
-        
-        // Aggiorna tutta la UI all'avvio
         UpdateAllUI();
     }
 
     void OnEnable()
     {
-        // Si iscrive all'evento del ProgressionManager.
-        // Ogni volta che le monete o i livelli cambiano, UpdateAllUI() verrà chiamata automaticamente.
         if (ProgressionManager.Instance != null)
         {
             ProgressionManager.OnValuesChanged += UpdateAllUI;
@@ -61,66 +77,45 @@ public class MenuManager : MonoBehaviour
 
     void OnDisable()
     {
-        // Rimuove l'iscrizione per evitare errori quando si cambia scena
         if (ProgressionManager.Instance != null)
         {
             ProgressionManager.OnValuesChanged -= UpdateAllUI;
         }
     }
     
-    // Metodo unico per aggiornare tutta la UI del menu
-    void UpdateAllUI()
+    public void ShowMainPanel()
     {
-        if (ProgressionManager.Instance == null) return;
-        
-        // Aggiorna il testo delle monete
-        if (coinsText != null)
-        {
-            coinsText.text = "Coins: " + ProgressionManager.Instance.GetCoins();
-        }
-        
-        // Aggiorna tutti i pannelli dei potenziamenti
-        UpdateSingleUpgradeUI(healthUpgradeUI);
-        UpdateSingleUpgradeUI(damageUpgradeUI);
-        UpdateSingleUpgradeUI(attackSpeedUpgradeUI);
-        UpdateSingleUpgradeUI(moveSpeedUpgradeUI);
+        mainPanel.SetActive(true);
+        storePanel.SetActive(false);
+        hangarPanel.SetActive(false);
     }
 
-    // Aggiorna la UI per un singolo potenziamento
-    void UpdateSingleUpgradeUI(UpgradeUIPanel panel)
+    public void ShowStorePanel()
     {
-        if (panel == null || panel.levelText == null || panel.costText == null || panel.buyButton == null) return;
-
-        PermanentUpgrade upgrade = ProgressionManager.Instance.GetUpgrade(panel.upgradeType);
-        if (upgrade == null) return;
-
-        // Aggiorna il testo del livello (es. "Liv. 2/10")
-        panel.levelText.text = $"Liv. {upgrade.currentLevel}/{upgrade.maxLevel}";
-
-        // Aggiorna il costo e lo stato del pulsante
-        if (upgrade.currentLevel >= upgrade.maxLevel)
-        {
-            panel.costText.text = "MAX";
-            panel.buyButton.interactable = false; // Disabilita il pulsante se il livello è massimo
-        }
-        else
-        {
-            int cost = upgrade.GetNextLevelCost();
-            panel.costText.text = cost.ToString();
-            // Il pulsante è utilizzabile solo se il giocatore può permettersi il potenziamento
-            panel.buyButton.interactable = ProgressionManager.Instance.CanAfford(upgrade);
-        }
+        mainPanel.SetActive(false);
+        storePanel.SetActive(true);
+        hangarPanel.SetActive(false);
     }
 
-    // Metodo chiamato dai pulsanti di acquisto
+    public void ShowHangarPanel()
+    {
+        mainPanel.SetActive(false);
+        storePanel.SetActive(false);
+        hangarPanel.SetActive(true);
+    }
+
     public void OnBuyUpgradeButtonPressed(int typeAsInt)
     {
-        // Converte l'intero ricevuto dal pulsante nell'enum corretto
         PermanentUpgradeType type = (PermanentUpgradeType)typeAsInt;
         ProgressionManager.Instance.BuyUpgrade(type);
     }
     
-    // Metodo da collegare a un pulsante di "Reset" nella UI
+    public void OnBuySpecialUpgradeButtonPressed(int typeAsInt)
+    {
+        SpecialUpgradeType type = (SpecialUpgradeType)typeAsInt;
+        ProgressionManager.Instance.BuySpecialUpgrade(type);
+    }
+
     public void OnResetButtonPressed()
     {
         if (ProgressionManager.Instance != null)
@@ -143,6 +138,69 @@ public class MenuManager : MonoBehaviour
         OnWeaponChanged?.Invoke(weaponName);
     }
 
+    private void UpdateAllUI()
+    {
+        if (ProgressionManager.Instance == null) return;
+        
+        if (coinsText != null)
+            coinsText.text = "Coins: " + ProgressionManager.Instance.GetCoins();
+        if (specialCurrencyText != null)
+            specialCurrencyText.text = "Gemme: " + ProgressionManager.Instance.GetSpecialCurrency();
+        
+        UpdateSingleUpgradeUI(healthUpgradeUI);
+        UpdateSingleUpgradeUI(damageUpgradeUI);
+        UpdateSingleUpgradeUI(attackSpeedUpgradeUI);
+        UpdateSingleUpgradeUI(moveSpeedUpgradeUI);
+        
+        UpdateSingleSpecialUpgradeUI(secondChanceUpgradeUI);
+        UpdateSingleSpecialUpgradeUI(startingPowerUpUI);
+        UpdateSingleSpecialUpgradeUI(rerollUpgradeUI);
+    }
+
+    private void UpdateSingleUpgradeUI(UpgradeUIPanel panel)
+    {
+        if (panel == null || panel.buyButton == null || panel.levelText == null || panel.costText == null) return;
+        PermanentUpgrade upgrade = ProgressionManager.Instance.GetUpgrade(panel.upgradeType);
+        if (upgrade == null) return;
+
+        panel.levelText.text = $"Liv. {upgrade.currentLevel}/{upgrade.maxLevel}";
+
+        if (upgrade.currentLevel >= upgrade.maxLevel)
+        {
+            panel.costText.text = "MAX";
+            panel.buyButton.interactable = false;
+        }
+        else
+        {
+            int cost = upgrade.GetNextLevelCost();
+            panel.costText.text = cost.ToString();
+            panel.buyButton.interactable = ProgressionManager.Instance.CanAfford(upgrade);
+        }
+    }
+    
+    private void UpdateSingleSpecialUpgradeUI(SpecialUpgradeUIPanel panel)
+    {
+        if (panel == null || panel.buyButton == null || panel.descriptionText == null || panel.costText == null) return;
+        SpecialUpgrade upgrade = ProgressionManager.Instance.availableSpecialUpgrades.Find(u => u.upgradeType == panel.upgradeType);
+        if (upgrade == null) return;
+
+        panel.descriptionText.text = upgrade.description;
+
+        if (upgrade.isUnlocked)
+        {
+            panel.buyButton.interactable = false;
+            panel.costText.gameObject.SetActive(false);
+            if (panel.unlockedIndicator != null) panel.unlockedIndicator.SetActive(true);
+        }
+        else
+        {
+            panel.buyButton.interactable = ProgressionManager.Instance.CanAfford(upgrade);
+            panel.costText.gameObject.SetActive(true);
+            panel.costText.text = upgrade.cost.ToString();
+            if (panel.unlockedIndicator != null) panel.unlockedIndicator.SetActive(false);
+        }
+    }
+    
     private void HighlightSelectedWeapon(string weaponName)
     {
         Color selectedColor = Color.green;

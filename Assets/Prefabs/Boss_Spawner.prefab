@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 5832485439000891826}
   - component: {fileID: 1419081386251119670}
   m_Layer: 9
-  m_Name: Enemy_Boss
+  m_Name: Boss_Spawner
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -531,14 +531,15 @@ MonoBehaviour:
   patrolArea:
     serializedVersion: 2
     x: -2.7
-    y: -1
-    width: 3
-    height: 3
+    y: 1
+    width: 6
+    height: 4
   waypointReachedThreshold: 0.1
   minionPrefabs:
   - {fileID: 7499889512634669778, guid: 3a462d3c8b7648043b5f06dbfc01a853, type: 3}
   - {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}
-  spawnInterval: 3
+  - {fileID: 2389486308191132201, guid: 0b255ee10f82e7143b40fc1a5f92d042, type: 3}
+  spawnInterval: 2
   spawnPoint: {fileID: 0}
 --- !u!1001 &8798447387992845544
 PrefabInstance:

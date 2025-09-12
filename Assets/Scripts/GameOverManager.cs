@@ -16,16 +16,20 @@ public class GameOverManager : MonoBehaviour
 
         if (ProgressionManager.Instance != null)
         {
-            if(PlayerStats.lastSessionCoins > 0)
+            // Aggiunge le monete normali al totale persistente
+            if (PlayerStats.lastSessionCoins > 0)
             {
                 ProgressionManager.Instance.AddCoins(PlayerStats.lastSessionCoins);
             }
-            if(PlayerStats.lastSessionSpecialCurrency > 0)
+
+            // Aggiunge le gemme al totale persistente
+            if (PlayerStats.lastSessionSpecialCurrency > 0)
             {
                 ProgressionManager.Instance.AddSpecialCurrency(PlayerStats.lastSessionSpecialCurrency);
             }
         }
 
+        // Resetta le valute della sessione per la prossima partita
         PlayerStats.lastSessionCoins = 0;
         PlayerStats.lastSessionSpecialCurrency = 0;
     }

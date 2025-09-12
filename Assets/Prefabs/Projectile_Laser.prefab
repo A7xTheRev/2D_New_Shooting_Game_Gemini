@@ -169,12 +169,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fa0c7e4601f1604b894c7032f797d34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectile
-  speed: 12
+  speed: 11
   baseDamage: 10
-  damageMultiplier: 0.8
+  damageMultiplier: 0.9
   areaDamageRadius: 0
   weaponType: Laser
-  impactVFXPrefab: {fileID: 5082451726553036154, guid: a4f046ce5f31e4d47b41c392bab5768d, type: 3}
+  impactVFXPrefab: {fileID: 8626114177089974247, guid: 6e4822e0bfb902f418dc395682af6571, type: 3}
   lifeTime: 3
   bounceFlashColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   flashDuration: 0.1
