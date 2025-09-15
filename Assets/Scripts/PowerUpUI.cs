@@ -11,7 +11,7 @@ public class PowerUpUI : MonoBehaviour
     public GameObject panel;
     public Transform buttonsContainer;
     public Button buttonPrefab;
-    public Button rerollButton; // Riferimento al nuovo pulsante
+    public Button rerollButton;
 
     private PlayerStats currentPlayer;
     private bool rerollUsedThisLevel;
@@ -23,58 +23,47 @@ public class PowerUpUI : MonoBehaviour
         else
             Destroy(gameObject);
         
-        panel.SetActive(false); // Assicurati che sia nascosto all'avvio
+        if(panel != null) panel.SetActive(false);
     }
 
     public void ShowPowerUpChoices(List<PowerUp> options, PlayerStats player)
     {
         if (options == null || options.Count == 0) return;
-
         currentPlayer = player;
         panel.SetActive(true);
         Time.timeScale = 0f;
 
-        // Gestione del pulsante Reroll
         if (rerollButton != null)
         {
-            bool canReroll = ProgressionManager.Instance.IsSpecialUpgradeUnlocked(SpecialUpgradeType.PowerUpReroll);
-            rerollButton.gameObject.SetActive(canReroll); // Mostra il pulsante solo se sbloccato
+            bool canReroll = ProgressionManager.Instance.IsSpecialUpgradeUnlocked(AbilityID.PowerUpReroll);
+            rerollButton.gameObject.SetActive(canReroll);
             if (canReroll)
             {
                 rerollUsedThisLevel = false;
-                rerollButton.interactable = true; // Riattiva il pulsante per il nuovo livello
+                rerollButton.interactable = true;
             }
         }
-        
         PopulateChoices(options);
     }
 
-    private void PopulateChoices(List<PowerUp> options)
+    private void PopulateChoices(List<PowerUp> options) 
     {
-        // Rimuove i vecchi pulsanti delle scelte
         foreach (Transform child in buttonsContainer)
             Destroy(child.gameObject);
 
-        // Crea un bottone per ogni opzione
         foreach (PowerUp pu in options)
         {
             Button b = Instantiate(buttonPrefab, buttonsContainer);
             b.GetComponentInChildren<TextMeshProUGUI>().text = pu.displayName;
-
             b.onClick.AddListener(() => ApplyPowerUp(pu));
         }
     }
-
-    public void OnRerollButtonPressed()
+    
+    public void OnRerollButtonPressed() 
     {
         if (rerollUsedThisLevel || currentPlayer == null) return;
-
         rerollUsedThisLevel = true;
-        rerollButton.interactable = false; // Puoi rilanciare solo una volta per livello
-
-        Debug.Log("Rilancio delle opzioni di power-up!");
-        
-        // Chiede 3 nuove opzioni e ripopola la UI
+        rerollButton.interactable = false;
         PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
         if (manager != null)
         {
@@ -82,13 +71,11 @@ public class PowerUpUI : MonoBehaviour
             PopulateChoices(newOptions);
         }
     }
-
-    private void ApplyPowerUp(PowerUp pu)
+    
+    private void ApplyPowerUp(PowerUp pu) 
     {
         if (currentPlayer == null) return;
-
         pu.Apply(currentPlayer);
-
         panel.SetActive(false);
         Time.timeScale = 1f;
     }

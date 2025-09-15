@@ -7,10 +7,12 @@ public class SaveData
 {
     public int coins;
     public int specialCurrency;
+    public AbilityID equippedAbilityID; // Modificato
     public List<PermanentUpgradeType> savedUpgradeTypes = new List<PermanentUpgradeType>();
     public List<int> savedUpgradeLevels = new List<int>();
-    public List<SpecialUpgradeType> unlockedSpecialUpgrades = new List<SpecialUpgradeType>();
+    public List<AbilityID> unlockedSpecialAbilities = new List<AbilityID>(); // Modificato
 }
+
 
 public static class SaveSystem
 {

@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 507396369857958269}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -1, w: 0}
-  m_LocalPosition: {x: 0, y: 0.1492, z: 0}
+  m_LocalPosition: {x: 0, y: 0.0759, z: 0}
   m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -118,8 +118,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 803280037
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 2145440094, guid: 8c1f41ea49e262e4785cd51c44db339f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -422,8 +422,12 @@ MonoBehaviour:
   currentHealth: 0
   moveSpeed: 0.4
   contactDamage: 15
+  projectileDamage: 10
+  fireRate: 3
   coinReward: 3
   xpReward: 25
+  specialCurrencyReward: 0
+  hasDeathAnimation: 0
 --- !u!114 &8328752534455338507
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -449,7 +453,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyShooter
   projectilePrefab: {fileID: 6705111437116058308, guid: 2161f725d633b5a4eb42a18adf4092a0, type: 3}
-  fireRate: 3
   firePoint: {fileID: 3220035544654282021}
 --- !u!1001 &6110364165940249284
 PrefabInstance:

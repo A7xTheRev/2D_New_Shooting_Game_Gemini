@@ -4,10 +4,17 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(PlayerStats))]
 public class PlayerController : MonoBehaviour
 {
+    [Header("Impostazioni Rallentatore")]
+    [Range(0.1f, 1f)]
+    public float slowMotionFactor = 0.2f;
+    public float slowMotionDelay = 1f;
+
     private PlayerStats stats;
     private Camera cam;
-    private Vector2 touchPosition;
     private ProjectilePool projectilePool;
+    private AbilityController abilityController;
+    
+    private float timeSinceLastTouch = 0f;
 
     [Header("Punto di sparo")]
     public Transform firePoint;
@@ -28,6 +35,7 @@ public class PlayerController : MonoBehaviour
     {
         stats = GetComponent<PlayerStats>();
         cam = Camera.main;
+        abilityController = GetComponent<AbilityController>();
         ApplyWeaponStats(MenuManager.GetSelectedWeapon());
     }
 
@@ -44,41 +52,89 @@ public class PlayerController : MonoBehaviour
 
     void OnDisable()
     {
-        MenuManager.OnWeaponChanged -= ApplyWeaponStats;
+        Time.timeScale = 1f;
     }
 
     void Update()
     {
-        HandleMovement();
+        HandleMovementAndAbility();
         HandleShooting();
     }
-
-    void HandleMovement()
+    
+    // --- METODO COMPLETAMENTE RISCRITTO ---
+    void HandleMovementAndAbility()
     {
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-            return;
-            
+        if (Time.timeScale == 0f) return;
+
+        bool isInputDown = false;
+
         #if UNITY_EDITOR
-        if (Input.GetMouseButton(0))
+        // --- GESTIONE INPUT SU PC ---
+        if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject())
         {
-            Vector2 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
-            transform.position = Vector2.Lerp(transform.position, mousePos, stats.moveSpeed * Time.deltaTime);
+            // MOVIMENTO: Se il mouse è premuto e non sulla UI
+            isInputDown = true;
+            Vector2 screenPoint = Input.mousePosition;
+            transform.position = Vector2.Lerp(transform.position, cam.ScreenToWorldPoint(screenPoint), stats.moveSpeed * Time.deltaTime);
+        }
+
+        if (Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject())
+        {
+            // ABILITÀ: Se il mouse viene RILASCIATO e non sulla UI
+            if (abilityController != null)
+            {
+                abilityController.ActivateAbility();
+            }
         }
         #else
+        // --- GESTIONE INPUT SU MOBILE ---
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
-            if (EventSystem.current.IsPointerOverGameObject(touch.fingerId))
-                return;
+            if (!EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+            {
+                // MOVIMENTO: Se c'è un tocco e non è sulla UI
+                if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
+                {
+                    isInputDown = true;
+                    Vector2 screenPoint = touch.position;
+                    transform.position = Vector2.Lerp(transform.position, cam.ScreenToWorldPoint(screenPoint), stats.moveSpeed * Time.deltaTime);
+                }
 
-            Vector2 touchPos = cam.ScreenToWorldPoint(touch.position);
-            transform.position = Vector2.Lerp(transform.position, touchPos, stats.moveSpeed * Time.deltaTime);
+                // ABILITÀ: Se il tocco viene RILASCIATO e non sulla UI
+                if (touch.phase == TouchPhase.Ended)
+                {
+                    if (abilityController != null)
+                    {
+                        abilityController.ActivateAbility();
+                    }
+                }
+            }
         }
         #endif
+
+        // --- GESTIONE SLOW-MOTION ---
+        if (isInputDown)
+        {
+            // Se c'è un input valido, il tempo è normale e il timer si resetta
+            timeSinceLastTouch = 0f;
+            Time.timeScale = 1f;
+        }
+        else
+        {
+            // Se non c'è input, parte il timer per lo slow-motion
+            timeSinceLastTouch += Time.unscaledDeltaTime;
+            if (timeSinceLastTouch >= slowMotionDelay)
+            {
+                Time.timeScale = slowMotionFactor;
+            }
+        }
     }
 
     void HandleShooting()
     {
+        if (Time.timeScale < 0.5f) return;
+        
         fireTimer -= Time.deltaTime;
         if (fireTimer <= 0f)
         {
@@ -90,7 +146,7 @@ public class PlayerController : MonoBehaviour
     void Shoot()
     {
         if (projectilePool == null || firePoint == null || string.IsNullOrEmpty(currentWeaponName)) return;
-
+        
         int count = stats.projectileCount;
         if (count == 1)
         {
@@ -112,14 +168,11 @@ public class PlayerController : MonoBehaviour
     {
         GameObject projGameObject = projectilePool.GetProjectileForWeapon(currentWeaponName);
         if (projGameObject == null) return;
-
+        
         projGameObject.transform.position = position;
         projGameObject.transform.rotation = firePoint.rotation;
-
-        // --- NUOVA RIGA PER LA DIMENSIONE ---
-        // Applica il moltiplicatore della dimensione al proiettile
         projGameObject.transform.localScale = Vector3.one * stats.projectileSizeMultiplier;
-
+        
         Projectile p = projGameObject.GetComponent<Projectile>();
         if (p != null)
         {
@@ -135,29 +188,20 @@ public class PlayerController : MonoBehaviour
     private void ApplyWeaponStats(string weapon)
     {
         currentWeaponName = weapon;
-        stats.damage = 10;
-        stats.attackSpeed = 1f;
-        currentWeaponDamageMultiplier = 1f;
-        currentWeaponSpeedMultiplier = 1f;
-        currentWeaponAreaDamage = 0f;
-
+        
         switch (weapon)
         {
             case "Laser":
-                stats.damage = 10;
-                stats.attackSpeed = 2f;
                 currentWeaponDamageMultiplier = 0.7f;
                 currentWeaponSpeedMultiplier = 1.5f;
+                currentWeaponAreaDamage = 0f;
                 break;
             case "Standard":
-                stats.damage = 10;
-                stats.attackSpeed = 1f;
                 currentWeaponDamageMultiplier = 1f;
                 currentWeaponSpeedMultiplier = 1f;
+                currentWeaponAreaDamage = 0f;
                 break;
             case "Missile":
-                stats.damage = 20;
-                stats.attackSpeed = 0.5f;
                 currentWeaponDamageMultiplier = 1f;
                 currentWeaponSpeedMultiplier = 0.8f;
                 currentWeaponAreaDamage = 1f;

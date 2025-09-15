@@ -88,8 +88,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 803280037
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 41295078, guid: f7f761ff58e2f4d40b0693688fe3ac47, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -572,6 +572,8 @@ MonoBehaviour:
   fireRate: 0
   coinReward: 1
   xpReward: 15
+  specialCurrencyReward: 0
+  hasDeathAnimation: 0
 --- !u!114 &8377032422531262536
 MonoBehaviour:
   m_ObjectHideFlags: 0

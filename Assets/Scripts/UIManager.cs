@@ -1,29 +1,35 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Collections; // Aggiunto per usare le Coroutine
+using System.Collections;
 
 public class UIManager : MonoBehaviour
 {
     [Header("UI Player")]
     public Slider playerHealthBar;
+    public Slider xpBar;
     public TextMeshProUGUI sessionCoinsText;
     public TextMeshProUGUI specialCurrencyText;
     public TextMeshProUGUI xpText;
     public TextMeshProUGUI stageText;
     public TextMeshProUGUI levelText;
     public GameObject secondChanceIcon;
-    public TextMeshProUGUI notificationText; // Riferimento al nuovo testo
+    public TextMeshProUGUI notificationText;
+    [Header("UI Abilità Speciale")]
+    public Slider abilitySlider;
+    public Image abilityIconImage;
 
     private PlayerStats player;
     private StageManager stageManager;
+    private AbilityController abilityController;
 
     void Start()
     {
         player = FindFirstObjectByType<PlayerStats>();
         stageManager = FindFirstObjectByType<StageManager>();
+        abilityController = FindFirstObjectByType<AbilityController>();
 
-        if (player != null)
+        if (player != null) 
         {
             player.OnLevelUp += UpdateLevelUI;
             player.OnXPChanged += UpdateXPUI;
@@ -40,13 +46,24 @@ public class UIManager : MonoBehaviour
 
         if (ProgressionManager.Instance != null && secondChanceIcon != null)
         {
-            UpdateSecondChanceUI(ProgressionManager.Instance.IsSpecialUpgradeUnlocked(SpecialUpgradeType.SecondChance));
+            UpdateSecondChanceUI(ProgressionManager.Instance.IsSpecialUpgradeUnlocked(AbilityID.SecondChance));
         }
-
-        // Assicurati che il testo di notifica sia nascosto all'avvio
-        if (notificationText != null)
+        
+        if (notificationText != null) { notificationText.gameObject.SetActive(false); }
+        
+        if (abilityController != null) 
         {
-            notificationText.gameObject.SetActive(false);
+            abilityController.OnChargeChanged += UpdateAbilityUI;
+            if (abilityController.equippedAbility == null)
+            {
+                if (abilitySlider != null) abilitySlider.gameObject.SetActive(false);
+                if (abilityIconImage != null) abilityIconImage.gameObject.SetActive(false);
+            }
+        }
+        else if (abilitySlider != null)
+        {
+             abilitySlider.gameObject.SetActive(false);
+             if (abilityIconImage != null) abilityIconImage.gameObject.SetActive(false);
         }
     }
 
@@ -56,7 +73,6 @@ public class UIManager : MonoBehaviour
             stageText.text = "STAGE: " + stageManager.stageNumber;
     }
 
-    // --- NUOVO METODO PUBBLICO PER LE NOTIFICHE ---
     public void ShowNotification(string message, float duration)
     {
         StartCoroutine(NotificationCoroutine(message, duration));
@@ -65,18 +81,12 @@ public class UIManager : MonoBehaviour
     private IEnumerator NotificationCoroutine(string message, float duration)
     {
         if (notificationText == null) yield break;
-
-        // Mostra il messaggio
         notificationText.text = message;
         notificationText.gameObject.SetActive(true);
-
-        // Attendi per la durata specificata
         yield return new WaitForSeconds(duration);
-
-        // Nascondi il messaggio
         notificationText.gameObject.SetActive(false);
     }
-
+    
     public void UpdateLevelUI(int newLevel)
     {
         if (levelText != null)
@@ -87,6 +97,13 @@ public class UIManager : MonoBehaviour
     {
         if (xpText != null)
             xpText.text = $"XP: {currentXP}/{xpToLevelUp}";
+        if (xpBar != null)
+        {
+            if (xpToLevelUp > 0)
+            {
+                xpBar.value = (float)currentXP / xpToLevelUp;
+            }
+        }
     }
 
     public void UpdateHealthUI(int currentHealth, int maxHealth)
@@ -112,6 +129,19 @@ public class UIManager : MonoBehaviour
         if (secondChanceIcon != null)
         {
             secondChanceIcon.SetActive(isAvailable);
+        }
+    }
+
+    public void UpdateAbilityUI(float currentCharge, float maxCharge, Sprite icon)
+    {
+        if (abilitySlider != null)
+        {
+            if (maxCharge > 0)
+                abilitySlider.value = currentCharge / maxCharge;
+        }
+        if (abilityIconImage != null)
+        {
+            abilityIconImage.sprite = icon;
         }
     }
 }

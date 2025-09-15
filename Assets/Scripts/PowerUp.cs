@@ -17,7 +17,8 @@ public enum PowerUpType
     IncreaseMoveSpeed,
     IncreaseCritChance,
     IncreaseProjectileSize,
-    IncreaseCoinDrop
+    IncreaseCoinDrop,
+    IncreaseAbilityPower
 }
 
 [System.Serializable]
@@ -29,7 +30,7 @@ public class PowerUp
     
     public void Apply(PlayerStats player)
     {
-        switch(type)
+        switch (type)
         {
             // --- VECCHI CASE ---
             case PowerUpType.IncreaseDamage:
@@ -50,7 +51,7 @@ public class PowerUp
             case PowerUpType.BounceWall:
                 player.bounceCountWall += Mathf.RoundToInt(value);
                 break;
-                
+
             // --- NUOVI CASE ---
             case PowerUpType.IncreaseMaxHealth:
                 int healthBonus = Mathf.RoundToInt(value);
@@ -74,6 +75,9 @@ public class PowerUp
             case PowerUpType.IncreaseCoinDrop:
                 // Aumenta il moltiplicatore delle monete (es. value=0.25 per +25%)
                 player.coinDropMultiplier += value;
+                break;
+            case PowerUpType.IncreaseAbilityPower:
+                player.abilityPower += Mathf.RoundToInt(value);
                 break;
         }
     }

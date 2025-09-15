@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee19540cbcd0ee24a9f8313909507b27, type: 3}
+  m_Name: EnergyShieldAbility
+  m_EditorClassIdentifier: Assembly-CSharp::SpecialAbility
+  abilityID: 2
+  behaviorType: 0
+  abilityName: ENERGY SHIELD
+  description: 'Evade any damage and become invisible.
+
+    Scales with ability power.
+
+    Duration:
+    3 seconds'
+  icon: {fileID: 0}
+  isDefaultAbility: 1
+  cost: 0
+  chargeType: 0
+  maxCharge: 100
+  chargePerSecond: 3
+  chargePerKill: 0
+  chargePerDamage: 0
+  abilityPrefab: {fileID: 0}
+  duration: 2.5
+  damageMultiplier: 0
+  durationBonusPerPower: 0.04

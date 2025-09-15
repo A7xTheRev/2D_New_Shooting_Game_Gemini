@@ -6,7 +6,8 @@ public enum PermanentUpgradeType
     Health,
     Damage,
     AttackSpeed,
-    MoveSpeed
+    MoveSpeed,
+    AbilityPower
 }
 
 [System.Serializable]

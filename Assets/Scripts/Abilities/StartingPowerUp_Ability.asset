@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee19540cbcd0ee24a9f8313909507b27, type: 3}
+  m_Name: StartingPowerUp_Ability
+  m_EditorClassIdentifier: Assembly-CSharp::SpecialAbility
+  abilityID: 4
+  behaviorType: 1
+  abilityName: STARTING POWERUP
+  description: Inizia ogni partita con un potenziamento casuale di livello 1.
+  icon: {fileID: 0}
+  isDefaultAbility: 0
+  cost: 10
+  chargeType: 0
+  maxCharge: 100
+  chargePerSecond: 0
+  chargePerKill: 0
+  chargePerDamage: 0
+  abilityPrefab: {fileID: 0}
+  duration: 0
+  damageMultiplier: 0
+  durationBonusPerPower: 0
