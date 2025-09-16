@@ -112,6 +112,9 @@ public class PlayerStats : MonoBehaviour
     public void TakeDamage(int amount) 
     {
         if (isInvulnerable) return;
+        
+        AudioManager.Instance.PlaySound(AudioManager.Instance.playerHitSound);
+        
         currentHealth -= amount;
         if (currentHealth < 0) currentHealth = 0;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
@@ -185,6 +188,10 @@ public class PlayerStats : MonoBehaviour
     {
         level++;
         xpToLevelUp = Mathf.RoundToInt(xpToLevelUp * 1.2f);
+        Debug.Log("Player salito a livello: " + level);
+        
+        AudioManager.Instance.PlaySound(AudioManager.Instance.levelUpSound);
+
         StartCoroutine(ShowLevelUpPanelSequence());
     }
     

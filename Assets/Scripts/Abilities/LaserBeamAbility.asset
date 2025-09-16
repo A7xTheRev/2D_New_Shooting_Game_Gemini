@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: LaserBeamAbility
   m_EditorClassIdentifier: Assembly-CSharp::SpecialAbility
   abilityID: 1
+  behaviorType: 0
   abilityName: LASER BEAM
   description: 'Fire a laser beam dealing damage to all enemies in front of the ship.
 

@@ -18,7 +18,7 @@ public class EnemyStats : MonoBehaviour
 
     [Header("Animazione")]
     [Tooltip("Spunta questa casella se questo nemico ha un'animazione di morte configurata nell'Animator")]
-    public bool hasDeathAnimation = true;
+    public bool hasDeathAnimation = false;
 
     public event Action<int, int> OnHealthChanged;
     
@@ -39,9 +39,14 @@ public class EnemyStats : MonoBehaviour
     public void TakeDamage(int amount)
     {
         if (isDying) return;
+
+        AudioManager.Instance.PlaySound(AudioManager.Instance.enemyHitSound);
+
         currentHealth -= amount;
         if (currentHealth < 0) currentHealth = 0;
+
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
+
         if (currentHealth <= 0)
         {
             Die();
@@ -52,6 +57,8 @@ public class EnemyStats : MonoBehaviour
     {
         if (isDying) return;
         isDying = true;
+
+        AudioManager.Instance.PlaySound(AudioManager.Instance.enemyDeathSound);
 
         PlayerStats player = FindFirstObjectByType<PlayerStats>();
         int finalCoinReward = coinReward;
@@ -65,9 +72,11 @@ public class EnemyStats : MonoBehaviour
                 abilityController.AddChargeFromKill();
             }
         }
+        
         GameManager.Instance?.EnemyDefeated(finalCoinReward, xpReward, specialCurrencyReward);
         
         GetComponent<Collider2D>().enabled = false;
+        if (GetComponent<Rigidbody2D>() != null) GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
         if (GetComponent<EnemyAI>() != null) GetComponent<EnemyAI>().enabled = false;
         if (GetComponent<EnemyShooter>() != null) GetComponent<EnemyShooter>().enabled = false;
         if (GetComponent<BossZigZagAI>() != null) GetComponent<BossZigZagAI>().enabled = false;
@@ -83,7 +92,7 @@ public class EnemyStats : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
+    
     public void OnDeathAnimationFinished()
     {
         Destroy(gameObject);

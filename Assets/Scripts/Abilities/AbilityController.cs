@@ -1,6 +1,6 @@
 using UnityEngine;
 using System;
-using UnityEngine.UI; // AGGIUNGI QUESTA RIGA
+using UnityEngine.UI;
 
 public class AbilityController : MonoBehaviour
 {
@@ -71,6 +71,8 @@ public class AbilityController : MonoBehaviour
     {
         if (equippedAbility == null || currentCharge < equippedAbility.maxCharge) { return; }
 
+        AudioManager.Instance.PlaySound(AudioManager.Instance.abilityActivateSound);
+        
         currentCharge = 0;
         OnChargeChanged?.Invoke(currentCharge, equippedAbility.maxCharge, equippedAbility.icon);
         

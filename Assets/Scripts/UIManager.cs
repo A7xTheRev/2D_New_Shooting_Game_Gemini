@@ -15,9 +15,13 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI levelText;
     public GameObject secondChanceIcon;
     public TextMeshProUGUI notificationText;
+
     [Header("UI Abilità Speciale")]
     public Slider abilitySlider;
     public Image abilityIconImage;
+
+    [Header("Pannelli")]
+    public GameObject optionsPanel; // NUOVO RIFERIMENTO
 
     private PlayerStats player;
     private StageManager stageManager;
@@ -29,7 +33,7 @@ public class UIManager : MonoBehaviour
         stageManager = FindFirstObjectByType<StageManager>();
         abilityController = FindFirstObjectByType<AbilityController>();
 
-        if (player != null) 
+        if (player != null)
         {
             player.OnLevelUp += UpdateLevelUI;
             player.OnXPChanged += UpdateXPUI;
@@ -48,10 +52,13 @@ public class UIManager : MonoBehaviour
         {
             UpdateSecondChanceUI(ProgressionManager.Instance.IsSpecialUpgradeUnlocked(AbilityID.SecondChance));
         }
+
+        if (notificationText != null)
+        {
+            notificationText.gameObject.SetActive(false);
+        }
         
-        if (notificationText != null) { notificationText.gameObject.SetActive(false); }
-        
-        if (abilityController != null) 
+        if (abilityController != null)
         {
             abilityController.OnChargeChanged += UpdateAbilityUI;
             if (abilityController.equippedAbility == null)
@@ -71,6 +78,18 @@ public class UIManager : MonoBehaviour
     {
         if (stageManager != null && stageText != null)
             stageText.text = "STAGE: " + stageManager.stageNumber;
+    }
+
+    // --- NUOVO METODO PER LA PAUSA ---
+    public void OpenOptionsMenu()
+    {
+        if (optionsPanel != null)
+        {
+            // Mette in pausa il gioco
+            Time.timeScale = 0f;
+            // Mostra il pannello delle opzioni
+            optionsPanel.SetActive(true);
+        }
     }
 
     public void ShowNotification(string message, float duration)

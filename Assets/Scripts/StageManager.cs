@@ -29,6 +29,7 @@ public class StageManager : MonoBehaviour
     public float spawnDelayMax = 1f;
     
     private bool isSpawningWave = false;
+    private bool isBossWave = false; // NUOVO: per sapere se siamo in una boss fight
 
     void Start()
     {
@@ -48,6 +49,12 @@ public class StageManager : MonoBehaviour
         // CORRETTO QUI: FindGameObjectsWithTag (con la 's') restituisce una lista che possiamo contare.
         if (!isSpawningWave && GameObject.FindGameObjectsWithTag("Enemy").Length == 0)
         {
+            // Se la boss wave è appena finita, torna alla musica normale
+            if (isBossWave)
+            {
+                isBossWave = false;
+                AudioManager.Instance.PlayMusic(AudioManager.Instance.gameplayMusic);
+            }
             NextStage();
         }
     }
@@ -113,6 +120,9 @@ public class StageManager : MonoBehaviour
 
     private IEnumerator SpawnBossCoroutine()
     {
+        isBossWave = true; // Segna che è iniziata una boss wave
+        AudioManager.Instance.PlayMusic(AudioManager.Instance.bossMusic); // CAMBIA LA MUSICA!
+
         Debug.Log($"WAVE {stageNumber}: ARRIVA UN BOSS!");
         yield return new WaitForSeconds(2.5f);
         GameObject randomBossPrefab = bossPrefabs[Random.Range(0, bossPrefabs.Count)];

@@ -4,25 +4,34 @@ using TMPro;
 
 public class GameOverManager : MonoBehaviour
 {
-    [Header("UI")]
+    [Header("UI Riferimenti")]
     public TextMeshProUGUI coinsEarnedText;
+    public TextMeshProUGUI gemsEarnedText; // NUOVO RIFERIMENTO
 
     void Start()
     {
+        // Mostra le monete guadagnate nella sessione
         if (coinsEarnedText != null)
         {
-            coinsEarnedText.text = "Coins obtained: " + PlayerStats.lastSessionCoins;
+            coinsEarnedText.text = "Monete Ottenute: " + PlayerStats.lastSessionCoins;
         }
 
+        // --- NUOVA LOGICA ---
+        // Mostra le gemme guadagnate nella sessione
+        if (gemsEarnedText != null)
+        {
+            gemsEarnedText.text = "Gemme Ottenute: " + PlayerStats.lastSessionSpecialCurrency;
+        }
+        // --- FINE NUOVA LOGICA ---
+
+
+        // Somma le valute al totale persistente
         if (ProgressionManager.Instance != null)
         {
-            // Aggiunge le monete normali al totale persistente
             if (PlayerStats.lastSessionCoins > 0)
             {
                 ProgressionManager.Instance.AddCoins(PlayerStats.lastSessionCoins);
             }
-
-            // Aggiunge le gemme al totale persistente
             if (PlayerStats.lastSessionSpecialCurrency > 0)
             {
                 ProgressionManager.Instance.AddSpecialCurrency(PlayerStats.lastSessionSpecialCurrency);

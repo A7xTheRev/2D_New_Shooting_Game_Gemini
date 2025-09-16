@@ -28,9 +28,6 @@ public class MenuManager : MonoBehaviour
     public Button hangarPrevButton;
     public Button hangarNextButton;
 
-    [Header("FPS Settings")]
-    public TMP_Dropdown fpsDropdown;
-
     [Header("Pannelli Potenziamenti Normali")]
     public List<UpgradeUIPanel> normalUpgradePanels = new List<UpgradeUIPanel>();
 
@@ -81,26 +78,26 @@ public class MenuManager : MonoBehaviour
         ShowMainPanel();
         string savedWeapon = PlayerPrefs.GetString("SelectedWeapon", selectedWeapon);
         HighlightSelectedWeapon(savedWeapon);
-        SetupFPSDropdown();
+        // La gestione FPS è stata rimossa, ora è gestita da FPSSelector
         UpdateAllUI();
     }
 
-    void OnEnable()
-    {
-        if (ProgressionManager.Instance != null) { ProgressionManager.OnValuesChanged += UpdateAllUI; }
-        SetupAbilitySelection();
-        UpdateAllUI();
+    void OnEnable() 
+    { 
+        if (ProgressionManager.Instance != null) { ProgressionManager.OnValuesChanged += UpdateAllUI; } 
+        SetupAbilitySelection(); 
+        UpdateAllUI(); 
     }
 
-    void OnDisable()
-    {
-        if (ProgressionManager.Instance != null) { ProgressionManager.OnValuesChanged -= UpdateAllUI; }
+    void OnDisable() 
+    { 
+        if (ProgressionManager.Instance != null) { ProgressionManager.OnValuesChanged -= UpdateAllUI; } 
     }
     
     public void ShowMainPanel() { mainPanel.SetActive(true); storePanel.SetActive(false); hangarPanel.SetActive(false); }
     public void ShowStorePanel() { mainPanel.SetActive(false); storePanel.SetActive(true); hangarPanel.SetActive(false); }
     public void ShowHangarPanel() { mainPanel.SetActive(false); storePanel.SetActive(false); hangarPanel.SetActive(true); }
-
+    
     public void OnBuyUpgradeButtonPressed(PermanentUpgradeType type) { ProgressionManager.Instance.BuyUpgrade(type); }
     public void OnBuySpecialUpgradeButtonPressed(AbilityID id) { ProgressionManager.Instance.BuySpecialUpgrade(id); }
     public void OnResetButtonPressed() { if (ProgressionManager.Instance != null) { ProgressionManager.Instance.ResetProgress(); } }
@@ -118,6 +115,7 @@ public class MenuManager : MonoBehaviour
     
     public void CycleAbility(int direction)
     {
+        if (unlockedAbilities == null || unlockedAbilities.Count <= 1) return;
         currentAbilityIndex += direction;
         currentAbilityIndex = Mathf.Clamp(currentAbilityIndex, 0, unlockedAbilities.Count - 1);
         UpdateHangarAbilityUI();
@@ -180,18 +178,14 @@ public class MenuManager : MonoBehaviour
     private void SetupAbilitySelection()
     {
         if (ProgressionManager.Instance == null) return;
-
         unlockedAbilities = new List<SpecialAbility>();
         foreach (var ability in ProgressionManager.Instance.allSpecialAbilities)
         {
-            // --- LOGICA MODIFICATA ---
-            // Aggiungi alla lista solo se l'abilità è sbloccata E se è di tipo "Active"
-            if (ProgressionManager.Instance.IsSpecialUpgradeUnlocked(ability.abilityID) && ability.behaviorType == AbilityBehaviorType.Active)
+            if (ProgressionManager.Instance.IsSpecialUpgradeUnlocked(ability.abilityID))
             {
                 unlockedAbilities.Add(ability);
             }
         }
-
         SpecialAbility equipped = ProgressionManager.Instance.GetEquippedAbility();
         if (equipped != null)
         {
@@ -227,53 +221,8 @@ public class MenuManager : MonoBehaviour
         if (missileButton != null) missileButton.image.color = (weaponName == "Missile") ? selectedColor : normalColor;
     }
     
-    public static string GetSelectedWeapon() { return PlayerPrefs.GetString("SelectedWeapon", selectedWeapon); }
-    
-    private void SetupFPSDropdown()
-    {
-        if (fpsDropdown == null) return;
-        fpsDropdown.ClearOptions();
-        fpsDropdown.AddOptions(new List<string> { "Unlimited", "60 FPS", "90 FPS", "120 FPS" });
-        int savedFPS = PlayerPrefs.GetInt("TargetFPS", -1);
-        int index = FPSValueToIndex(savedFPS);
-        fpsDropdown.value = index;
-        fpsDropdown.onValueChanged.AddListener(OnFPSChanged);
-        ApplyFPS(savedFPS);
-    }
-
-    private void OnFPSChanged(int index)
-    {
-        int fps = IndexToFPSValue(index);
-        PlayerPrefs.SetInt("TargetFPS", fps);
-        PlayerPrefs.Save();
-        ApplyFPS(fps);
-    }
-
-    private void ApplyFPS(int fps)
-    {
-        QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = fps;
-    }
-
-    private int FPSValueToIndex(int fps)
-    {
-        switch (fps)
-        {
-            case 60: return 1;
-            case 90: return 2;
-            case 120: return 3;
-            default: return 0;
-        }
-    }
-
-    private int IndexToFPSValue(int index)
-    {
-        switch (index)
-        {
-            case 1: return 60;
-            case 2: return 90;
-            case 3: return 120;
-            default: return -1;
-        }
+    public static string GetSelectedWeapon() 
+    { 
+        return PlayerPrefs.GetString("SelectedWeapon", selectedWeapon); 
     }
 }

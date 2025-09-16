@@ -1,32 +1,52 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
+    private static GameManager _instance;
+    private static bool isQuitting = false; // "Semaforo" per la chiusura
 
-    public enum FPSLimit
+    public static GameManager Instance
     {
-        Unlimited = -1,
-        FPS_60 = 60,
-        FPS_90 = 90,
-        FPS_120 = 120
+        get
+        {
+            if (isQuitting)
+            {
+                Debug.LogWarning("GameManager Instance richiesto durante la chiusura, restituisco null.");
+                return null;
+            }
+
+            if (_instance == null)
+            {
+                _instance = FindFirstObjectByType<GameManager>();
+                if (_instance == null)
+                {
+                    GameObject singletonObject = new GameObject("GameManager (Auto-Generated)");
+                    _instance = singletonObject.AddComponent<GameManager>();
+                }
+            }
+            return _instance;
+        }
     }
 
-    [Header("Impostazioni FPS")]
-    public FPSLimit targetFPS = FPSLimit.FPS_60;
-
-    void Awake()
+    void OnApplicationQuit()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            QualitySettings.vSyncCount = 0;
-            Application.targetFrameRate = (int)targetFPS;
-        }
-        else Destroy(gameObject);
+        isQuitting = true;
     }
     
+    void Awake()
+    {
+        if (_instance == null)
+        {
+            _instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (_instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
+
     public void EnemyDefeated(int coins, int xp, int specialCurrency)
     {
         PlayerStats player = FindFirstObjectByType<PlayerStats>();

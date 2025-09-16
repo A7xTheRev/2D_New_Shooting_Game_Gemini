@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic; // Necessario se useremo un pool per gli effetti
 
 public class Projectile : MonoBehaviour
 {
@@ -11,12 +10,11 @@ public class Projectile : MonoBehaviour
     public float areaDamageRadius = 0f;
     public string weaponType;
 
-    // --- NUOVA VARIABILE ---
     [Header("Effetto Impatto")]
-    public GameObject impactVFXPrefab; // Prefab dell'effetto visivo da istanziare all'impatto
+    public GameObject impactVFXPrefab;
 
     [Header("Gestione Vita")]
-    public float lifeTime = 3f;
+    public float lifeTime = 5f;
 
     [Header("Rimbalzo")]
     public Color bounceFlashColor = Color.yellow;
@@ -30,7 +28,8 @@ public class Projectile : MonoBehaviour
     private Color originalColor;
     private PlayerStats owner;
     private Camera cam;
-    private float camLeft, camRight, camTop, camBottom;
+    private float camLeftEdge, camRightEdge, camTopEdge, camBottomEdge;
+    private float spriteWidth, spriteHeight;
 
     void Awake()
     {
@@ -40,8 +39,14 @@ public class Projectile : MonoBehaviour
             originalColor = spriteRenderer.color;
 
         cam = Camera.main;
-        UpdateCameraBounds();
         baseSpeed = speed;
+
+        // Calcola le dimensioni dello sprite per un rimbalzo più preciso
+        if (GetComponent<SpriteRenderer>() != null)
+        {
+            spriteWidth = GetComponent<SpriteRenderer>().bounds.size.x / 2;
+            spriteHeight = GetComponent<SpriteRenderer>().bounds.size.y / 2;
+        }
     }
 
     void OnEnable()
@@ -50,32 +55,42 @@ public class Projectile : MonoBehaviour
         bouncesDoneWall = 0;
         if (spriteRenderer != null)
             spriteRenderer.color = originalColor;
-
         if (rb != null) rb.linearVelocity = Vector2.zero;
-        
         speed = baseSpeed;
+        
+        UpdateCameraBounds();
+
         CancelInvoke(nameof(Deactivate));
         Invoke(nameof(Deactivate), lifeTime);
     }
 
+    void FixedUpdate()
+    {
+        // La fisica va gestita in FixedUpdate
+        HandleWallBounce();
+    }
+
     void OnTriggerEnter2D(Collider2D other)
     {
-        EnemyStats enemy = other.GetComponent<EnemyStats>();
+        if (other.CompareTag("DeathZone"))
+        {
+            Deactivate();
+            return;
+        }
+
+        EnemyStats enemy = other.GetComponentInParent<EnemyStats>();
         if (enemy != null)
         {
             int finalDamage = GetFinalDamage();
             enemy.TakeDamage(finalDamage);
-
-            // --- NUOVA LOGICA: Attiva l'effetto visivo qui ---
             SpawnImpactVFX(transform.position);
-            // --- FINE NUOVA LOGICA ---
 
             if (areaDamageRadius > 0f)
             {
                 Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, areaDamageRadius);
                 foreach (var hit in hits)
                 {
-                    EnemyStats e = hit.GetComponent<EnemyStats>();
+                    EnemyStats e = hit.GetComponentInParent<EnemyStats>();
                     if (e != null && e != enemy)
                         e.TakeDamage(finalDamage);
                 }
@@ -86,82 +101,69 @@ public class Projectile : MonoBehaviour
                 bouncesDoneEnemy++;
                 Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, 5f);
                 bool bounced = false;
-
                 foreach (var hit in enemies)
                 {
-                    EnemyStats e = hit.GetComponent<EnemyStats>();
+                    EnemyStats e = hit.GetComponentInParent<EnemyStats>();
                     if (e != null && e != enemy)
                     {
                         Vector2 dir = (e.transform.position - transform.position).normalized;
-
                         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f;
                         transform.rotation = Quaternion.Euler(0, 0, angle);
-                        
                         Launch(dir);
                         bounced = true;
-
-                        if (spriteRenderer != null)
-                            StartCoroutine(BounceFlash());
-
+                        if (spriteRenderer != null) StartCoroutine(BounceFlash());
                         break;
                     }
                 }
-
                 if (!bounced) Deactivate();
             }
             else Deactivate();
         }
     }
 
-    void LateUpdate()
+    private void HandleWallBounce()
     {
-        if (owner == null || owner.bounceCountWall <= 0) return;
+        // Funziona solo se il potenziamento è attivo (owner.bounceCountWall > 0)
+        if (owner == null || owner.bounceCountWall <= 0 || bouncesDoneWall >= owner.bounceCountWall) return;
 
         Vector2 pos = transform.position;
         Vector2 vel = rb.linearVelocity;
         bool bounced = false;
 
-        if (pos.x <= camLeft) { vel.x = Mathf.Abs(vel.x); bounced = true; }
-        else if (pos.x >= camRight) { vel.x = -Mathf.Abs(vel.x); bounced = true; }
-
-        if (pos.y <= camBottom) { vel.y = Mathf.Abs(vel.y); bounced = true; }
-        else if (pos.y >= camTop) { vel.y = -Mathf.Abs(vel.y); bounced = true; }
+        // Controlla solo i bordi laterali
+        if ((pos.x - spriteWidth < camLeftEdge && vel.x < 0) || (pos.x + spriteWidth > camRightEdge && vel.x > 0))
+        {
+            vel.x *= -1; // Inverte solo la velocità orizzontale
+            bounced = true;
+        }
+        
+        // Le righe per il controllo di top e bottom sono state rimosse
 
         if (bounced)
         {
             bouncesDoneWall++;
             rb.linearVelocity = vel;
-            if (spriteRenderer != null)
-                StartCoroutine(BounceFlash());
-            if (bouncesDoneWall > owner.bounceCountWall)
-                Deactivate();
+            if (spriteRenderer != null) StartCoroutine(BounceFlash());
+            // Non usiamo più Deactivate qui perché il timer di vita gestirà la distruzione
         }
     }
     
-    public void SetOwner(PlayerStats player)
-    {
-        owner = player;
-    }
+    public void SetOwner(PlayerStats player) { owner = player; }
 
     public void Launch(Vector2 direction)
     {
         rb.linearVelocity = direction.normalized * speed;
     }
-
+    // (Tutti gli altri metodi come Deactivate, GetFinalDamage, etc. rimangono qui)
+    
     private int GetFinalDamage()
     {
-        if (owner == null) return Mathf.RoundToInt(baseDamage * damageMultiplier);
-
+        if (owner == null) return baseDamage;
         int finalDamage = Mathf.RoundToInt(owner.damage * damageMultiplier);
-
-        // --- NUOVA LOGICA PER IL CRITICO ---
-        // Controlla se il colpo è critico
-        if (Random.value < owner.critChance) // Random.value è un numero casuale tra 0.0 e 1.0
+        if (Random.value < owner.critChance)
         {
-            Debug.Log("COLPO CRITICO!");
             finalDamage = Mathf.RoundToInt(finalDamage * owner.critDamageMultiplier);
         }
-
         return finalDamage;
     }
 
@@ -174,17 +176,13 @@ public class Projectile : MonoBehaviour
         }
         else
         {
-            if (gameObject.activeInHierarchy)
+            if(gameObject.activeInHierarchy)
             {
                 gameObject.SetActive(false);
             }
-            else
-            {
-                Destroy(gameObject);
-            }
         }
     }
-
+    
     private IEnumerator BounceFlash()
     {
         spriteRenderer.color = bounceFlashColor;
@@ -192,19 +190,14 @@ public class Projectile : MonoBehaviour
         spriteRenderer.color = originalColor;
     }
 
-    // --- NUOVO METODO: Per attivare l'effetto visivo ---
     void SpawnImpactVFX(Vector3 position)
     {
         if (impactVFXPrefab != null)
         {
-            // Per ora, lo istanziamo direttamente.
-            // In futuro, per ottimizzare, potremmo usare un Object Pool per gli effetti VFX.
             GameObject vfx = Instantiate(impactVFXPrefab, position, Quaternion.identity);
-            vfx.SetActive(true); // Assicurati che sia attivo
-            // Lo script VFX_LifeCycle sul prefab si occuperà di disattivarlo.
+            vfx.SetActive(true);
         }
     }
-    // --- FINE NUOVO METODO ---
 
     void OnDrawGizmosSelected()
     {
@@ -215,14 +208,12 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    void UpdateCameraBounds()
+    private void UpdateCameraBounds()
     {
         if (cam == null) return;
-        Vector3 bottomLeft = cam.ViewportToWorldPoint(new Vector3(0, 0, cam.nearClipPlane));
-        Vector3 topRight = cam.ViewportToWorldPoint(new Vector3(1, 1, cam.nearClipPlane));
-        camLeft = bottomLeft.x;
-        camBottom = bottomLeft.y;
-        camRight = topRight.x;
-        camTop = topRight.y;
+        camLeftEdge = cam.ViewportToWorldPoint(new Vector3(0, 0, 0)).x;
+        camRightEdge = cam.ViewportToWorldPoint(new Vector3(1, 0, 0)).x;
+        camBottomEdge = cam.ViewportToWorldPoint(new Vector3(0, 0, 0)).y;
+        camTopEdge = cam.ViewportToWorldPoint(new Vector3(0, 1, 0)).y;
     }
 }

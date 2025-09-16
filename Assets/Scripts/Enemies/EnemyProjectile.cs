@@ -3,10 +3,9 @@ using UnityEngine;
 public class EnemyProjectile : MonoBehaviour
 {
     public float speed = 7f;
-    public int damage = 10; // Questo ora è solo un valore di "fallback"
+    public int damage = 10;
     public float lifeTime = 5f;
 
-    // NUOVO METODO PUBBLICO
     public void SetDamage(int newDamage)
     {
         damage = newDamage;
@@ -29,6 +28,13 @@ public class EnemyProjectile : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        // Controlla se ha colpito una zona di morte
+        if (other.CompareTag("DeathZone"))
+        {
+            Deactivate();
+            return;
+        }
+
         if (other.CompareTag("Player"))
         {
             PlayerStats playerStats = other.GetComponentInParent<PlayerStats>();

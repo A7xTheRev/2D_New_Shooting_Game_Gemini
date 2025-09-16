@@ -36,8 +36,8 @@ Transform:
   m_GameObject: {fileID: 1147663369917697346}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
-  m_LocalPosition: {x: 0, y: -1.264, z: 0}
-  m_LocalScale: {x: 6, y: 6, z: 6}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 4, y: 4, z: 4}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8158626606585171187}
@@ -421,76 +421,76 @@ CompositeCollider2D:
   m_ColliderPaths:
   - m_Collider: {fileID: 84809871748211848}
     m_ColliderPaths:
-    - - X: 2943201
-        Y: 12296660
-      - X: -3010237
-        Y: 12296660
-      - X: -3010238
-        Y: 4261698
-      - X: 2943200
-        Y: 4261697
+    - - X: 1962134
+        Y: 8197773
+      - X: -2006824
+        Y: 8197773
+      - X: -2006825
+        Y: 2841132
+      - X: 1962133
+        Y: 2841131
   - m_Collider: {fileID: 6348533969650168631}
     m_ColliderPaths:
-    - - X: 8306232
-        Y: -1580186
-      - X: -8306232
-        Y: -1580185
-      - X: -8306233
-        Y: -8676613
-      - X: 8306232
-        Y: -8676614
+    - - X: 5537488
+        Y: -1053457
+      - X: -5537488
+        Y: -1053456
+      - X: -5537489
+        Y: -5784408
+      - X: 5537488
+        Y: -5784409
   - m_Collider: {fileID: 164562255951207258}
     m_ColliderPaths:
-    - - X: 10384407
-        Y: 6799547
-      - X: -10250332
-        Y: 6799549
-      - X: -10250332
-        Y: -2777280
-      - X: 10384407
-        Y: -2777281
+    - - X: 6922938
+        Y: 4533031
+      - X: -6833554
+        Y: 4533033
+      - X: -6833554
+        Y: -1851520
+      - X: 6922937
+        Y: -1851521
   - m_Collider: {fileID: 8452756099861105526}
     m_ColliderPaths:
-    - - X: -5972842
-        Y: 11089976
-      - X: -12529620
-        Y: 11089977
-      - X: -12529621
-        Y: 3725398
-      - X: -5972842
-        Y: 3725397
+    - - X: -3981894
+        Y: 7393318
+      - X: -8353080
+        Y: 7393318
+      - X: -8353080
+        Y: 2483598
+      - X: -3981895
+        Y: 2483598
   - m_Collider: {fileID: 2742956548088073633}
     m_ColliderPaths:
-    - - X: 12462584
-        Y: 10888863
-      - X: 6039880
-        Y: 10888864
-      - X: 6039879
-        Y: 3859472
-      - X: 12462583
-        Y: 3859472
+    - - X: 8308388
+        Y: 7259242
+      - X: 4026586
+        Y: 7259242
+      - X: 4026586
+        Y: 2572982
+      - X: 8308388
+        Y: 2572981
   m_CompositePaths:
     m_Paths:
-    - - {x: 0.8305939, y: -0.8676614}
-      - {x: 0.8306526, y: -0.2777281}
-      - {x: 1.0384407, y: -0.2776988}
-      - {x: 1.0384701, y: 0.3859472}
-      - {x: 1.2462583, y: 0.3859765}
-      - {x: 1.2462292, y: 1.0888863}
-      - {x: 0.603988, y: 1.088857}
-      - {x: 0.6039585, y: 0.6799547}
-      - {x: 0.29432002, y: 0.6799842}
-      - {x: 0.2942908, y: 1.229666}
-      - {x: -0.3010237, y: 1.2296367}
-      - {x: -0.3010532, y: 0.6799548}
-      - {x: -0.5972842, y: 0.67998433}
-      - {x: -0.5973135, y: 1.1089976}
-      - {x: -1.252962, y: 1.1089684}
-      - {x: -1.2529328, y: 0.37253982}
-      - {x: -1.0250332, y: 0.3725104}
-      - {x: -1.0250039, y: -0.277728}
-      - {x: -0.8306232, y: -0.2777574}
-      - {x: -0.830594, y: -0.8676613}
+    - - {x: 0.5537195, y: -0.5784409}
+      - {x: 0.55377823, y: -0.1851521}
+      - {x: 0.6922937, y: -0.1851228}
+      - {x: 0.6923232, y: 0.2572981}
+      - {x: 0.8308388, y: 0.2573274}
+      - {x: 0.83080953, y: 0.7259242}
+      - {x: 0.4026586, y: 0.7258949}
+      - {x: 0.4026292, y: 0.4533031}
+      - {x: 0.1962133, y: 0.4533326}
+      - {x: 0.1961841, y: 0.8197773}
+      - {x: -0.2006824, y: 0.819748}
+      - {x: -0.2007119, y: 0.45330322}
+      - {x: -0.3981895, y: 0.4533327}
+      - {x: -0.3982187, y: 0.7393318}
+      - {x: -0.835308, y: 0.7393025}
+      - {x: -0.8352787, y: 0.2483598}
+      - {x: -0.6833554, y: 0.2483304}
+      - {x: -0.6833261, y: -0.18515201}
+      - {x: -0.5537488, y: -0.18518141}
+      - {x: -0.5537196, y: -0.5784408}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
@@ -509,7 +509,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
   maxHealth: 600
   currentHealth: 0
-  moveSpeed: 0.2
+  moveSpeed: 2
   contactDamage: 25
   projectileDamage: 0
   fireRate: 0
@@ -529,13 +529,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c961376ea066a9499036443a1a0457c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossRandomPatrolAI
-  patrolArea:
-    serializedVersion: 2
-    x: -2.7
-    y: 1
-    width: 6
-    height: 4
   waypointReachedThreshold: 0.1
+  patrolAreaPadding: 1
   minionPrefabs:
   - {fileID: 7499889512634669778, guid: 3a462d3c8b7648043b5f06dbfc01a853, type: 3}
   - {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}
@@ -588,15 +583,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 802519125968134171, guid: 464427ba3de660243b72c2f4ff9b8fa8, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.013333334
+      value: 0.012
       objectReference: {fileID: 0}
     - target: {fileID: 802519125968134171, guid: 464427ba3de660243b72c2f4ff9b8fa8, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.013333334
+      value: 0.012
       objectReference: {fileID: 0}
     - target: {fileID: 802519125968134171, guid: 464427ba3de660243b72c2f4ff9b8fa8, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.013333334
+      value: 0.012
       objectReference: {fileID: 0}
     - target: {fileID: 802519125968134171, guid: 464427ba3de660243b72c2f4ff9b8fa8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -632,7 +627,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 802519125968134171, guid: 464427ba3de660243b72c2f4ff9b8fa8, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.268
+      value: -0.24
       objectReference: {fileID: 0}
     - target: {fileID: 802519125968134171, guid: 464427ba3de660243b72c2f4ff9b8fa8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

@@ -20,6 +20,7 @@ public class BossZigZagAI : MonoBehaviour
 
     private StageManager stageManager;
     private EnemyStats stats;
+    private float cleanupYThreshold;
 
     void Awake()
     {
@@ -28,7 +29,6 @@ public class BossZigZagAI : MonoBehaviour
 
     void Start()
     {
-        // MODIFICATO QUI
         stageManager = FindFirstObjectByType<StageManager>();
         directionTimer = directionChangeInterval;
         spawnTimer = spawnInterval;
@@ -38,10 +38,19 @@ public class BossZigZagAI : MonoBehaviour
         {
             spawnPoint = transform;
         }
+        
+        cleanupYThreshold = Camera.main.ViewportToWorldPoint(new Vector3(0, 0, 0)).y - 2f;
     }
 
     void Update()
     {
+        if (transform.position.y < cleanupYThreshold)
+        {
+            Debug.LogWarning("Un Boss è uscito dallo schermo ed è stato distrutto!");
+            Destroy(gameObject);
+            return;
+        }
+
         HandleMovement();
         HandleMinionSpawning();
     }
@@ -54,7 +63,7 @@ public class BossZigZagAI : MonoBehaviour
             horizontalDirection *= -1;
             directionTimer = directionChangeInterval;
         }
-
+        
         float currentVerticalSpeed = 0;
         if (!hasReachedPatrolZone)
         {
@@ -65,10 +74,10 @@ public class BossZigZagAI : MonoBehaviour
                 currentVerticalSpeed = 0;
             }
         }
-
+        
         float currentHorizontalSpeed = stats.moveSpeed;
         Vector2 moveDirection = new Vector2(currentHorizontalSpeed * horizontalDirection, currentVerticalSpeed);
-
+        
         transform.position += (Vector3)moveDirection * Time.deltaTime;
     }
 
@@ -94,11 +103,11 @@ public class BossZigZagAI : MonoBehaviour
 
         GameObject minionToSpawn = minionPrefabs[Random.Range(0, minionPrefabs.Count)];
         GameObject minionInstance = Instantiate(minionToSpawn, spawnPoint.position, spawnPoint.rotation);
-
+        
         EnemyStats minionStats = minionInstance.GetComponent<EnemyStats>();
         if (minionStats != null && stageManager != null)
         {
-            if (stageManager.stageNumber > 1)
+            if (stageManager.stageNumber > 1) 
             {
                 float multiplier = 1f + (stageManager.stageNumber - 1) * stageManager.growthRate;
                 minionStats.maxHealth = Mathf.RoundToInt(minionStats.maxHealth * multiplier);
@@ -106,7 +115,7 @@ public class BossZigZagAI : MonoBehaviour
             }
         }
     }
-    
+
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
@@ -116,10 +125,6 @@ public class BossZigZagAI : MonoBehaviour
             {
                 playerStats.TakeDamage(stats.contactDamage);
             }
-
-            // NOTA: Di solito non vuoi che un boss si autodistrugga al primo tocco.
-            // Se invece vuoi che anche il boss si distrugga, togli i // dalla riga qui sotto.
-            // Destroy(gameObject); 
         }
     }
 }

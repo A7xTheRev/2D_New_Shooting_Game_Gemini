@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Enemy
   - Projectile
+  - DeathZone
   layers:
   - Default
   - TransparentFX

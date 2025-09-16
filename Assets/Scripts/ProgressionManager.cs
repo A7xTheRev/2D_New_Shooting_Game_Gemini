@@ -5,17 +5,41 @@ using System.Linq;
 public class ProgressionManager : MonoBehaviour
 {
     private static ProgressionManager _instance;
-    public static ProgressionManager Instance { get { if (_instance == null) { _instance = FindFirstObjectByType<ProgressionManager>(); if (_instance == null) { GameObject go = new GameObject("ProgressionManager (Auto-Generated)"); _instance = go.AddComponent<ProgressionManager>(); } } return _instance; } }
+private static bool isQuitting = false; // "Semaforo" per la chiusura
 
-    [Header("Potenziamenti Normali")]
-    public List<PermanentUpgrade> availableUpgrades = new List<PermanentUpgrade>();
+    public static ProgressionManager Instance
+    {
+        get
+        {
+            if (isQuitting) // Se il gioco sta chiudendo, non creare una nuova istanza
+            {
+                Debug.LogWarning("ProgressionManager Instance richiesto durante la chiusura, restituisco null.");
+                return null;
+            }
 
-    [Header("Potenziamenti Speciali")]
-    public List<SpecialAbility> allSpecialAbilities = new List<SpecialAbility>();
+            if (_instance == null)
+            {
+                _instance = FindFirstObjectByType<ProgressionManager>();
+                if (_instance == null)
+                {
+                    GameObject singletonObject = new GameObject("ProgressionManager (Auto-Generated)");
+                    _instance = singletonObject.AddComponent<ProgressionManager>();
+                }
+            }
+            return _instance;
+        }
+    }
 
-    private int coins;
-    private int specialCurrency;
-    private AbilityID equippedAbilityID;
+    void OnApplicationQuit()
+    {
+        // Questo metodo viene chiamato da Unity prima che il gioco si chiuda
+        isQuitting = true;
+    }
+
+    // ... (Tutto il resto dello script rimane invariato) ...
+    [Header("Potenziamenti Normali")] public List<PermanentUpgrade> availableUpgrades = new List<PermanentUpgrade>();
+    [Header("Potenziamenti Speciali")] public List<SpecialAbility> allSpecialAbilities = new List<SpecialAbility>();
+    private int coins; private int specialCurrency; private AbilityID equippedAbilityID;
     private Dictionary<PermanentUpgradeType, int> upgradeLevels = new Dictionary<PermanentUpgradeType, int>();
     private HashSet<AbilityID> unlockedAbilitiesSet = new HashSet<AbilityID>();
 

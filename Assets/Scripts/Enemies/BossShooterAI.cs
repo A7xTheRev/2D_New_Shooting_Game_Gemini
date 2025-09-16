@@ -13,14 +13,14 @@ public class BossShooterAI : MonoBehaviour
     [Header("Impostazioni di Sparo")]
     public GameObject projectilePrefab;
     public Transform firePoint;
-    public int projectileCount = 3; // Quanti proiettili sparare in una singola raffica
-    public float projectileSpreadAngle = 15f; // L'angolo tra un proiettile e l'altro
+    public int projectileCount = 3;
+    public float projectileSpreadAngle = 15f;
 
     private Vector2 targetPosition;
     private float fireTimer;
     private Transform playerTransform;
     private EnemyStats stats;
-    private StageManager stageManager;
+    private float cleanupYThreshold;
 
     void Awake()
     {
@@ -29,8 +29,6 @@ public class BossShooterAI : MonoBehaviour
 
     void Start()
     {
-        stageManager = FindFirstObjectByType<StageManager>();
-        
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
@@ -41,14 +39,21 @@ public class BossShooterAI : MonoBehaviour
         {
             firePoint = transform;
         }
-
-        // Imposta i timer e la prima destinazione
+        
         fireTimer = stats.fireRate;
+        cleanupYThreshold = Camera.main.ViewportToWorldPoint(new Vector3(0, 0, 0)).y - 2f;
         SetNewRandomTarget();
     }
 
     void Update()
     {
+        if (transform.position.y < cleanupYThreshold)
+        {
+            Debug.LogWarning("Un Boss è uscito dallo schermo ed è stato distrutto!");
+            Destroy(gameObject);
+            return;
+        }
+
         HandleMovement();
         HandleShooting();
     }
@@ -99,7 +104,6 @@ public class BossShooterAI : MonoBehaviour
             EnemyProjectile projectileScript = projectileInstance.GetComponent<EnemyProjectile>();
             if (projectileScript != null)
             {
-                // Imposta il danno leggendolo da EnemyStats (che può essere stato potenziato da EliteStats)
                 projectileScript.SetDamage(stats.projectileDamage);
             }
         }
