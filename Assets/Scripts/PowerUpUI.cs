@@ -54,8 +54,9 @@ public class PowerUpUI : MonoBehaviour
         foreach (PowerUp pu in options)
         {
             Button b = Instantiate(buttonPrefab, buttonsContainer);
-            b.GetComponentInChildren<TextMeshProUGUI>().text = pu.displayName;
-            b.onClick.AddListener(() => ApplyPowerUp(pu));
+            // Mostra sia il nome che la descrizione
+            b.GetComponentInChildren<TextMeshProUGUI>().text = $"{pu.displayName}\n<size=18>{pu.description}</size>";
+            b.onClick.AddListener(() => OnPowerUpSelected(pu));
         }
     }
     
@@ -67,15 +68,21 @@ public class PowerUpUI : MonoBehaviour
         PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
         if (manager != null)
         {
-            List<PowerUp> newOptions = manager.GetRandomPowerUps(3);
+            // --- MODIFICA APPLICATA QUI ---
+            // Ora passiamo anche il 'currentPlayer' al metodo, come richiesto
+            List<PowerUp> newOptions = manager.GetRandomPowerUps(3, currentPlayer);
             PopulateChoices(newOptions);
         }
     }
     
-    private void ApplyPowerUp(PowerUp pu) 
+    private void OnPowerUpSelected(PowerUp pu) 
     {
         if (currentPlayer == null) return;
+
+        // Applica il potenziamento e registralo nella lista del giocatore
         pu.Apply(currentPlayer);
+        currentPlayer.acquiredPowerUps.Add(pu.type);
+
         panel.SetActive(false);
         Time.timeScale = 1f;
     }

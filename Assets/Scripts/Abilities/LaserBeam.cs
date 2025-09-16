@@ -5,7 +5,6 @@ public class LaserBeam : MonoBehaviour
     private int calculatedDamagePerSecond;
     private PlayerStats owner;
 
-    // MODIFICATO QUI: Ora accetta 2 argomenti
     public void Activate(PlayerStats player, int dps)
     {
         owner = player;
@@ -19,15 +18,20 @@ public class LaserBeam : MonoBehaviour
             EnemyStats enemy = other.GetComponent<EnemyStats>();
             if (enemy != null)
             {
-                // Usa il danno calcolato che gli è stato passato
                 float damage = calculatedDamagePerSecond * Time.deltaTime;
+
+                // --- MODIFICA APPLICATA QUI ---
+                bool isCrit = false; // Partiamo dal presupposto che non sia un critico
 
                 if (Random.value < owner.critChance)
                 {
+                    isCrit = true; // Se lo è, lo registriamo
                     damage *= owner.critDamageMultiplier;
                 }
                 
-                enemy.TakeDamage(Mathf.RoundToInt(damage));
+                // Ora chiamiamo il metodo TakeDamage con entrambi i parametri
+                enemy.TakeDamage(Mathf.RoundToInt(damage), isCrit);
+                // --- FINE MODIFICA ---
             }
         }
     }

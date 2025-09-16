@@ -9,9 +9,7 @@ public class Projectile : MonoBehaviour
     public float damageMultiplier = 1f;
     public float areaDamageRadius = 0f;
     public string weaponType;
-
-    [Header("Effetto Impatto")]
-    public GameObject impactVFXPrefab;
+    public string impactVFXTag;
 
     [Header("Gestione Vita")]
     public float lifeTime = 5f;
@@ -37,11 +35,8 @@ public class Projectile : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
             originalColor = spriteRenderer.color;
-
         cam = Camera.main;
         baseSpeed = speed;
-
-        // Calcola le dimensioni dello sprite per un rimbalzo più preciso
         if (GetComponent<SpriteRenderer>() != null)
         {
             spriteWidth = GetComponent<SpriteRenderer>().bounds.size.x / 2;
@@ -53,20 +48,16 @@ public class Projectile : MonoBehaviour
     {
         bouncesDoneEnemy = 0;
         bouncesDoneWall = 0;
-        if (spriteRenderer != null)
-            spriteRenderer.color = originalColor;
+        if (spriteRenderer != null) spriteRenderer.color = originalColor;
         if (rb != null) rb.linearVelocity = Vector2.zero;
         speed = baseSpeed;
-        
         UpdateCameraBounds();
-
         CancelInvoke(nameof(Deactivate));
         Invoke(nameof(Deactivate), lifeTime);
     }
 
     void FixedUpdate()
     {
-        // La fisica va gestita in FixedUpdate
         HandleWallBounce();
     }
 
@@ -81,9 +72,35 @@ public class Projectile : MonoBehaviour
         EnemyStats enemy = other.GetComponentInParent<EnemyStats>();
         if (enemy != null)
         {
-            int finalDamage = GetFinalDamage();
-            enemy.TakeDamage(finalDamage);
-            SpawnImpactVFX(transform.position);
+            // --- LOGICA DANNO MODIFICATA ---
+            bool isCrit = false;
+            int finalDamage = baseDamage;
+
+            if (owner != null)
+            {
+                // Calcola il danno base
+                finalDamage = Mathf.RoundToInt(owner.damage * damageMultiplier);
+
+                // Controlla se è un colpo critico
+                if (Random.value < owner.critChance)
+                {
+                    isCrit = true;
+                    finalDamage = Mathf.RoundToInt(finalDamage * owner.critDamageMultiplier);
+                }
+            }
+            
+            // Passa al nemico sia il danno che lo stato di critico
+            enemy.TakeDamage(finalDamage, isCrit);
+            // --- FINE MODIFICA ---
+
+            if (!string.IsNullOrEmpty(impactVFXTag))
+            {
+                GameObject vfx = VFXPool.Instance.GetVFX(impactVFXTag);
+            if (vfx != null)
+                {
+                vfx.transform.position = transform.position;
+                }
+            }
 
             if (areaDamageRadius > 0f)
             {
@@ -92,19 +109,32 @@ public class Projectile : MonoBehaviour
                 {
                     EnemyStats e = hit.GetComponentInParent<EnemyStats>();
                     if (e != null && e != enemy)
-                        e.TakeDamage(finalDamage);
+                        e.TakeDamage(finalDamage, isCrit); // Passa le info anche ai nemici vicini
                 }
             }
 
             if (owner != null && bouncesDoneEnemy < owner.bounceCountEnemy)
             {
                 bouncesDoneEnemy++;
+                BounceToNextEnemy(enemy.transform);
+            }
+            else
+            {
+                Deactivate();
+            }
+        }
+    }
+
+    private void BounceToNextEnemy(Transform currentEnemy)
+    {
                 Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, 5f);
                 bool bounced = false;
                 foreach (var hit in enemies)
                 {
+            if (hit.transform != currentEnemy) // Assicurati di non colpire di nuovo lo stesso nemico
+            {
                     EnemyStats e = hit.GetComponentInParent<EnemyStats>();
-                    if (e != null && e != enemy)
+                if (e != null)
                     {
                         Vector2 dir = (e.transform.position - transform.position).normalized;
                         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f;
@@ -115,36 +145,26 @@ public class Projectile : MonoBehaviour
                         break;
                     }
                 }
-                if (!bounced) Deactivate();
-            }
-            else Deactivate();
         }
+        if (!bounced) Deactivate();
     }
 
     private void HandleWallBounce()
     {
-        // Funziona solo se il potenziamento è attivo (owner.bounceCountWall > 0)
         if (owner == null || owner.bounceCountWall <= 0 || bouncesDoneWall >= owner.bounceCountWall) return;
-
         Vector2 pos = transform.position;
         Vector2 vel = rb.linearVelocity;
         bool bounced = false;
-
-        // Controlla solo i bordi laterali
         if ((pos.x - spriteWidth < camLeftEdge && vel.x < 0) || (pos.x + spriteWidth > camRightEdge && vel.x > 0))
         {
-            vel.x *= -1; // Inverte solo la velocità orizzontale
+            vel.x *= -1;
             bounced = true;
         }
-        
-        // Le righe per il controllo di top e bottom sono state rimosse
-
         if (bounced)
         {
             bouncesDoneWall++;
             rb.linearVelocity = vel;
             if (spriteRenderer != null) StartCoroutine(BounceFlash());
-            // Non usiamo più Deactivate qui perché il timer di vita gestirà la distruzione
         }
     }
     
@@ -154,19 +174,7 @@ public class Projectile : MonoBehaviour
     {
         rb.linearVelocity = direction.normalized * speed;
     }
-    // (Tutti gli altri metodi come Deactivate, GetFinalDamage, etc. rimangono qui)
     
-    private int GetFinalDamage()
-    {
-        if (owner == null) return baseDamage;
-        int finalDamage = Mathf.RoundToInt(owner.damage * damageMultiplier);
-        if (Random.value < owner.critChance)
-        {
-            finalDamage = Mathf.RoundToInt(finalDamage * owner.critDamageMultiplier);
-        }
-        return finalDamage;
-    }
-
     void Deactivate()
     {
         CancelInvoke(nameof(Deactivate));
@@ -176,7 +184,7 @@ public class Projectile : MonoBehaviour
         }
         else
         {
-            if(gameObject.activeInHierarchy)
+            if (gameObject.activeInHierarchy)
             {
                 gameObject.SetActive(false);
             }
@@ -188,15 +196,6 @@ public class Projectile : MonoBehaviour
         spriteRenderer.color = bounceFlashColor;
         yield return new WaitForSeconds(flashDuration);
         spriteRenderer.color = originalColor;
-    }
-
-    void SpawnImpactVFX(Vector3 position)
-    {
-        if (impactVFXPrefab != null)
-        {
-            GameObject vfx = Instantiate(impactVFXPrefab, position, Quaternion.identity);
-            vfx.SetActive(true);
-        }
     }
 
     void OnDrawGizmosSelected()

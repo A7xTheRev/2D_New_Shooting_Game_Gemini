@@ -1,5 +1,98 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &703283078693644202
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3614927176266793382}
+  m_Layer: 0
+  m_Name: MissileLauncher_R
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3614927176266793382
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 703283078693644202}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.77, y: -0.3, z: 0}
+  m_LocalScale: {x: 4, y: 4, z: 4}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4274850897920347203}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2039576035523359877
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3491098960018806181}
+  m_Layer: 0
+  m_Name: MissileLauncher_L2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3491098960018806181
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2039576035523359877}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1.45, y: -0.5, z: 0}
+  m_LocalScale: {x: 4, y: 4, z: 4}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4274850897920347203}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2550007648475901785
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8713377661088975486}
+  m_Layer: 0
+  m_Name: MissileLauncher_L
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8713377661088975486
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2550007648475901785}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.8, y: -0.3, z: 0}
+  m_LocalScale: {x: 4, y: 4, z: 4}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4274850897920347203}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5325657781964287179
 GameObject:
   m_ObjectHideFlags: 0
@@ -15,7 +108,6 @@ GameObject:
   - component: {fileID: 3617037423912849660}
   - component: {fileID: 627469416243968885}
   - component: {fileID: 3338396899420807692}
-  - component: {fileID: 8965141216307898244}
   - component: {fileID: 3924887619528305801}
   m_Layer: 8
   m_Name: Player2
@@ -38,11 +130,15 @@ RectTransform:
   m_Children:
   - {fileID: 6915023698052634583}
   - {fileID: 317189044439073894}
+  - {fileID: 8713377661088975486}
+  - {fileID: 3491098960018806181}
+  - {fileID: 3614927176266793382}
+  - {fileID: 5038480445088130834}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1, y: -3.62}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1973750652931730577
@@ -285,15 +381,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c59541404bff843428a370be267ce2b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  maxHealth: 100
-  currentHealth: 0
-  damage: 12
-  abilityPower: 15
-  attackSpeed: 1.2
-  moveSpeed: 5
-  currentXP: 0
-  xpToLevelUp: 75
-  level: 1
   xpMultiplier: 1
   projectileCount: 1
   bounceCountEnemy: 0
@@ -303,11 +390,27 @@ MonoBehaviour:
   critDamageMultiplier: 2
   projectileSizeMultiplier: 1
   coinDropMultiplier: 1
+  homingMissileLevel: 0
+  homingMissileCount: 1
+  homingMissileCooldownMultiplier: 1
+  acquiredPowerUps: 
+  maxHealth: 100
+  currentHealth: 0
+  damage: 12
+  abilityPower: 15
+  attackSpeed: 1.2
+  moveSpeed: 5
+  currentXP: 0
+  xpToLevelUp: 75
+  level: 1
+  levelUpPanelDelay: 0.5
   sessionCoins: 0
   sessionSpecialCurrency: 0
   invulnerabilityTime: 2
   startBlinkInterval: 0.2
   endBlinkInterval: 0.05
+  hitShakeDuration: 0.4
+  hitShakeMagnitude: 0.04
 --- !u!114 &3338396899420807692
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -320,27 +423,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75ea2f5286d56e0489a38e63c132f067, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  firePoint: {fileID: 6915023698052634583}
+  fireCooldown: 0.5
+  homingMissilePrefab: {fileID: 6492640980295851497, guid: 7a29d82ad4645614ab107729aaa4546b, type: 3}
+  missileLaunchPoints:
+  - {fileID: 8713377661088975486}
+  - {fileID: 3614927176266793382}
+  - {fileID: 3491098960018806181}
+  - {fileID: 5038480445088130834}
+  homingMissileBaseCooldown: 4
+  projectileAngleStep: 10
   slowMotionFactor: 0.3
   slowMotionDelay: 1
   slowMotionVignette: {fileID: 0}
-  firePoint: {fileID: 6915023698052634583}
-  fireCooldown: 0.5
-  projectileAngleStep: 10
   currentWeaponDamageMultiplier: 1
   currentWeaponSpeedMultiplier: 1
   currentWeaponAreaDamage: 0
---- !u!114 &8965141216307898244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5325657781964287179}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e09d0dcbc93c4c4d9ea19b942c355b3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerCollision
 --- !u!114 &3924887619528305801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -382,6 +480,37 @@ Transform:
   m_LocalPosition: {x: 0, y: -0.32, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 4274850897920347203}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7245055050464730894
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5038480445088130834}
+  m_Layer: 0
+  m_Name: MissileLauncher_R2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5038480445088130834
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7245055050464730894}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.41, y: -0.5, z: 0}
+  m_LocalScale: {x: 4, y: 4, z: 4}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4274850897920347203}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

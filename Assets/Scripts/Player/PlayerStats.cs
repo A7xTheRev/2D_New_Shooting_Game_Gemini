@@ -5,17 +5,7 @@ using System.Collections.Generic;
 
 public class PlayerStats : MonoBehaviour
 {
-    [Header("Statistiche base")]
-    public int maxHealth = 100;
-    public int currentHealth;
-    public int damage = 12;
-    public int abilityPower = 15;
-    public float attackSpeed = 1.2f;
-    public float moveSpeed = 5f;
-    [Header("Progressione in partita")]
-    public int currentXP = 0;
-    public int xpToLevelUp = 50;
-    public int level = 1;
+    // ... (variabili esistenti) ...
     [Header("PowerUp")]
     public float xpMultiplier = 1f;
     public int projectileCount = 1;
@@ -26,17 +16,51 @@ public class PlayerStats : MonoBehaviour
     public float critDamageMultiplier = 2f;
     public float projectileSizeMultiplier = 1f;
     public float coinDropMultiplier = 1f;
+
+    // --- SEZIONE MISSILI AMPLIATA ---
+    [Header("Statistiche Missili a Ricerca")]
+    public int homingMissileLevel = 0;
+    public int homingMissileCount = 1; // Ora partiamo da 1 se il potenziamento è attivo
+    public float homingMissileCooldownMultiplier = 1f; // 1f = 100% del tempo base
+    // --- FINE SEZIONE AMPLIATA ---
+
+    // ... (il resto dello script rimane invariato) ...
+    
+    // --- NUOVA LISTA PER TRACCIARE I POTENZIAMENTI OTTENUTI ---
+    [HideInInspector]
+    public List<PowerUpType> acquiredPowerUps = new List<PowerUpType>();
+    
+    // [Per completezza, ecco l'intero script aggiornato]
+    [Header("Statistiche base")]
+    public int maxHealth = 100;
+    public int currentHealth;
+    public int damage = 12;
+    public int abilityPower = 15;
+    public float attackSpeed = 1.2f;
+    public float moveSpeed = 5f;
+
+    [Header("Progressione in partita")]
+    public int currentXP = 0;
+    public int xpToLevelUp = 50;
+    public int level = 1;
+    public float levelUpPanelDelay = 0.5f;
+
     [Header("Coins")]
     public int sessionCoins = 0;
     public static int lastSessionCoins = 0;
+
     [Header("Valuta Speciale")]
     public int sessionSpecialCurrency = 0;
     public static int lastSessionSpecialCurrency = 0;
+
     [Header("Danno e invulnerabilità")]
     public float invulnerabilityTime = 1.5f;
-    [Header("Invulnerabilità Visiva")]
     public float startBlinkInterval = 0.2f; 
     public float endBlinkInterval = 0.05f;
+
+    [Header("Effetti Visivi")]
+    public float hitShakeDuration = 0.2f;
+    public float hitShakeMagnitude = 0.1f;
 
     public event Action<int, int> OnHealthChanged;
     public event Action<int, int> OnXPChanged;
@@ -58,9 +82,6 @@ public class PlayerStats : MonoBehaviour
         playerLayer = LayerMask.NameToLayer("Player");
         enemyLayer = LayerMask.NameToLayer("Enemy");
         enemyProjectilesLayer = LayerMask.NameToLayer("EnemyProjectile");
-        if (playerLayer == -1) Debug.LogError("Layer 'Player' non trovato!");
-        if (enemyLayer == -1) Debug.LogError("Layer 'Enemy' non trovato!");
-        if (enemyProjectilesLayer == -1) Debug.LogError("Layer 'EnemyProjectile' non trovato!");
     }
 
     void Start()
@@ -71,11 +92,12 @@ public class PlayerStats : MonoBehaviour
             PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
             if (manager != null)
             {
-                List<PowerUp> options = manager.GetRandomPowerUps(1);
+                List<PowerUp> options = manager.GetRandomPowerUps(3, this); // Passiamo 'this'
                 if (options.Count > 0)
                 {
                     PowerUp startingPowerUp = options[0];
                     startingPowerUp.Apply(this);
+                    acquiredPowerUps.Add(startingPowerUp.type); // Registra il potenziamento
                     UIManager uiManager = FindFirstObjectByType<UIManager>();
                     if (uiManager != null) { uiManager.ShowNotification($"Starting Power-Up:\n{startingPowerUp.displayName}", 4f); }
                 }
@@ -113,19 +135,15 @@ public class PlayerStats : MonoBehaviour
     {
         if (isInvulnerable) return;
         
+        CameraShake.Instance.StartShake(hitShakeDuration, hitShakeMagnitude);
+        
         AudioManager.Instance.PlaySound(AudioManager.Instance.playerHitSound);
         
         currentHealth -= amount;
         if (currentHealth < 0) currentHealth = 0;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
-        else
-        {
-            StartCoroutine(InvulnerabilityCoroutine());
-        }
+        if (currentHealth <= 0) Die();
+        else StartCoroutine(InvulnerabilityCoroutine());
     }
 
     public void Heal(int amount)
@@ -188,11 +206,20 @@ public class PlayerStats : MonoBehaviour
     {
         level++;
         xpToLevelUp = Mathf.RoundToInt(xpToLevelUp * 1.2f);
-        Debug.Log("Player salito a livello: " + level);
-        
         AudioManager.Instance.PlaySound(AudioManager.Instance.levelUpSound);
-
         StartCoroutine(ShowLevelUpPanelSequence());
+    }
+    
+    private IEnumerator ShowLevelUpPanelSequence()
+    {
+        yield return new WaitForSecondsRealtime(levelUpPanelDelay);
+        
+        PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
+        if (manager != null)
+        {
+            List<PowerUp> options = manager.GetRandomPowerUps(3, this); // Passiamo 'this'
+            PowerUpUI.Instance.ShowPowerUpChoices(options, this);
+        }
     }
     
     private System.Collections.IEnumerator InvulnerabilityCoroutine()
@@ -248,17 +275,6 @@ public class PlayerStats : MonoBehaviour
             {
                 spriteRenderer.color = originalColor;
             }
-        }
-    }
-
-    private IEnumerator ShowLevelUpPanelSequence()
-    {
-        yield return null; 
-        PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
-        if (manager != null)
-        {
-            List<PowerUp> options = manager.GetRandomPowerUps(3);
-            PowerUpUI.Instance.ShowPowerUpChoices(options, this);
         }
     }
 

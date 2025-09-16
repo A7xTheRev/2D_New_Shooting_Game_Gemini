@@ -6,7 +6,11 @@ public class EnemyShooter : MonoBehaviour
     [Header("Impostazioni di Sparo")]
     public GameObject projectilePrefab;
     public Transform firePoint;
-    // public float fireRate = 3f; // RIMOSSA DA QUI
+    
+    [Tooltip("Quanti proiettili sparare in una singola raffica.")]
+    public int projectileCount = 1;
+    [Tooltip("L'angolo di dispersione se si spara più di un proiettile (es. 15 gradi).")]
+    public float spreadAngle = 0f;
 
     private float fireTimer;
     private Transform playerTransform;
@@ -30,8 +34,12 @@ public class EnemyShooter : MonoBehaviour
             firePoint = transform;
         }
 
-        // Imposta il timer iniziale con il valore preso da EnemyStats
-        fireTimer = stats.fireRate;
+        // --- MODIFICA APPLICATA QUI ---
+        // Invece di aspettare l'intero cooldown, impostiamo il timer a un valore
+        // casuale tra 0.5 secondi e il cooldown massimo.
+        // In questo modo il primo colpo sarà molto più veloce e meno prevedibile.
+        fireTimer = Random.Range(0.5f, stats.fireRate);
+        // --- FINE MODIFICA ---
     }
 
     void Update()
@@ -42,7 +50,6 @@ public class EnemyShooter : MonoBehaviour
         if (fireTimer <= 0)
         {
             Shoot();
-            // Resetta il timer con il valore (potenzialmente modificato) da EnemyStats
             fireTimer = stats.fireRate;
         }
     }
@@ -51,10 +58,28 @@ public class EnemyShooter : MonoBehaviour
     {
         if (projectilePrefab == null) return;
 
-        Vector2 direction = (playerTransform.position - firePoint.position).normalized;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
-        Quaternion rotation = Quaternion.Euler(0, 0, angle);
+        Vector2 directionToPlayer = (playerTransform.position - firePoint.position).normalized;
+        float baseAngle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg - 90f;
 
+        if (projectileCount <= 1)
+        {
+            SpawnSingleProjectile(baseAngle);
+        }
+        else
+        {
+            float startAngle = baseAngle - (spreadAngle * (projectileCount - 1) / 2f);
+
+            for (int i = 0; i < projectileCount; i++)
+            {
+                float currentAngle = startAngle + i * spreadAngle;
+                SpawnSingleProjectile(currentAngle);
+            }
+        }
+    }
+
+    void SpawnSingleProjectile(float angle)
+    {
+        Quaternion rotation = Quaternion.Euler(0, 0, angle);
         GameObject projectileInstance = Instantiate(projectilePrefab, firePoint.position, rotation);
         
         EnemyProjectile projectileScript = projectileInstance.GetComponent<EnemyProjectile>();

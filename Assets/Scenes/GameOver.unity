@@ -266,7 +266,7 @@ GameObject:
   - component: {fileID: 140404741}
   - component: {fileID: 140404740}
   m_Layer: 0
-  m_Name: GameOver
+  m_Name: GameOverManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

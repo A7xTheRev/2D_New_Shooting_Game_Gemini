@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class GameManager : MonoBehaviour
 {
     private static GameManager _instance;
-    private static bool isQuitting = false; // "Semaforo" per la chiusura
+    private static bool isQuitting = false;
 
     public static GameManager Instance
     {

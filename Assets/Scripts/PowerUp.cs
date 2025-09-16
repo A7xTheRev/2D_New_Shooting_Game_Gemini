@@ -1,24 +1,30 @@
 using UnityEngine;
 
-// Enum = elenco di opzioni
 public enum PowerUpType
 {
-    // Vecchi
+
+    // Generici
     IncreaseDamage,
     IncreaseAttackSpeed,
     ExtraXP,
     ExtraProjectiles,
     BounceEnemy,
     BounceWall,
-
-    // Nuovi
     IncreaseMaxHealth,
     HealthRegen,
     IncreaseMoveSpeed,
     IncreaseCritChance,
     IncreaseProjectileSize,
     IncreaseCoinDrop,
-    IncreaseAbilityPower
+    IncreaseAbilityPower,
+    
+    // Armi Base
+    HomingMissile,
+
+    // Potenziamenti HomingMissile
+    HomingMissileBarrage, // Lancia +1 missile
+    HomingMissileFastReload // Riduce il cooldown
+
 }
 
 [System.Serializable]
@@ -26,13 +32,21 @@ public class PowerUp
 {
     public PowerUpType type;
     public string displayName;
+    [TextArea] public string description;
     public float value;
+    
+    public PowerUpType prerequisite = PowerUpType.IncreaseDamage;
+    public bool hasPrerequisite = false;
+    
+    // --- NUOVO CAMPO ---
+    [Tooltip("Se spuntato, questo potenziamento può essere ottenuto una sola volta per partita.")]
+    public bool isUnique = false;
+    // --- FINE NUOVO CAMPO ---
     
     public void Apply(PlayerStats player)
     {
         switch (type)
         {
-            // --- VECCHI CASE ---
             case PowerUpType.IncreaseDamage:
                 player.damage += Mathf.RoundToInt(value);
                 break;
@@ -51,12 +65,10 @@ public class PowerUp
             case PowerUpType.BounceWall:
                 player.bounceCountWall += Mathf.RoundToInt(value);
                 break;
-
-            // --- NUOVI CASE ---
             case PowerUpType.IncreaseMaxHealth:
                 int healthBonus = Mathf.RoundToInt(value);
                 player.maxHealth += healthBonus;
-                player.Heal(healthBonus); // Cura anche il giocatore
+                player.Heal(healthBonus);
                 break;
             case PowerUpType.HealthRegen:
                 player.healthRegenPerSecond += value;
@@ -65,19 +77,25 @@ public class PowerUp
                 player.moveSpeed += value;
                 break;
             case PowerUpType.IncreaseCritChance:
-                // Aumenta la probabilità di critico (es. value=0.1 per +10%)
                 player.critChance += value;
                 break;
             case PowerUpType.IncreaseProjectileSize:
-                // Aumenta il moltiplicatore della dimensione (es. value=0.2 per +20%)
                 player.projectileSizeMultiplier += value;
                 break;
             case PowerUpType.IncreaseCoinDrop:
-                // Aumenta il moltiplicatore delle monete (es. value=0.25 per +25%)
                 player.coinDropMultiplier += value;
                 break;
             case PowerUpType.IncreaseAbilityPower:
                 player.abilityPower += Mathf.RoundToInt(value);
+                break;
+            case PowerUpType.HomingMissile:
+                player.homingMissileLevel++;
+                break;
+            case PowerUpType.HomingMissileBarrage:
+                player.homingMissileCount++;
+                break;
+            case PowerUpType.HomingMissileFastReload:
+                player.homingMissileCooldownMultiplier *= value;
                 break;
         }
     }

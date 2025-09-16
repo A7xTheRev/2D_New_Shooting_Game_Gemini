@@ -13,10 +13,17 @@ public class EliteStats : MonoBehaviour
     public float coinMultiplier = 5f;
     public float xpMultiplier = 4f;
 
+    // --- NUOVA SEZIONE ---
+    [Header("Aspetto Visivo Elite")]
+    [Tooltip("Il colore che assumerà lo sprite di questo nemico Elite.")]
+    public Color eliteColorTint = Color.red;
+    // --- FINE NUOVA SEZIONE ---
+
     void Awake()
     {
         EnemyStats stats = GetComponent<EnemyStats>();
 
+        // Applica i moltiplicatori alle statistiche
         stats.maxHealth = Mathf.RoundToInt(stats.maxHealth * healthMultiplier);
         stats.contactDamage = Mathf.RoundToInt(stats.contactDamage * damageMultiplier);
         stats.projectileDamage = Mathf.RoundToInt(stats.projectileDamage * damageMultiplier);
@@ -27,10 +34,21 @@ public class EliteStats : MonoBehaviour
             stats.fireRate /= attackSpeedMultiplier;
         }
         
+        // Applica i moltiplicatori alle ricompense
         stats.coinReward = Mathf.RoundToInt(stats.coinReward * coinMultiplier);
         stats.xpReward = Mathf.RoundToInt(stats.xpReward * xpMultiplier);
         stats.specialCurrencyReward = Mathf.RoundToInt(stats.specialCurrencyReward * coinMultiplier);
 
+        // Aumenta la scala
         transform.localScale *= 1.3f;
+
+        // --- NUOVA LOGICA PER IL COLORE ---
+        // Cerca lo SpriteRenderer e applica la tinta di colore
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = eliteColorTint;
+        }
+        // --- FINE NUOVA LOGICA ---
     }
 }

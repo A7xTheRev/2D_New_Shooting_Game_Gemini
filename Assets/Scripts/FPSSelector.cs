@@ -6,7 +6,8 @@ using System;
 public class FPSSelector : MonoBehaviour
 {
     private TMP_Dropdown fpsDropdown;
-    public static event Action OnFPSSettingChanged;
+    
+    // Rimosso l'evento 'OnFPSSettingChanged', non è più necessario per questo sistema.
 
     void Awake()
     {
@@ -15,69 +16,73 @@ public class FPSSelector : MonoBehaviour
 
     void Start()
     {
+        // Pulisce e popola le opzioni del menu a tendina
         fpsDropdown.ClearOptions();
-        // MODIFICATO QUI: Rimossa l'opzione "Unlimited"
         fpsDropdown.AddOptions(new System.Collections.Generic.List<string> { "60 FPS", "90 FPS", "120 FPS" });
         
-        UpdateVisuals();
+        // Collega la funzione OnFPSChanged all'evento di cambio valore
         fpsDropdown.onValueChanged.AddListener(OnFPSChanged);
-    }
 
-    void OnEnable()
-    {
-        OnFPSSettingChanged += UpdateVisuals;
+        // Aggiorna la visuale per mostrare l'impostazione salvata
         UpdateVisuals();
     }
 
-    void OnDisable()
-    {
-        OnFPSSettingChanged -= UpdateVisuals;
-    }
+    // OnEnable/OnDisable sono stati rimossi perché non più necessari.
 
     private void OnFPSChanged(int index)
     {
+        // Converte l'indice del menu (0, 1, 2) in un valore di FPS (60, 90, 120)
         int fps = IndexToFPSValue(index);
+        
+        // Salva la nuova preferenza del giocatore
         PlayerPrefs.SetInt("TargetFPS", fps);
         PlayerPrefs.Save();
+        
+        // Applica immediatamente la nuova impostazione
         ApplyFPS(fps);
-        OnFPSSettingChanged?.Invoke();
     }
 
+    // Questo metodo aggiorna solo l'interfaccia grafica del menu a tendina
     private void UpdateVisuals()
     {
         if (fpsDropdown == null) return;
-        // MODIFICATO QUI: Il valore di default ora è 60
+        
+        // Legge il valore salvato (o 60 di default)
         int savedFPS = PlayerPrefs.GetInt("TargetFPS", 60);
+        
+        // Converte il valore FPS nell'indice corrispondente del menu
         int index = FPSValueToIndex(savedFPS);
+        
+        // Imposta il menu a tendina su quell'indice senza attivare l'evento OnFPSChanged
         fpsDropdown.SetValueWithoutNotify(index);
     }
 
+    // Questo metodo applica fisicamente il limite di FPS
     private void ApplyFPS(int fps)
     {
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = fps;
-        Debug.Log("Limite FPS impostato a: " + fps.ToString());
+        Debug.Log($"[FPSSelector] Limite FPS modificato a: {fps}");
     }
 
-    // MODIFICATO QUI: Logica degli indici aggiornata
+    // Funzioni di supporto per convertire indice <-> valore
     private int FPSValueToIndex(int fps)
     {
         switch (fps)
         {
             case 90: return 1;
             case 120: return 2;
-            default: return 0; // 60 FPS è ora l'indice 0
+            default: return 0; // 60 FPS è l'indice 0
         }
     }
 
-    // MODIFICATO QUI: Logica dei valori aggiornata
     private int IndexToFPSValue(int index)
     {
         switch (index)
         {
             case 1: return 90;
             case 2: return 120;
-            default: return 60; // 60 FPS è ora il valore di default
+            default: return 60; // 60 FPS è il valore di default
         }
     }
 }

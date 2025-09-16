@@ -59,9 +59,25 @@ public class MenuManager : MonoBehaviour
     private int currentAbilityIndex = 0;
     private List<SpecialAbility> unlockedAbilities;
 
+    // --- NUOVA VARIABILE PER IL FIX ---
+    private bool isQuitting = false;
+
+    // --- NUOVO METODO PER IL FIX ---
+    void OnApplicationQuit()
+    {
+        isQuitting = true;
+    }
+
+    void Awake()
+    {
+        int targetFPS = PlayerPrefs.GetInt("TargetFPS", 60);
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = targetFPS;
+        Debug.Log($"[MenuManager] Limite FPS impostato all'avvio: {targetFPS}");
+    }
+
     void Start()
     {
-        // Collega i pulsanti di acquisto dinamicamente per evitare errori
         foreach (var panel in normalUpgradePanels)
         {
             PermanentUpgradeType type = panel.upgradeType;
@@ -78,7 +94,6 @@ public class MenuManager : MonoBehaviour
         ShowMainPanel();
         string savedWeapon = PlayerPrefs.GetString("SelectedWeapon", selectedWeapon);
         HighlightSelectedWeapon(savedWeapon);
-        // La gestione FPS è stata rimossa, ora è gestita da FPSSelector
         UpdateAllUI();
     }
 
@@ -89,8 +104,12 @@ public class MenuManager : MonoBehaviour
         UpdateAllUI(); 
     }
 
+    // --- METODO OnDisable MODIFICATO ---
     void OnDisable() 
     { 
+        // Se il gioco sta chiudendo, non fare nulla per evitare l'errore
+        if (isQuitting) return;
+
         if (ProgressionManager.Instance != null) { ProgressionManager.OnValuesChanged -= UpdateAllUI; } 
     }
     

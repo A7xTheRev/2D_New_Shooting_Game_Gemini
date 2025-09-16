@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections;
 
 public class EnemyStats : MonoBehaviour
 {
@@ -16,36 +17,64 @@ public class EnemyStats : MonoBehaviour
     public int xpReward = 20;
     public int specialCurrencyReward = 0;
 
-    [Header("Animazione")]
-    [Tooltip("Spunta questa casella se questo nemico ha un'animazione di morte configurata nell'Animator")]
-    public bool hasDeathAnimation = false;
+    [Header("Effetto Visivo (Hit)")]
+    public Color flashColor = Color.white;
+    public float flashDuration = 0.1f;
+    
+    [Header("Effetto Visivo (Morte)")]
+    public string deathVFXTag = "EnemyExplosion";
+    public float deathShakeDuration = 0f;
+    public float deathShakeMagnitude = 0f;
 
     public event Action<int, int> OnHealthChanged;
     
     private Animator animator;
     private bool isDying = false;
+    private SpriteRenderer spriteRenderer;
+    private Color originalColor;
+    private Coroutine flashCoroutine;
 
     void Awake()
     {
         animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        // --- LOGICA DEL COLORE RIMOSSA DA QUI ---
     }
 
     void Start()
     {
+        // --- LOGICA DEL COLORE SPOSTATA QUI ---
+        // Ora salviamo il colore in Start(). Questo avviene DOPO che EliteStats
+        // ha già colorato il nemico di viola nel suo Awake().
+        if (spriteRenderer != null)
+        {
+            originalColor = spriteRenderer.color;
+        }
+        // --- FINE SPOSTAMENTO ---
+
         currentHealth = maxHealth;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
-    public void TakeDamage(int amount)
+    public void TakeDamage(int damageAmount, bool isCrit)
     {
         if (isDying) return;
 
+        ShowDamageNumber(damageAmount, isCrit);
+
         AudioManager.Instance.PlaySound(AudioManager.Instance.enemyHitSound);
-
-        currentHealth -= amount;
+        currentHealth -= damageAmount;
         if (currentHealth < 0) currentHealth = 0;
-
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
+
+        if (spriteRenderer != null)
+        {
+            if (flashCoroutine != null)
+            {
+                StopCoroutine(flashCoroutine);
+            }
+            flashCoroutine = StartCoroutine(FlashEffect());
+        }
 
         if (currentHealth <= 0)
         {
@@ -53,12 +82,55 @@ public class EnemyStats : MonoBehaviour
         }
     }
 
-    void Die()
+    private void ShowDamageNumber(int damageAmount, bool isCrit)
+    {
+        GameObject numberObject = VFXPool.Instance.GetVFX("DamageNumber");
+        if (numberObject != null)
+        {
+            Vector3 spawnPosition = transform.position + new Vector3(UnityEngine.Random.Range(-0.3f, 0.3f), 0.5f, 0);
+            spawnPosition.z = -1f; 
+            numberObject.transform.position = spawnPosition;
+            
+            DamageNumber dn = numberObject.GetComponent<DamageNumber>();
+            if (dn != null)
+            {
+                dn.Show(damageAmount, isCrit);
+            }
+        }
+    }
+    
+    private IEnumerator FlashEffect()
+    {
+        spriteRenderer.color = flashColor;
+        yield return new WaitForSeconds(flashDuration);
+        if (this != null)
+        {
+            spriteRenderer.color = originalColor; // Ora originalColor è viola!
+        }
+        flashCoroutine = null;
+    }
+
+    public void Die()
     {
         if (isDying) return;
         isDying = true;
 
-        AudioManager.Instance.PlaySound(AudioManager.Instance.enemyDeathSound);
+        if (deathShakeDuration > 0f && deathShakeMagnitude > 0f)
+        {
+            CameraShake.Instance.StartShake(deathShakeDuration, deathShakeMagnitude);
+        }
+
+        if (!string.IsNullOrEmpty(deathVFXTag))
+        {
+            GameObject vfx = VFXPool.Instance.GetVFX(deathVFXTag);
+            if (vfx != null)
+            {
+            vfx.transform.position = transform.position;
+            vfx.transform.localScale = transform.localScale;
+            }
+        }
+
+        AudioManager.Instance.PlaySound(AudioManager.Instance.enemyHitSound);
 
         PlayerStats player = FindFirstObjectByType<PlayerStats>();
         int finalCoinReward = coinReward;
@@ -75,26 +147,6 @@ public class EnemyStats : MonoBehaviour
         
         GameManager.Instance?.EnemyDefeated(finalCoinReward, xpReward, specialCurrencyReward);
         
-        GetComponent<Collider2D>().enabled = false;
-        if (GetComponent<Rigidbody2D>() != null) GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
-        if (GetComponent<EnemyAI>() != null) GetComponent<EnemyAI>().enabled = false;
-        if (GetComponent<EnemyShooter>() != null) GetComponent<EnemyShooter>().enabled = false;
-        if (GetComponent<BossZigZagAI>() != null) GetComponent<BossZigZagAI>().enabled = false;
-        if (GetComponent<BossRandomPatrolAI>() != null) GetComponent<BossRandomPatrolAI>().enabled = false;
-        if (GetComponent<BossShooterAI>() != null) GetComponent<BossShooterAI>().enabled = false;
-
-        if (animator != null && hasDeathAnimation)
-        {
-            animator.SetTrigger("Die");
-        }
-        else
-        {
             Destroy(gameObject);
-        }
-    }
-    
-    public void OnDeathAnimationFinished()
-    {
-        Destroy(gameObject);
     }
 }

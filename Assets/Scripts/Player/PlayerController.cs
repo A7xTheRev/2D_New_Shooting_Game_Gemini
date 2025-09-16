@@ -1,9 +1,24 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(PlayerStats))]
 public class PlayerController : MonoBehaviour
 {
+    [Header("Punto di sparo")]
+    public Transform firePoint;
+    public float fireCooldown = 0.5f;
+
+    [Header("Missili a Ricerca")]
+    public GameObject homingMissilePrefab;
+    public List<Transform> missileLaunchPoints;
+    public float homingMissileBaseCooldown = 4f;
+    private float homingMissileTimer;
+    private int missileLauncherIndex = 0;
+
+    [Header("Proiettili extra")]
+    public float projectileAngleStep = 15f;
+    
     [Header("Impostazioni Rallentatore")]
     [Range(0.1f, 1f)]
     public float slowMotionFactor = 0.2f;
@@ -18,20 +33,16 @@ public class PlayerController : MonoBehaviour
     private float timeSinceLastTouch = 0f;
     private Color vignetteColor;
 
-    [Header("Punto di sparo")]
-    public Transform firePoint;
-    public float fireCooldown = 0.5f;
-
-    [Header("Proiettili extra")]
-    public float projectileAngleStep = 15f;
-
-    [Header("Moltiplicatori Arma")]
+    [Header("Statistiche Arma Attiva")]
     public float currentWeaponDamageMultiplier = 1f;
     public float currentWeaponSpeedMultiplier = 1f;
     public float currentWeaponAreaDamage = 0f;
+    private string currentWeaponImpactTag; 
 
     private string currentWeaponName;
     private float fireTimer;
+    
+    private bool ignoreInputThisFrame = false;
 
     void Awake()
     {
@@ -46,15 +57,67 @@ public class PlayerController : MonoBehaviour
     {
         projectilePool = ProjectilePool.Instance;
         ApplyWeaponStats(MenuManager.GetSelectedWeapon());
+        homingMissileTimer = homingMissileBaseCooldown;
     }
 
-    void OnEnable() { MenuManager.OnWeaponChanged += ApplyWeaponStats; }
-    void OnDisable() { Time.timeScale = 1f; }
+    void OnEnable() 
+    { 
+        MenuManager.OnWeaponChanged += ApplyWeaponStats; 
+        Time.timeScale = 1f;
+    }
+    void OnDisable() 
+    { 
+        Time.timeScale = 1f; 
+        MenuManager.OnWeaponChanged -= ApplyWeaponStats; 
+    }
 
     void Update()
     {
+        if (Time.timeScale > 0f && ignoreInputThisFrame)
+        {
+            ignoreInputThisFrame = false;
+            return;
+        }
+        
+        if (Time.timeScale == 0f)
+        {
+            ignoreInputThisFrame = true;
+        }
+
         HandleMovementAndAbility();
         HandleShooting();
+        HandleHomingMissiles();
+    }
+    
+    // --- METODO COMPLETAMENTE CORRETTO ---
+    void HandleHomingMissiles()
+    {
+        if (stats.homingMissileLevel <= 0 || missileLaunchPoints == null || missileLaunchPoints.Count == 0) return;
+
+        homingMissileTimer -= Time.deltaTime;
+        if (homingMissileTimer <= 0f)
+        {
+            if (homingMissilePrefab != null)
+            {
+                for (int i = 0; i < stats.homingMissileCount; i++)
+                {
+                    Transform launchPoint = missileLaunchPoints[missileLauncherIndex];
+                    
+                    // --- MODIFICA APPLICATA QUI ---
+                    // Creiamo il missile e subito dopo gli passiamo il riferimento al giocatore
+                    GameObject missileObj = Instantiate(homingMissilePrefab, launchPoint.position, launchPoint.rotation);
+                    missileObj.GetComponent<HomingMissile>()?.SetOwner(stats);
+                    // --- FINE MODIFICA ---
+
+            missileLauncherIndex = (missileLauncherIndex + 1) % missileLaunchPoints.Count;
+                }
+            }
+            
+            // 2. CORREZIONE COOLDOWN: Ora usiamo il moltiplicatore corretto
+            // per calcolare il tempo di ricarica.
+            float currentCooldown = homingMissileBaseCooldown * stats.homingMissileCooldownMultiplier;
+            homingMissileTimer = currentCooldown;
+        }
     }
     
     void HandleMovementAndAbility()
@@ -100,8 +163,18 @@ public class PlayerController : MonoBehaviour
         projGameObject.transform.position = position;
         projGameObject.transform.rotation = firePoint.rotation;
         projGameObject.transform.localScale = Vector3.one * stats.projectileSizeMultiplier;
+        
         Projectile p = projGameObject.GetComponent<Projectile>();
-        if (p != null) { p.baseDamage = stats.damage; p.damageMultiplier = currentWeaponDamageMultiplier; p.speed *= currentWeaponSpeedMultiplier; p.areaDamageRadius = currentWeaponAreaDamage; p.SetOwner(stats); p.Launch(direction); }
+        if (p != null) 
+        { 
+            p.baseDamage = stats.damage; 
+            p.damageMultiplier = currentWeaponDamageMultiplier; 
+            p.speed *= currentWeaponSpeedMultiplier; 
+            p.areaDamageRadius = currentWeaponAreaDamage;
+            p.impactVFXTag = currentWeaponImpactTag; 
+            p.SetOwner(stats); 
+            p.Launch(direction); 
+        }
     }
 
     private void ApplyWeaponStats(string weapon)
@@ -109,9 +182,27 @@ public class PlayerController : MonoBehaviour
         currentWeaponName = weapon;
         switch (weapon)
         {
-            case "Laser": currentWeaponDamageMultiplier = 0.7f; currentWeaponSpeedMultiplier = 1.5f; currentWeaponAreaDamage = 0f; break;
-            case "Standard": currentWeaponDamageMultiplier = 1f; currentWeaponSpeedMultiplier = 1f; currentWeaponAreaDamage = 0f; break;
-            case "Missile": currentWeaponDamageMultiplier = 1f; currentWeaponSpeedMultiplier = 0.8f; currentWeaponAreaDamage = 1f; break;
+            case "Laser": 
+                currentWeaponDamageMultiplier = 0.7f; 
+                currentWeaponSpeedMultiplier = 1.5f; 
+                currentWeaponAreaDamage = 0f;
+                currentWeaponImpactTag = "LaserImpact";
+                break;
+
+            case "Missile": 
+                currentWeaponDamageMultiplier = 1f; 
+                currentWeaponSpeedMultiplier = 0.8f; 
+                currentWeaponAreaDamage = 1f; 
+                currentWeaponImpactTag = "MissileImpact";
+                break;
+
+            default:
+            case "Standard": 
+                currentWeaponDamageMultiplier = 1f; 
+                currentWeaponSpeedMultiplier = 1f; 
+                currentWeaponAreaDamage = 0f; 
+                currentWeaponImpactTag = "StandardImpact";
+                break;
         }
     }
 }

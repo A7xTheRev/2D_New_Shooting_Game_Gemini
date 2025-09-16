@@ -8044,6 +8044,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   bgmSource: {fileID: 973597989}
+  sfxPoolSize: 30
   bgmVolume: 0.2
   sfxVolume: 0.5
   mainMenuMusic: {fileID: 8300000, guid: 21fedcb63d88c8a4c83e14140d032993, type: 3}
@@ -10796,6 +10797,69 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1361694837}
   m_CullTransparentMesh: 1
+--- !u!1 &1372978380
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1372978382}
+  - component: {fileID: 1372978381}
+  m_Layer: 0
+  m_Name: VFXPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1372978381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372978380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aca5f0ad7c98ce148a3a80fd51e0d158, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VFXPool
+  pools:
+  - tag: EnemyExplosion
+    prefab: {fileID: 209792379897673468, guid: ca64cbfc9619a4f4cb71e803fc2f5eab, type: 3}
+    size: 15
+  - tag: StandardImpact
+    prefab: {fileID: 4478598479021713174, guid: 12bf7e4983e9a824b985727659133d7f, type: 3}
+    size: 50
+  - tag: MissileImpact
+    prefab: {fileID: 6985411185522032554, guid: 9658efce359d9a54d9445d1bf3b8b186, type: 3}
+    size: 50
+  - tag: LaserImpact
+    prefab: {fileID: 8626114177089974247, guid: 6e4822e0bfb902f418dc395682af6571, type: 3}
+    size: 50
+  - tag: DamageNumber
+    prefab: {fileID: 2483430327639227964, guid: 70f95aba363d25a49888f77016da30e3, type: 3}
+    size: 20
+  - tag: MissileExplosion
+    prefab: {fileID: 209792379897673468, guid: ca64cbfc9619a4f4cb71e803fc2f5eab, type: 3}
+    size: 10
+--- !u!4 &1372978382
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372978380}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.43718, y: 3.05019, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1401574979
 GameObject:
   m_ObjectHideFlags: 0
@@ -14961,3 +15025,4 @@ SceneRoots:
   - {fileID: 1401574981}
   - {fileID: 973597991}
   - {fileID: 273966911}
+  - {fileID: 1372978382}

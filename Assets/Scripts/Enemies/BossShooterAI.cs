@@ -4,11 +4,10 @@ using System.Collections.Generic;
 [RequireComponent(typeof(EnemyStats))]
 public class BossShooterAI : MonoBehaviour
 {
-    [Header("Area di Pattugliamento")]
-    public Rect patrolArea = new Rect(-7f, 1f, 14f, 3f);
-
     [Header("Impostazioni di Movimento")]
     public float waypointReachedThreshold = 0.1f;
+    [Tooltip("Un piccolo margine dai bordi dello schermo per evitare che il boss si 'incolli' ai lati.")]
+    public float patrolAreaPadding = 1f;
 
     [Header("Impostazioni di Sparo")]
     public GameObject projectilePrefab;
@@ -21,6 +20,9 @@ public class BossShooterAI : MonoBehaviour
     private Transform playerTransform;
     private EnemyStats stats;
     private float cleanupYThreshold;
+
+    // --- NUOVE VARIABILI PER L'AREA DINAMICA ---
+    private float minX, maxX, minY, maxY;
 
     void Awake()
     {
@@ -42,6 +44,19 @@ public class BossShooterAI : MonoBehaviour
         
         fireTimer = stats.fireRate;
         cleanupYThreshold = Camera.main.ViewportToWorldPoint(new Vector3(0, 0, 0)).y - 2f;
+        
+        // --- NUOVA LOGICA PER CALCOLARE L'AREA ---
+        Camera cam = Camera.main;
+        // Calcoliamo l'area di pattugliamento (metà superiore dello schermo)
+        Vector2 bottomLeft = cam.ViewportToWorldPoint(new Vector3(0, 0.5f, 0)); 
+        Vector2 topRight = cam.ViewportToWorldPoint(new Vector3(1, 1, 0));
+
+        minX = bottomLeft.x + patrolAreaPadding;
+        maxX = topRight.x - patrolAreaPadding;
+        minY = bottomLeft.y + patrolAreaPadding;
+        maxY = topRight.y - patrolAreaPadding;
+        // --- FINE NUOVA LOGICA ---
+
         SetNewRandomTarget();
     }
 
@@ -69,8 +84,9 @@ public class BossShooterAI : MonoBehaviour
 
     void SetNewRandomTarget()
     {
-        float randomX = Random.Range(patrolArea.x, patrolArea.x + patrolArea.width);
-        float randomY = Random.Range(patrolArea.y, patrolArea.y + patrolArea.height);
+        // Ora usa i nuovi limiti calcolati dinamicamente
+        float randomX = Random.Range(minX, maxX);
+        float randomY = Random.Range(minY, maxY);
         targetPosition = new Vector2(randomX, randomY);
     }
 

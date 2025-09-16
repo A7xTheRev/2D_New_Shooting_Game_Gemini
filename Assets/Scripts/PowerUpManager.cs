@@ -4,19 +4,53 @@ using System.Linq;
 
 public class PowerUpManager : MonoBehaviour
 {
-    public List<PowerUp> allPowerUps; // Lista di tutti i powerup disponibili
+    public List<PowerUp> allPowerUps; // Lista di tutti i powerup disponibili nel gioco
 
-    // Restituisce 'count' powerup casuali dal pool
-    public List<PowerUp> GetRandomPowerUps(int count)
+    // Metodo modificato per essere più intelligente
+    public List<PowerUp> GetRandomPowerUps(int count, PlayerStats player)
     {
-        if (allPowerUps == null || allPowerUps.Count == 0)
+        // 1. Crea una lista di potenziamenti "eleggibili"
+        List<PowerUp> eligiblePowerUps = new List<PowerUp>();
+
+        // 2. Controlla ogni potenziamento disponibile nel gioco
+        foreach (PowerUp powerUp in allPowerUps)
         {
-            Debug.LogWarning("AllPowerUps è vuota!");
-            return new List<PowerUp>();
+            bool isEligible = true;
+
+            // --- Logica dei Prerequisiti ---
+            // Se il potenziamento ha un prerequisito...
+            if (powerUp.hasPrerequisite)
+            {
+                // ...controlla se il giocatore ha ottenuto quel prerequisito.
+                // Se non ce l'ha, il potenziamento non è eleggibile.
+                if (!player.acquiredPowerUps.Contains(powerUp.prerequisite))
+                {
+                    isEligible = false;
+                }
+            }
+
+            // --- Logica dei Potenziamenti Unici ---
+            // Se il potenziamento è unico (può essere preso una sola volta)...
+            if (powerUp.isUnique)
+            {
+                // ...controlla se il giocatore lo ha già.
+                // Se lo ha già, non è più eleggibile.
+                if (player.acquiredPowerUps.Contains(powerUp.type))
+                {
+                    isEligible = false;
+                }
+            }
+
+            // 3. Se il potenziamento ha superato tutti i controlli, aggiungilo alla lista
+            if (isEligible)
+            {
+                eligiblePowerUps.Add(powerUp);
+            }
         }
 
+        // 4. Ora, estrai a caso dalla lista degli eleggibili
         List<PowerUp> options = new List<PowerUp>();
-        List<PowerUp> tempList = new List<PowerUp>(allPowerUps);
+        List<PowerUp> tempList = new List<PowerUp>(eligiblePowerUps);
 
         for (int i = 0; i < count && tempList.Count > 0; i++)
         {
@@ -24,9 +58,6 @@ public class PowerUpManager : MonoBehaviour
             options.Add(tempList[index]);
             tempList.RemoveAt(index);
         }
-
-        // Debug: stampo le scelte
-        Debug.Log("PowerUp scelti: " + string.Join(", ", options.Select(p => p.displayName)));
 
         return options;
     }
