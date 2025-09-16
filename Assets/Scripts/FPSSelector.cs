@@ -16,7 +16,9 @@ public class FPSSelector : MonoBehaviour
     void Start()
     {
         fpsDropdown.ClearOptions();
-        fpsDropdown.AddOptions(new System.Collections.Generic.List<string> { "Unlimited", "60 FPS", "90 FPS", "120 FPS" });
+        // MODIFICATO QUI: Rimossa l'opzione "Unlimited"
+        fpsDropdown.AddOptions(new System.Collections.Generic.List<string> { "60 FPS", "90 FPS", "120 FPS" });
+        
         UpdateVisuals();
         fpsDropdown.onValueChanged.AddListener(OnFPSChanged);
     }
@@ -24,7 +26,7 @@ public class FPSSelector : MonoBehaviour
     void OnEnable()
     {
         OnFPSSettingChanged += UpdateVisuals;
-        UpdateVisuals(); // Aggiorna subito quando il pannello diventa visibile
+        UpdateVisuals();
     }
 
     void OnDisable()
@@ -44,7 +46,8 @@ public class FPSSelector : MonoBehaviour
     private void UpdateVisuals()
     {
         if (fpsDropdown == null) return;
-        int savedFPS = PlayerPrefs.GetInt("TargetFPS", -1);
+        // MODIFICATO QUI: Il valore di default ora è 60
+        int savedFPS = PlayerPrefs.GetInt("TargetFPS", 60);
         int index = FPSValueToIndex(savedFPS);
         fpsDropdown.SetValueWithoutNotify(index);
     }
@@ -53,28 +56,28 @@ public class FPSSelector : MonoBehaviour
     {
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = fps;
-        Debug.Log("Limite FPS impostato a: " + (fps == -1 ? "Unlimited" : fps.ToString()));
+        Debug.Log("Limite FPS impostato a: " + fps.ToString());
     }
 
+    // MODIFICATO QUI: Logica degli indici aggiornata
     private int FPSValueToIndex(int fps)
     {
         switch (fps)
         {
-            case 60: return 1;
-            case 90: return 2;
-            case 120: return 3;
-            default: return 0;
+            case 90: return 1;
+            case 120: return 2;
+            default: return 0; // 60 FPS è ora l'indice 0
         }
     }
 
+    // MODIFICATO QUI: Logica dei valori aggiornata
     private int IndexToFPSValue(int index)
     {
         switch (index)
         {
-            case 1: return 60;
-            case 2: return 90;
-            case 3: return 120;
-            default: return -1;
+            case 1: return 90;
+            case 2: return 120;
+            default: return 60; // 60 FPS è ora il valore di default
         }
     }
 }
