@@ -29,7 +29,7 @@ MonoBehaviour:
   chargePerSecond: 0
   chargePerKill: 5
   chargePerDamage: 0
-  abilityPrefab: {fileID: 5258565881300883852, guid: bdaf19d62edfd794381194838653b727, type: 3}
+  abilityPrefab: {fileID: 5258565881300883852, guid: 3b59fd6dcc5d7bd4bb840161330a53b6, type: 3}
   duration: 3
   damageMultiplier: 4
   durationBonusPerPower: 0
