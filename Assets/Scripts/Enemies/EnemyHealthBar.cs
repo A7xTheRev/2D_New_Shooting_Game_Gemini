@@ -16,10 +16,7 @@ public class EnemyHealthBar : MonoBehaviour
 
         if (enemyStats != null)
         {
-            // Aggancio evento
             enemyStats.OnHealthChanged += UpdateHealthUI;
-
-            // Aggiorna subito la barra con i valori iniziali
             UpdateHealthUI(enemyStats.currentHealth, enemyStats.maxHealth);
         }
     }
@@ -36,6 +33,11 @@ public class EnemyHealthBar : MonoBehaviour
             healthFill.fillAmount = (float)current / max;
 
         if (hpText != null)
-            hpText.text = $"{current}/{max}";
+        {
+            // --- MODIFICA APPLICATA QUI ---
+            // Ora mostriamo solo i punti vita correnti
+            hpText.text = current.ToString();
+            // --- FINE MODIFICA ---
+        }
     }
 }

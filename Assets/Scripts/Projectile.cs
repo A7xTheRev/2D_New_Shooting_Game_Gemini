@@ -69,38 +69,28 @@ public class Projectile : MonoBehaviour
             return;
         }
 
+        // Calcola il danno e lo stato di critico UNA SOLA VOLTA
+        bool isCrit;
+        int finalDamage = GetFinalDamageWithCrit(out isCrit);
+
+        // 1. Controlla se abbiamo colpito una torretta
+        BossTurret turret = other.GetComponent<BossTurret>();
+        if (turret != null)
+        {
+            turret.TakeDamage(finalDamage, isCrit);
+            SpawnImpactVFX(other.transform.position);
+            Deactivate();
+            return;
+        }
+
+        // 2. Altrimenti, controlla se è un nemico normale
         EnemyStats enemy = other.GetComponentInParent<EnemyStats>();
         if (enemy != null)
         {
-            // --- LOGICA DANNO MODIFICATA ---
-            bool isCrit = false;
-            int finalDamage = baseDamage;
+            if (!enemy.enabled) return;
 
-            if (owner != null)
-            {
-                // Calcola il danno base
-                finalDamage = Mathf.RoundToInt(owner.damage * damageMultiplier);
-
-                // Controlla se è un colpo critico
-                if (Random.value < owner.critChance)
-                {
-                    isCrit = true;
-                    finalDamage = Mathf.RoundToInt(finalDamage * owner.critDamageMultiplier);
-                }
-            }
-            
-            // Passa al nemico sia il danno che lo stato di critico
             enemy.TakeDamage(finalDamage, isCrit);
-            // --- FINE MODIFICA ---
-
-            if (!string.IsNullOrEmpty(impactVFXTag))
-            {
-                GameObject vfx = VFXPool.Instance.GetVFX(impactVFXTag);
-            if (vfx != null)
-                {
-                vfx.transform.position = transform.position;
-                }
-            }
+            SpawnImpactVFX(other.transform.position);
 
             if (areaDamageRadius > 0f)
             {
@@ -108,8 +98,8 @@ public class Projectile : MonoBehaviour
                 foreach (var hit in hits)
                 {
                     EnemyStats e = hit.GetComponentInParent<EnemyStats>();
-                    if (e != null && e != enemy)
-                        e.TakeDamage(finalDamage, isCrit); // Passa le info anche ai nemici vicini
+                    if (e != null && e != enemy && e.enabled)
+                        e.TakeDamage(finalDamage, isCrit);
                 }
             }
 
@@ -125,13 +115,39 @@ public class Projectile : MonoBehaviour
         }
     }
 
+    private void SpawnImpactVFX(Vector3 position)
+    {
+        if (!string.IsNullOrEmpty(impactVFXTag))
+        {
+            GameObject vfx = VFXPool.Instance.GetVFX(impactVFXTag);
+            if (vfx != null)
+            {
+                vfx.transform.position = position;
+            }
+        }
+    }
+
+    private int GetFinalDamageWithCrit(out bool isCrit)
+    {
+        isCrit = false;
+        if (owner == null) return baseDamage;
+        
+        int finalDamage = Mathf.RoundToInt(owner.damage * damageMultiplier);
+        if (Random.value < owner.critChance)
+        {
+            isCrit = true;
+            finalDamage = Mathf.RoundToInt(finalDamage * owner.critDamageMultiplier);
+        }
+        return finalDamage;
+    }
+
     private void BounceToNextEnemy(Transform currentEnemy)
     {
                 Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, 5f);
                 bool bounced = false;
                 foreach (var hit in enemies)
                 {
-            if (hit.transform != currentEnemy) // Assicurati di non colpire di nuovo lo stesso nemico
+            if (hit.transform != currentEnemy)
             {
                     EnemyStats e = hit.GetComponentInParent<EnemyStats>();
                 if (e != null)
