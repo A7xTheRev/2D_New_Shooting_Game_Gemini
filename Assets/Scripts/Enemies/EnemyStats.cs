@@ -1,9 +1,13 @@
 using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class EnemyStats : MonoBehaviour
 {
+    [Header("Scaling")]
+    public bool allowStatScaling = true;
+
     [Header("Statistiche base")]
     public int maxHealth = 50;
     public int currentHealth;
@@ -17,6 +21,9 @@ public class EnemyStats : MonoBehaviour
     public int xpReward = 20;
     public int specialCurrencyReward = 0;
 
+    [Header("Animazione")]
+    public bool hasDeathAnimation = false;
+    
     [Header("Effetto Visivo (Hit)")]
     public Color flashColor = Color.white;
     public float flashDuration = 0.1f;
@@ -26,32 +33,33 @@ public class EnemyStats : MonoBehaviour
     public float deathShakeDuration = 0f;
     public float deathShakeMagnitude = 0f;
 
+    // --- NUOVA SEZIONE ---
+    [Header("Effetti di Stato")]
+    [Tooltip("Trascina qui il prefab dell'effetto visivo per la bruciatura.")]
+    public GameObject burnVFX;
+    // --- FINE NUOVA SEZIONE ---
+    
     public event Action<int, int> OnHealthChanged;
     
-    private Animator animator;
     private bool isDying = false;
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
     private Coroutine flashCoroutine;
+    private Coroutine burnCoroutine;
+    private Animator animator;
 
     void Awake()
     {
-        animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        // --- LOGICA DEL COLORE RIMOSSA DA QUI ---
+        animator = GetComponent<Animator>();
     }
 
     void Start()
     {
-        // --- LOGICA DEL COLORE SPOSTATA QUI ---
-        // Ora salviamo il colore in Start(). Questo avviene DOPO che EliteStats
-        // ha già colorato il nemico di viola nel suo Awake().
         if (spriteRenderer != null)
         {
             originalColor = spriteRenderer.color;
         }
-        // --- FINE SPOSTAMENTO ---
-
         currentHealth = maxHealth;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
@@ -61,7 +69,6 @@ public class EnemyStats : MonoBehaviour
         if (isDying) return;
 
         ShowDamageNumber(damageAmount, isCrit);
-
         AudioManager.Instance.PlaySound(AudioManager.Instance.enemyHitSound);
         currentHealth -= damageAmount;
         if (currentHealth < 0) currentHealth = 0;
@@ -69,10 +76,7 @@ public class EnemyStats : MonoBehaviour
 
         if (spriteRenderer != null)
         {
-            if (flashCoroutine != null)
-            {
-                StopCoroutine(flashCoroutine);
-            }
+            if (flashCoroutine != null) StopCoroutine(flashCoroutine);
             flashCoroutine = StartCoroutine(FlashEffect());
         }
 
@@ -82,11 +86,62 @@ public class EnemyStats : MonoBehaviour
         }
     }
 
+    // Metodo pubblico per applicare l'effetto di bruciatura
+    public void ApplyBurn(float duration)
+    {
+        if (burnCoroutine != null)
+        {
+            StopCoroutine(burnCoroutine);
+        }
+        burnCoroutine = StartCoroutine(BurnEffect(duration));
+    }
+
+    private IEnumerator BurnEffect(float duration)
+    {
+        PlayerStats player = FindFirstObjectByType<PlayerStats>();
+        int burnDamage = 5;
+        if (player != null)
+        {
+            burnDamage = Mathf.Max(3, Mathf.RoundToInt(player.abilityPower * 0.25f));
+        }
+
+        GameObject vfxInstance = null;
+        if (burnVFX != null)
+        {
+            vfxInstance = Instantiate(burnVFX, transform.position, Quaternion.identity, transform);
+        }
+
+        float timer = duration;
+        while (timer > 0)
+        {
+            yield return new WaitForSeconds(1f);
+            timer -= 1f;
+            
+            if (this != null && currentHealth > 0)
+            {
+                int currentBurnDamage = Mathf.Max(1, burnDamage);
+                TakeDamage(currentBurnDamage, false);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if (vfxInstance != null)
+        {
+            Destroy(vfxInstance);
+        }
+        burnCoroutine = null;
+    }
+
     private void ShowDamageNumber(int damageAmount, bool isCrit)
     {
         GameObject numberObject = VFXPool.Instance.GetVFX("DamageNumber");
         if (numberObject != null)
         {
+            // --- CORREZIONE APPLICATA QUI ---
+            // Specifichiamo di usare UnityEngine.Random
             Vector3 spawnPosition = transform.position + new Vector3(UnityEngine.Random.Range(-0.3f, 0.3f), 0.5f, 0);
             spawnPosition.z = -1f; 
             numberObject.transform.position = spawnPosition;
@@ -105,7 +160,7 @@ public class EnemyStats : MonoBehaviour
         yield return new WaitForSeconds(flashDuration);
         if (this != null)
         {
-            spriteRenderer.color = originalColor; // Ora originalColor è viola!
+            spriteRenderer.color = originalColor;
         }
         flashCoroutine = null;
     }
@@ -114,6 +169,9 @@ public class EnemyStats : MonoBehaviour
     {
         if (isDying) return;
         isDying = true;
+
+        GetComponent<Collider2D>().enabled = false;
+        if (GetComponent<Rigidbody2D>() != null) GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
 
         if (deathShakeDuration > 0f && deathShakeMagnitude > 0f)
         {
@@ -129,24 +187,28 @@ public class EnemyStats : MonoBehaviour
             vfx.transform.localScale = transform.localScale;
             }
         }
-
-        AudioManager.Instance.PlaySound(AudioManager.Instance.enemyHitSound);
+        AudioManager.Instance.PlaySound(AudioManager.Instance.enemyDeathSound);
 
         PlayerStats player = FindFirstObjectByType<PlayerStats>();
-        int finalCoinReward = coinReward;
         if (player != null)
         {
-            finalCoinReward = Mathf.RoundToInt(coinReward * player.coinDropMultiplier);
-            
-            AbilityController abilityController = player.GetComponent<AbilityController>();
-            if (abilityController != null)
+            int finalCoinReward = Mathf.RoundToInt(coinReward * player.coinDropMultiplier);
+            GameManager.Instance?.EnemyDefeated(finalCoinReward, xpReward, specialCurrencyReward);
+            player.GetComponent<AbilityController>()?.AddChargeFromKill();
+        }
+        
+        if (animator != null && hasDeathAnimation)
             {
-                abilityController.AddChargeFromKill();
+            animator.SetTrigger("Die");
+        }
+        else
+        {
+            Destroy(gameObject);
             }
         }
         
-        GameManager.Instance?.EnemyDefeated(finalCoinReward, xpReward, specialCurrencyReward);
-        
+    public void OnDeathAnimationFinished()
+    {
             Destroy(gameObject);
     }
 }

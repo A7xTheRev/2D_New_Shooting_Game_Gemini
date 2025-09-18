@@ -52,6 +52,15 @@ public class BossTurret : MonoBehaviour
         Instantiate(projectilePrefab, firePoint.position, rotation);
     }
 
+    public void ScaleHealth(float multiplier)
+    {
+        maxHealth = Mathf.RoundToInt(maxHealth * multiplier);
+        currentHealth = maxHealth;
+        
+        // Aggiorna la UI della salute se è già attiva
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+    }
+
     // --- METODO TAKEDAMAGE MODIFICATO ---
     public void TakeDamage(int amount, bool isCrit)
     {

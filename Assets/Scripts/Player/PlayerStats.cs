@@ -20,13 +20,22 @@ public class PlayerStats : MonoBehaviour
     // --- SEZIONE MISSILI AMPLIATA ---
     [Header("Statistiche Missili a Ricerca")]
     public int homingMissileLevel = 0;
-    public int homingMissileCount = 1; // Ora partiamo da 1 se il potenziamento è attivo
-    public float homingMissileCooldownMultiplier = 1f; // 1f = 100% del tempo base
-    // --- FINE SEZIONE AMPLIATA ---
-
-    // ... (il resto dello script rimane invariato) ...
+    public int homingMissileCount = 1;
+    public float homingMissileCooldownMultiplier = 1f;
     
-    // --- NUOVA LISTA PER TRACCIARE I POTENZIAMENTI OTTENUTI ---
+    // --- NUOVA SEZIONE PER I DRONI ---
+    [Header("Statistiche Droni da Combattimento")]
+    public int combatDroneLevel = 0;
+    public float combatDroneFireRateMultiplier = 1f;
+    public bool dronesHavePiercingShots = false;
+    
+    // --- NUOVA SEZIONE ---
+    [Header("Potenziamenti Elementali")]
+    public bool hasIncendiaryRounds = false;
+    public bool hasCryoRounds = false;
+    public bool hasChainLightning = false;
+    // --- FINE NUOVA SEZIONE ---
+
     [HideInInspector]
     public List<PowerUpType> acquiredPowerUps = new List<PowerUpType>();
     
@@ -282,19 +291,27 @@ public class PlayerStats : MonoBehaviour
     {
         if (ProgressionManager.Instance != null && ProgressionManager.Instance.IsSpecialUpgradeUnlocked(AbilityID.SecondChance) && secondChanceAvailable)
         {
-            Debug.Log("SECONDA CHANCE ATTIVATA!");
-            currentHealth = maxHealth / 2;
-            OnHealthChanged?.Invoke(currentHealth, maxHealth);
-            StartCoroutine(InvulnerabilityCoroutine());
             secondChanceAvailable = false;
             UIManager uiManager = FindFirstObjectByType<UIManager>();
             if (uiManager != null) { uiManager.UpdateSecondChanceUI(false); }
+            
+            currentHealth = maxHealth / 2;
+            OnHealthChanged?.Invoke(currentHealth, maxHealth);
+            StartCoroutine(InvulnerabilityCoroutine());
         }
         else
         {
             Debug.Log("Player morto");
-            lastSessionCoins = sessionCoins;
-            lastSessionSpecialCurrency = sessionSpecialCurrency;
+        
+            // --- LOGICA DI SALVATAGGIO MODIFICATA ---
+            // Troviamo lo StageManager per sapere a che ondata siamo arrivati
+            StageManager stageManager = FindFirstObjectByType<StageManager>();
+            int currentWave = (stageManager != null) ? stageManager.stageNumber : 1;
+        
+            // Usiamo il nuovo metodo statico per passare tutti i dati alla schermata di Game Over
+            GameOverManager.SetEndGameStats(currentWave, sessionCoins, sessionSpecialCurrency);
+            // --- FINE MODIFICA ---
+
             UnityEngine.SceneManagement.SceneManager.LoadScene("GameOver");
         }
     }

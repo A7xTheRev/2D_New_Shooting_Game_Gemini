@@ -9,6 +9,14 @@ public class StageManager : MonoBehaviour
     public List<GameObject> elitePrefabs;
     public List<GameObject> bossPrefabs;
 
+    // --- NUOVA SEZIONE PER IL SUPER BOSS ---
+    [Header("Super Boss")]
+    [Tooltip("Trascina qui il prefab del Super Boss.")]
+    public GameObject superBossPrefab;
+    [Tooltip("L'ondata in cui apparirà il Super Boss.")]
+    public int superBossStage = 20;
+    // --- FINE NUOVA SEZIONE ---
+
     [Header("Probabilità di Spawn")]
     [Range(0f, 1f)]
     public float eliteSpawnChance = 0.1f;
@@ -27,29 +35,20 @@ public class StageManager : MonoBehaviour
     [Header("Limiti ritardo spawn")]
     public float spawnDelayMin = 0.3f;
     public float spawnDelayMax = 1f;
-    
+
     private bool isSpawningWave = false;
-    private bool isBossWave = false; // NUOVO: per sapere se siamo in una boss fight
+    private bool isBossWave = false;
 
     void Start()
     {
-        if ((enemyPrefabs == null || enemyPrefabs.Count == 0) || (bossPrefabs == null || bossPrefabs.Count == 0))
-        {
-            Debug.LogError("Le liste dei prefab nemici o dei boss non sono state assegnate nello StageManager!");
-            this.enabled = false;
-            return;
-        }
-        
         isSpawningWave = true;
         StartCoroutine(SpawnStageCoroutine());
     }
 
     void Update()
     {
-        // CORRETTO QUI: FindGameObjectsWithTag (con la 's') restituisce una lista che possiamo contare.
-        if (!isSpawningWave && GameObject.FindGameObjectsWithTag("Enemy").Length == 0)
+        if (!isSpawningWave && GameObject.FindGameObjectsWithTag("Enemy").Length == 0 && FindFirstObjectByType<BossTurret>() == null)
         {
-            // Se la boss wave è appena finita, torna alla musica normale
             if (isBossWave)
             {
                 isBossWave = false;
@@ -61,17 +60,26 @@ public class StageManager : MonoBehaviour
 
     public void NextStage()
     {
-        isSpawningWave = true; 
+        isSpawningWave = true;
         stageNumber++;
 
-        if (stageNumber % 10 == 0)
+        // --- LOGICA DI SPAWN AGGIORNATA ---
+        // 1. Controlla se è lo stage del Super Boss
+        if (stageNumber == superBossStage && superBossPrefab != null)
+        {
+            StartCoroutine(SpawnSuperBossCoroutine());
+        }
+        // 2. Altrimenti, controlla se è uno stage per un boss normale
+        else if (stageNumber % 10 == 0)
         {
             StartCoroutine(SpawnBossCoroutine());
         }
+        // 3. Altrimenti, è un'ondata normale
         else
         {
             StartCoroutine(SpawnStageCoroutine());
         }
+        // --- FINE LOGICA AGGIORNATA ---
     }
 
     public void SpawnEnemy(Vector3 position, GameObject enemyToSpawn)
@@ -81,23 +89,39 @@ public class StageManager : MonoBehaviour
         EnemyStats es = e.GetComponent<EnemyStats>();
         if (es != null)
         {
+            float multiplier = 1f;
             if (stageNumber > 1) {
-                float multiplier = 1f + (stageNumber - 1) * growthRate;
+                multiplier = 1f + (stageNumber - 1) * growthRate;
+            }
+
+            // --- LOGICA MODIFICATA ---
+            // 1. Applica lo scaling solo se il flag è attivo
+            if (es.allowStatScaling)
+            {
                 es.maxHealth = Mathf.RoundToInt(es.maxHealth * multiplier);
                 es.currentHealth = es.maxHealth;
             }
+            
+            // 2. Controlla se l'oggetto appena creato è un Super Boss
+            SuperBossAI superBoss = e.GetComponent<SuperBossAI>();
+            if (superBoss != null)
+            {
+                // Se sì, passagli il moltiplicatore di vita
+                superBoss.InitializeBoss(multiplier);
+            }
+            // --- FINE MODIFICA ---
         }
         e.tag = "Enemy";
     }
-    
+
     private IEnumerator SpawnStageCoroutine()
     {
-        yield return new WaitForSeconds(1.5f); 
-        
+        yield return new WaitForSeconds(1.5f);
+
         for (int i = 0; i < enemiesPerStage; i++)
         {
             GameObject prefabToSpawn;
-            
+
             if (stageNumber >= stageToStartElites && elitePrefabs.Count > 0 && Random.value < eliteSpawnChance)
             {
                 prefabToSpawn = elitePrefabs[Random.Range(0, elitePrefabs.Count)];
@@ -110,11 +134,11 @@ public class StageManager : MonoBehaviour
             float xPos = Random.Range(spawnXMin, spawnXMax);
             Vector3 pos = new Vector3(xPos, spawnY, 0f);
             SpawnEnemy(pos, prefabToSpawn);
-            
+
             float delay = Random.Range(spawnDelayMin, spawnDelayMax);
             yield return new WaitForSeconds(delay);
         }
-        
+
         isSpawningWave = false;
     }
 
@@ -128,6 +152,22 @@ public class StageManager : MonoBehaviour
         GameObject randomBossPrefab = bossPrefabs[Random.Range(0, bossPrefabs.Count)];
         Vector3 bossSpawnPosition = new Vector3(0, spawnY, 0);
         SpawnEnemy(bossSpawnPosition, randomBossPrefab);
+        isSpawningWave = false;
+    }
+    private IEnumerator SpawnSuperBossCoroutine()
+    {
+        isBossWave = true;
+        AudioManager.Instance.PlayMusic(AudioManager.Instance.bossMusic);
+
+        Debug.Log($"WAVE {stageNumber}: ARRIVA IL SUPER BOSS!");
+        yield return new WaitForSeconds(2.5f);
+        
+        // La posizione di spawn potrebbe essere più in alto per dargli spazio per l'entrata in scena
+        Vector3 bossSpawnPosition = new Vector3(0, spawnY + 2f, 0); 
+        
+        // Spawna il prefab specifico del Super Boss
+        SpawnEnemy(bossSpawnPosition, superBossPrefab);
+        
         isSpawningWave = false;
     }
 }

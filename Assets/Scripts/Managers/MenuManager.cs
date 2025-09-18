@@ -16,6 +16,12 @@ public class MenuManager : MonoBehaviour
     public TextMeshProUGUI coinsText;
     public TextMeshProUGUI specialCurrencyText;
 
+    // --- NUOVI RIFERIMENTI PER I RECORD ---
+    [Header("UI Record Personali")]
+    public TextMeshProUGUI maxWaveText;
+    public TextMeshProUGUI maxCoinsText;
+    // --- FINE NUOVI RIFERIMENTI ---
+
     [Header("Pulsanti Arma")]
     public Button laserButton;
     public Button standardButton;
@@ -95,6 +101,7 @@ public class MenuManager : MonoBehaviour
         string savedWeapon = PlayerPrefs.GetString("SelectedWeapon", selectedWeapon);
         HighlightSelectedWeapon(savedWeapon);
         UpdateAllUI();
+        UpdateRecordUI(); // NUOVA CHIAMATA
     }
 
     void OnEnable() 
@@ -102,6 +109,7 @@ public class MenuManager : MonoBehaviour
         if (ProgressionManager.Instance != null) { ProgressionManager.OnValuesChanged += UpdateAllUI; } 
         SetupAbilitySelection(); 
         UpdateAllUI(); 
+        UpdateRecordUI(); // NUOVA CHIAMATA
     }
 
     // --- METODO OnDisable MODIFICATO ---
@@ -111,6 +119,22 @@ public class MenuManager : MonoBehaviour
         if (isQuitting) return;
 
         if (ProgressionManager.Instance != null) { ProgressionManager.OnValuesChanged -= UpdateAllUI; } 
+    }
+
+    // --- NUOVO METODO PER AGGIORNARE I RECORD ---
+    private void UpdateRecordUI()
+    {
+        if (ProgressionManager.Instance != null)
+        {
+            if (maxWaveText != null)
+            {
+                maxWaveText.text = "Max Wave: " + ProgressionManager.Instance.GetMaxWave();
+            }
+            if (maxCoinsText != null)
+            {
+                maxCoinsText.text = "Max Coins: " + ProgressionManager.Instance.GetMaxCoins();
+            }
+        }
     }
     
     public void ShowMainPanel() { mainPanel.SetActive(true); storePanel.SetActive(false); hangarPanel.SetActive(false); }

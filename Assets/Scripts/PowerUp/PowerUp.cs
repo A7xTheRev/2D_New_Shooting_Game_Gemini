@@ -2,7 +2,6 @@ using UnityEngine;
 
 public enum PowerUpType
 {
-
     // Generici
     IncreaseDamage,
     IncreaseAttackSpeed,
@@ -17,14 +16,25 @@ public enum PowerUpType
     IncreaseProjectileSize,
     IncreaseCoinDrop,
     IncreaseAbilityPower,
-    
+
     // Armi Base
     HomingMissile,
 
+
     // Potenziamenti HomingMissile
     HomingMissileBarrage, // Lancia +1 missile
-    HomingMissileFastReload // Riduce il cooldown
+    HomingMissileFastReload, // Riduce il cooldown
 
+    CombatDrone,
+
+    // --- NUOVI POTENZIAMENTI DRONE ---
+    DroneCompanion, // Aggiunge +1 drone
+    DroneFastReload, // Aumenta la cadenza di fuoco
+    DronePiercingShots, // I colpi perforano i nemici
+
+    IncendiaryRounds, // Proiettili di fuoco
+    CryoRounds,       // Proiettili di gelo
+    ChainLightning   // Proiettili elettrici
 }
 
 [System.Serializable]
@@ -96,6 +106,31 @@ public class PowerUp
                 break;
             case PowerUpType.HomingMissileFastReload:
                 player.homingMissileCooldownMultiplier *= value;
+                break;
+            case PowerUpType.CombatDrone:
+                player.combatDroneLevel++;
+                break;
+            case PowerUpType.DroneCompanion:
+                player.combatDroneLevel++;
+                break;
+
+            // --- NUOVI CASE PER I POTENZIAMENTI DRONE ---
+            case PowerUpType.DroneFastReload:
+                player.combatDroneFireRateMultiplier *= value; // Es. value = 0.8 per un +20% di velocità
+                break;
+            case PowerUpType.DronePiercingShots:
+                player.dronesHavePiercingShots = true; // Attiva l'abilità
+                break;
+                
+            // --- NUOVI CASE PER GLI EFFETTI ELEMENTALI ---
+            case PowerUpType.IncendiaryRounds:
+                player.hasIncendiaryRounds = true;
+                break;
+            case PowerUpType.CryoRounds:
+                player.hasCryoRounds = true;
+                break;
+            case PowerUpType.ChainLightning:
+                player.hasChainLightning = true;
                 break;
         }
     }

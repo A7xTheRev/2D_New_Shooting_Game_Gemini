@@ -388,6 +388,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdde63428ebb42c4a8a3fe4ca0bc0375, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
+  allowStatScaling: 1
   maxHealth: 70
   currentHealth: 0
   moveSpeed: 1.2
@@ -403,6 +404,7 @@ MonoBehaviour:
   deathVFXTag: EnemyExplosion
   deathShakeDuration: 0.3
   deathShakeMagnitude: 0.02
+  burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
 --- !u!114 &-5796037376070217089
 MonoBehaviour:
   m_ObjectHideFlags: 0

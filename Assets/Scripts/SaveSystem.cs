@@ -7,12 +7,16 @@ public class SaveData
 {
     public int coins;
     public int specialCurrency;
-    public AbilityID equippedAbilityID; // Modificato
+    public AbilityID equippedAbilityID;
     public List<PermanentUpgradeType> savedUpgradeTypes = new List<PermanentUpgradeType>();
     public List<int> savedUpgradeLevels = new List<int>();
-    public List<AbilityID> unlockedSpecialAbilities = new List<AbilityID>(); // Modificato
-}
+    public List<AbilityID> unlockedSpecialAbilities = new List<AbilityID>();
 
+    // --- NUOVI CAMPI PER I RECORD ---
+    public int maxWaveReached = 0;
+    public int maxCoinsInSession = 0;
+    // --- FINE NUOVI CAMPI ---
+}
 
 public static class SaveSystem
 {

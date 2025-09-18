@@ -72,6 +72,7 @@ public class Projectile : MonoBehaviour
         // Calcola il danno e lo stato di critico UNA SOLA VOLTA
         bool isCrit;
         int finalDamage = GetFinalDamageWithCrit(out isCrit);
+        // --- FINE CORREZIONE ---
 
         // 1. Controlla se abbiamo colpito una torretta
         BossTurret turret = other.GetComponent<BossTurret>();
@@ -91,6 +92,19 @@ public class Projectile : MonoBehaviour
 
             enemy.TakeDamage(finalDamage, isCrit);
             SpawnImpactVFX(other.transform.position);
+
+            // --- NUOVA LOGICA PER APPLICARE EFFETTI DI STATO ---
+            if (owner != null)
+            {
+                if (owner.hasIncendiaryRounds)
+                {
+                    enemy.ApplyBurn(5f); // Applica 5 secondi di bruciatura
+                }
+                // In futuro qui aggiungeremo gli altri effetti
+                // if (owner.hasCryoRounds) { enemy.ApplySlow(...); }
+                // if (owner.hasChainLightning) { enemy.ApplyChainLightning(...); }
+            }
+            // --- FINE NUOVA LOGICA ---
 
             if (areaDamageRadius > 0f)
             {

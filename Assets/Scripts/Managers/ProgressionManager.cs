@@ -5,18 +5,17 @@ using System.Linq;
 public class ProgressionManager : MonoBehaviour
 {
     private static ProgressionManager _instance;
-private static bool isQuitting = false; // "Semaforo" per la chiusura
+    private static bool isQuitting = false;
 
     public static ProgressionManager Instance
     {
         get
         {
-            if (isQuitting) // Se il gioco sta chiudendo, non creare una nuova istanza
+            if (isQuitting)
             {
                 Debug.LogWarning("ProgressionManager Instance richiesto durante la chiusura, restituisco null.");
                 return null;
             }
-
             if (_instance == null)
             {
                 _instance = FindFirstObjectByType<ProgressionManager>();
@@ -32,14 +31,16 @@ private static bool isQuitting = false; // "Semaforo" per la chiusura
 
     void OnApplicationQuit()
     {
-        // Questo metodo viene chiamato da Unity prima che il gioco si chiuda
         isQuitting = true;
     }
 
-    // ... (Tutto il resto dello script rimane invariato) ...
     [Header("Potenziamenti Normali")] public List<PermanentUpgrade> availableUpgrades = new List<PermanentUpgrade>();
     [Header("Potenziamenti Speciali")] public List<SpecialAbility> allSpecialAbilities = new List<SpecialAbility>();
     private int coins; private int specialCurrency; private AbilityID equippedAbilityID;
+    // --- NUOVE VARIABILI PER I RECORD ---
+    private int maxWaveReached;
+    private int maxCoinsInSession;
+    // --- FINE NUOVE VARIABILI ---
     private Dictionary<PermanentUpgradeType, int> upgradeLevels = new Dictionary<PermanentUpgradeType, int>();
     private HashSet<AbilityID> unlockedAbilitiesSet = new HashSet<AbilityID>();
 
@@ -57,6 +58,9 @@ private static bool isQuitting = false; // "Semaforo" per la chiusura
         coins = data.coins;
         specialCurrency = data.specialCurrency;
         equippedAbilityID = data.equippedAbilityID;
+        // Carica i record
+        maxWaveReached = data.maxWaveReached;
+        maxCoinsInSession = data.maxCoinsInSession;
         upgradeLevels.Clear();
         for (int i = 0; i < data.savedUpgradeTypes.Count; i++) { upgradeLevels[data.savedUpgradeTypes[i]] = data.savedUpgradeLevels[i]; }
         foreach (var upgrade in availableUpgrades) { if (!upgradeLevels.ContainsKey(upgrade.upgradeType)) upgradeLevels[upgrade.upgradeType] = 0; upgrade.currentLevel = upgradeLevels[upgrade.upgradeType]; }
@@ -69,12 +73,43 @@ private static bool isQuitting = false; // "Semaforo" per la chiusura
         data.coins = coins;
         data.specialCurrency = specialCurrency;
         data.equippedAbilityID = equippedAbilityID;
+        // Salva i record
+        data.maxWaveReached = maxWaveReached;
+        data.maxCoinsInSession = maxCoinsInSession;
         data.savedUpgradeTypes.Clear();
         data.savedUpgradeLevels.Clear();
         foreach (var pair in upgradeLevels) { data.savedUpgradeTypes.Add(pair.Key); data.savedUpgradeLevels.Add(pair.Value); }
         data.unlockedSpecialAbilities = unlockedAbilitiesSet.ToList();
         SaveSystem.SaveGame(data);
     }
+    
+    // --- NUOVI METODI PUBBLICI PER I RECORD ---
+    public int GetMaxWave() { return maxWaveReached; }
+    public int GetMaxCoins() { return maxCoinsInSession; }
+
+    // Questo metodo controlla se abbiamo stabilito nuovi record e restituisce true se è così
+    public bool CheckForNewHighScores(int currentWave, int currentCoins)
+    {
+        bool newRecord = false;
+
+        if (currentWave > maxWaveReached)
+        {
+            maxWaveReached = currentWave;
+            newRecord = true;
+        }
+        if (currentCoins > maxCoinsInSession)
+        {
+            maxCoinsInSession = currentCoins;
+            newRecord = true;
+        }
+
+        if (newRecord)
+        {
+            SaveData(); // Salva i nuovi record
+        }
+        return newRecord;
+    }
+    // --- FINE NUOVI METODI ---
     
     public int GetCoins() { return coins; }
     public int GetSpecialCurrency() { return specialCurrency; }

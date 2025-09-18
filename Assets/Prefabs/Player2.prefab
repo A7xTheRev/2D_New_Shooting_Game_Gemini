@@ -109,6 +109,7 @@ GameObject:
   - component: {fileID: 627469416243968885}
   - component: {fileID: 3338396899420807692}
   - component: {fileID: 3924887619528305801}
+  - component: {fileID: -1064839421972700330}
   m_Layer: 8
   m_Name: Player2
   m_TagString: Player
@@ -393,6 +394,7 @@ MonoBehaviour:
   homingMissileLevel: 0
   homingMissileCount: 1
   homingMissileCooldownMultiplier: 1
+  combatDroneLevel: 0
   acquiredPowerUps: 
   maxHealth: 100
   currentHealth: 0
@@ -452,6 +454,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbilityController
   equippedAbility: {fileID: 11400000, guid: c6abb628d56964d439ca9a21313a4977, type: 2}
+--- !u!114 &-1064839421972700330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5325657781964287179}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1bae6757aa3ea54791fd588861bb67d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DroneController
+  dronePrefab: {fileID: 8436231728396795313, guid: 6cb59d4744850c44a9e0450272c58746, type: 3}
+  droneOffsets:
+  - {x: -0.9, y: -0.6}
+  - {x: 0.9, y: -0.6}
 --- !u!1 &6598992984150516251
 GameObject:
   m_ObjectHideFlags: 0
