@@ -6,8 +6,8 @@ public class HomingMissile : MonoBehaviour
     [Header("Statistiche Missile")]
     public float speed = 10f;
     public float rotateSpeed = 300f;
-    public int baseDamage = 20; // Danno base del missile
-    public float abilityPowerScaling = 1.5f; // Quanto il danno aumenta per ogni punto di Ability Power
+    public int baseDamage = 20;
+    public float abilityPowerScaling = 1.5f;
     public string impactVFXTag = "MissileExplosion";
 
     [Header("Sistema di Ricerca")]
@@ -17,10 +17,8 @@ public class HomingMissile : MonoBehaviour
 
     private Transform target;
     private Rigidbody2D rb;
-    private PlayerStats owner; // NUOVO: Riferimento al giocatore che ha sparato
+    private PlayerStats owner;
 
-    // --- NUOVO METODO ---
-    // Il PlayerController userà questo metodo per "presentarsi" al missile
     public void SetOwner(PlayerStats player)
     {
         owner = player;
@@ -54,7 +52,23 @@ public class HomingMissile : MonoBehaviour
             return;
         }
 
-        Vector2 direction = (Vector2)target.position - rb.position;
+        // --- LOGICA DI MIRA MIGLIORATA ---
+        // Cerca il collider del bersaglio.
+        Collider2D targetCollider = target.GetComponent<Collider2D>();
+        
+        // Di default, mira al pivot.
+        Vector2 aimPoint = target.position;
+
+        // Se troviamo un collider, miriamo al suo centro.
+        if (targetCollider != null)
+        {
+            aimPoint = targetCollider.bounds.center;
+        }
+        
+        // Calcola la direzione verso il punto di mira corretto.
+        Vector2 direction = aimPoint - rb.position;
+        // --- FINE LOGICA DI MIRA ---
+
         direction.Normalize();
 
         float rotateAmount = Vector3.Cross(direction, transform.up).z;
@@ -96,10 +110,8 @@ public class HomingMissile : MonoBehaviour
             EnemyStats enemy = other.GetComponent<EnemyStats>();
             if (enemy != null && owner != null)
             {
-                // --- CALCOLO DEL DANNO MODIFICATO ---
-                // Il danno finale è il danno base + un bonus dal Potere Abilità del giocatore
                 int finalDamage = baseDamage + Mathf.RoundToInt(owner.abilityPower * abilityPowerScaling);
-                enemy.TakeDamage(finalDamage, true); // Lo consideriamo sempre critico per stile
+                enemy.TakeDamage(finalDamage, true);
             }
 
             if (!string.IsNullOrEmpty(impactVFXTag))

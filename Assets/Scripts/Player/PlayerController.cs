@@ -9,13 +9,6 @@ public class PlayerController : MonoBehaviour
     public Transform firePoint;
     public float fireCooldown = 0.5f;
 
-    [Header("Missili a Ricerca")]
-    public GameObject homingMissilePrefab;
-    public List<Transform> missileLaunchPoints;
-    public float homingMissileBaseCooldown = 4f;
-    private float homingMissileTimer;
-    private int missileLauncherIndex = 0;
-
     [Header("Proiettili extra")]
     public float projectileAngleStep = 15f;
     
@@ -57,7 +50,6 @@ public class PlayerController : MonoBehaviour
     {
         projectilePool = ProjectilePool.Instance;
         ApplyWeaponStats(MenuManager.GetSelectedWeapon());
-        homingMissileTimer = homingMissileBaseCooldown;
     }
 
     void OnEnable() 
@@ -86,38 +78,7 @@ public class PlayerController : MonoBehaviour
 
         HandleMovementAndAbility();
         HandleShooting();
-        HandleHomingMissiles();
-    }
-    
-    // --- METODO COMPLETAMENTE CORRETTO ---
-    void HandleHomingMissiles()
-    {
-        if (stats.homingMissileLevel <= 0 || missileLaunchPoints == null || missileLaunchPoints.Count == 0) return;
-
-        homingMissileTimer -= Time.deltaTime;
-        if (homingMissileTimer <= 0f)
-        {
-            if (homingMissilePrefab != null)
-            {
-                for (int i = 0; i < stats.homingMissileCount; i++)
-                {
-                    Transform launchPoint = missileLaunchPoints[missileLauncherIndex];
-                    
-                    // --- MODIFICA APPLICATA QUI ---
-                    // Creiamo il missile e subito dopo gli passiamo il riferimento al giocatore
-                    GameObject missileObj = Instantiate(homingMissilePrefab, launchPoint.position, launchPoint.rotation);
-                    missileObj.GetComponent<HomingMissile>()?.SetOwner(stats);
-                    // --- FINE MODIFICA ---
-
-            missileLauncherIndex = (missileLauncherIndex + 1) % missileLaunchPoints.Count;
-                }
-            }
-            
-            // 2. CORREZIONE COOLDOWN: Ora usiamo il moltiplicatore corretto
-            // per calcolare il tempo di ricarica.
-            float currentCooldown = homingMissileBaseCooldown * stats.homingMissileCooldownMultiplier;
-            homingMissileTimer = currentCooldown;
-        }
+        // LA CHIAMATA A HandleHomingMissiles() È STATA RIMOSSA
     }
     
     void HandleMovementAndAbility()

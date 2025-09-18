@@ -20,7 +20,7 @@ public class EnemyStats : MonoBehaviour
     public int coinReward = 5;
     public int xpReward = 20;
     public int specialCurrencyReward = 0;
-
+    
     [Header("Animazione")]
     public bool hasDeathAnimation = false;
     
@@ -33,11 +33,8 @@ public class EnemyStats : MonoBehaviour
     public float deathShakeDuration = 0f;
     public float deathShakeMagnitude = 0f;
 
-    // --- NUOVA SEZIONE ---
     [Header("Effetti di Stato")]
-    [Tooltip("Trascina qui il prefab dell'effetto visivo per la bruciatura.")]
     public GameObject burnVFX;
-    // --- FINE NUOVA SEZIONE ---
     
     public event Action<int, int> OnHealthChanged;
     
@@ -63,7 +60,7 @@ public class EnemyStats : MonoBehaviour
         currentHealth = maxHealth;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
-
+    
     public void TakeDamage(int damageAmount, bool isCrit)
     {
         if (isDying) return;
@@ -79,14 +76,13 @@ public class EnemyStats : MonoBehaviour
             if (flashCoroutine != null) StopCoroutine(flashCoroutine);
             flashCoroutine = StartCoroutine(FlashEffect());
         }
-
+        
         if (currentHealth <= 0)
         {
             Die();
         }
     }
 
-    // Metodo pubblico per applicare l'effetto di bruciatura
     public void ApplyBurn(float duration)
     {
         if (burnCoroutine != null)
@@ -134,14 +130,12 @@ public class EnemyStats : MonoBehaviour
         }
         burnCoroutine = null;
     }
-
+    
     private void ShowDamageNumber(int damageAmount, bool isCrit)
     {
         GameObject numberObject = VFXPool.Instance.GetVFX("DamageNumber");
         if (numberObject != null)
         {
-            // --- CORREZIONE APPLICATA QUI ---
-            // Specifichiamo di usare UnityEngine.Random
             Vector3 spawnPosition = transform.position + new Vector3(UnityEngine.Random.Range(-0.3f, 0.3f), 0.5f, 0);
             spawnPosition.z = -1f; 
             numberObject.transform.position = spawnPosition;
@@ -170,25 +164,35 @@ public class EnemyStats : MonoBehaviour
         if (isDying) return;
         isDying = true;
 
+        // Effetti comuni a tutte le morti (disattiva collider, shake, suono)
         GetComponent<Collider2D>().enabled = false;
         if (GetComponent<Rigidbody2D>() != null) GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
-
-        if (deathShakeDuration > 0f && deathShakeMagnitude > 0f)
-        {
-            CameraShake.Instance.StartShake(deathShakeDuration, deathShakeMagnitude);
-        }
-
-        if (!string.IsNullOrEmpty(deathVFXTag))
-        {
-            GameObject vfx = VFXPool.Instance.GetVFX(deathVFXTag);
-            if (vfx != null)
-            {
-            vfx.transform.position = transform.position;
-            vfx.transform.localScale = transform.localScale;
-            }
-        }
+        if (deathShakeDuration > 0f && deathShakeMagnitude > 0f) CameraShake.Instance.StartShake(deathShakeDuration, deathShakeMagnitude);
         AudioManager.Instance.PlaySound(AudioManager.Instance.enemyDeathSound);
 
+        // Controlla se questo oggetto fa parte di un Super Boss
+        SuperBossAI parentBoss = GetComponentInParent<SuperBossAI>();
+        if (parentBoss != null)
+        {
+            // È una TORRETTA o il CORE?
+            if (GetComponent<BossTurret>() != null)
+            {
+                // È una TORRETTA. Notifica il boss e distruggi solo questo oggetto.
+                parentBoss.TurretDestroyed();
+                if (!string.IsNullOrEmpty(deathVFXTag)) { /* Logica esplosione torretta */ }
+                Destroy(gameObject);
+            }
+            else
+            {
+                // È il CORE. Distruggi l'intero oggetto del boss.
+                if (!string.IsNullOrEmpty(deathVFXTag)) { /* Logica esplosione boss finale */ }
+                Destroy(parentBoss.gameObject);
+            }
+            return; // Esci dal metodo per non dare ricompense multiple.
+        }
+
+        // --- Se non è parte di un boss, è un nemico normale. Esegui la logica standard. ---
+        
         PlayerStats player = FindFirstObjectByType<PlayerStats>();
         if (player != null)
         {
@@ -198,17 +202,26 @@ public class EnemyStats : MonoBehaviour
         }
         
         if (animator != null && hasDeathAnimation)
-            {
+        {
             animator.SetTrigger("Die");
         }
         else
         {
-            Destroy(gameObject);
+            if (!string.IsNullOrEmpty(deathVFXTag))
+            {
+                GameObject vfx = VFXPool.Instance.GetVFX(deathVFXTag);
+                if (vfx != null)
+                {
+                    vfx.transform.position = transform.position;
+                    vfx.transform.localScale = transform.localScale;
+                }
             }
+            Destroy(gameObject);
         }
-        
+    }
+    
     public void OnDeathAnimationFinished()
     {
-            Destroy(gameObject);
+        Destroy(gameObject);
     }
 }

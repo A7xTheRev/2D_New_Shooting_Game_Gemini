@@ -83,14 +83,7 @@ public class AbilityController : MonoBehaviour
         {
             if (playerController.firePoint == null) { return; }
             Transform firePoint = playerController.firePoint;
-            
-            // VERSIONE ORIGINALE, CHIEDERE A GEMINI COME SISTEMARE IL RAGGIO LASER A 180°
-            // GameObject abilityInstance = Instantiate(equippedAbility.abilityPrefab, firePoint.position, firePoint.rotation, firePoint);
-            // SOLUZIONE PROVVISORIA: NON PARENTIAMO L'ABILITÀ AL FIREPOINT
-            Quaternion flippedRotation = firePoint.rotation * Quaternion.Euler(0, 0, 180);
-            GameObject abilityInstance = Instantiate(equippedAbility.abilityPrefab, firePoint.position, flippedRotation, firePoint);
-            // FINE SOLUZIONE PROVVISORIA
-
+            GameObject abilityInstance = Instantiate(equippedAbility.abilityPrefab, firePoint.position, firePoint.rotation, firePoint);
             LaserBeam beam = abilityInstance.GetComponent<LaserBeam>();
             if (beam != null) { beam.Activate(playerStats, finalDPS); }
             Destroy(abilityInstance, finalDuration);

@@ -5,8 +5,8 @@ public class DroneProjectile : MonoBehaviour
     public float speed = 15f;
     private int damage;
     private Transform target;
-    private PlayerStats owner; // Riferimento al giocatore
-    private int pierceCount = 1; // Quanti nemici può colpire
+    private PlayerStats owner;
+    private int pierceCount = 1;
 
     // Metodo di inizializzazione migliorato
     public void Initialize(int amount, Transform newTarget, PlayerStats ownerStats)
@@ -26,9 +26,32 @@ public class DroneProjectile : MonoBehaviour
     {
         if (target != null)
         {
-            Vector2 direction = (target.position - transform.position).normalized;
+            // --- NUOVA LOGICA DI MIRA ---
+            // Per prima cosa, cerchiamo il collider del nostro bersaglio.
+            Collider2D targetCollider = target.GetComponent<Collider2D>();
+            
+            // Di default, miriamo alla posizione del pivot del bersaglio.
+            Vector2 aimPoint = target.position;
+
+            // Ma se il bersaglio ha un collider, miriamo al centro di quel collider!
+            if (targetCollider != null)
+            {
+                aimPoint = targetCollider.bounds.center;
+            }
+            // --- FINE NUOVA LOGICA ---
+
+            // Ora calcoliamo la direzione verso il punto di mira corretto.
+            Vector2 direction = (aimPoint - (Vector2)transform.position).normalized;
             GetComponent<Rigidbody2D>().linearVelocity = direction * speed;
         }
+        
+        // Aggiungiamo una leggera rotazione per far puntare lo sprite nella direzione di volo
+        if (GetComponent<Rigidbody2D>().linearVelocity != Vector2.zero)
+        {
+            float angle = Mathf.Atan2(GetComponent<Rigidbody2D>().linearVelocity.y, GetComponent<Rigidbody2D>().linearVelocity.x) * Mathf.Rad2Deg - 90f;
+            transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        }
+
         Destroy(gameObject, 3f);
     }
 

@@ -102,7 +102,7 @@ GameObject:
   - component: {fileID: 8773053760505360427}
   - component: {fileID: 7821454976259828222}
   m_Layer: 10
-  m_Name: Ability_LaserBeam
+  m_Name: _OLD_Ability_LaserBeam
   m_TagString: Projectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

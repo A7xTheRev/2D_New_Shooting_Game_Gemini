@@ -15,7 +15,7 @@ public class SuperBossAI : MonoBehaviour
     public List<BossTurret> turrets;
     public GameObject coreObject;
     public GameObject mainHealthBarObject;
-    private EnemyStats mainBodyStats;
+    private EnemyStats coreStats; // Ora si riferisce direttamente alle statistiche del nucleo
 
     [Header("Movimento Boss")]
     public float patrolSpeed = 1.5f;
@@ -40,20 +40,25 @@ public class SuperBossAI : MonoBehaviour
 
     void Awake()
     {
-        mainBodyStats = GetComponent<EnemyStats>();
+        // Ottiene il riferimento a EnemyStats direttamente dal figlio Core
+        if (coreObject != null)
+        {
+            coreStats = coreObject.GetComponent<EnemyStats>();
+        }
     }
 
     void Start()
     {
         currentPhase = BossPhase.Entering;
         
+        // Disattiva gli elementi della fase 2 all'inizio
         if (coreObject != null) coreObject.SetActive(false);
         if (mainHealthBarObject != null) mainHealthBarObject.SetActive(false);
-        if (mainBodyStats != null) mainBodyStats.enabled = false;
+        if (coreStats != null) coreStats.enabled = false; // Disabilita le stats del nucleo
 
         foreach (BossTurret turret in turrets)
         {
-            if (turret != null) turret.canBeDamaged = false;
+            if (turret != null) turret.canShoot = false; // Usa la variabile corretta 'canShoot'
         }
 
         Camera cam = Camera.main;
@@ -84,7 +89,13 @@ public class SuperBossAI : MonoBehaviour
         {
             if (turret != null)
             {
-                turret.ScaleHealth(healthMultiplier);
+                // Trova il componente EnemyStats sulla torretta e scala la sua vita
+                EnemyStats turretStats = turret.GetComponent<EnemyStats>();
+                if (turretStats != null)
+                {
+                    turretStats.maxHealth = Mathf.RoundToInt(turretStats.maxHealth * healthMultiplier);
+                    turretStats.currentHealth = turretStats.maxHealth;
+                }
             }
         }
     }
@@ -108,7 +119,7 @@ public class SuperBossAI : MonoBehaviour
         {
             if (turret != null)
             {
-                turret.canBeDamaged = true;
+                turret.canShoot = true; // Usa la variabile corretta 'canShoot'
             }
         }
     }
@@ -134,9 +145,11 @@ public class SuperBossAI : MonoBehaviour
         if (currentPhase == BossPhase.Phase2_Core) return;
         currentPhase = BossPhase.Phase2_Core;
         
+        // --- LOGICA DI ATTIVAZIONE MODIFICATA ---
+        // Attiva il nucleo, la sua barra della vita e il suo script di statistiche
         if (coreObject != null) coreObject.SetActive(true);
         if (mainHealthBarObject != null) mainHealthBarObject.SetActive(true);
-        if (mainBodyStats != null) mainBodyStats.enabled = true;
+        if (coreStats != null) coreStats.enabled = true; // Ora il nucleo può essere danneggiato
 
         // --- ATTIVA IL CICLO DI ATTACCO LASER ---
         StartCoroutine(LaserAttackPattern());
@@ -154,13 +167,8 @@ public class SuperBossAI : MonoBehaviour
             // Lancia l'attacco
             if (laserAttackPrefab != null && laserFirePoint != null)
             {
-                // --- MODIFICA APPLICATA QUI ---
-                // Aggiungiamo 'transform' come ultimo argomento.
-                // Questo dice a Unity di creare il laser come figlio di questo oggetto (il boss).
                 Instantiate(laserAttackPrefab, laserFirePoint.position, laserFirePoint.rotation, transform);
-                // --- FINE MODIFICA ---
             }
-            
             yield return new WaitForSeconds(laserCooldown);
         }
     }

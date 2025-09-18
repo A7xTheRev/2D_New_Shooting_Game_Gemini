@@ -125,7 +125,7 @@ GameObject:
   - component: {fileID: 8773053760505360427}
   - component: {fileID: 7821454976259828222}
   m_Layer: 10
-  m_Name: Ability_LaserBeam (TEST)
+  m_Name: PF_PlayerLaser_Ability
   m_TagString: Projectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -139,8 +139,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5258565881300883852}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
-  m_LocalPosition: {x: 0, y: 2.5, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.4, y: 3.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -148,7 +148,7 @@ Transform:
   - {fileID: 1940507772553571148}
   - {fileID: 4735521168919500941}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &8773053760505360427
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -183,7 +183,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: -6}
+  m_Offset: {x: 0, y: 6}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -234,7 +234,7 @@ Transform:
   m_GameObject: {fileID: 7544391917393576760}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -8.98, z: 0}
+  m_LocalPosition: {x: 0, y: 8.98, z: 0}
   m_LocalScale: {x: 100, y: 18.7, z: 37}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -347,7 +347,7 @@ Transform:
   m_GameObject: {fileID: 8604243963071527277}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -3, z: 0}
+  m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 100, y: 18.7, z: 37}
   m_ConstrainProportionsScale: 0
   m_Children: []
