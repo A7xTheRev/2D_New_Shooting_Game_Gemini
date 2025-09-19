@@ -10,7 +10,7 @@ public class PowerUpUI : MonoBehaviour
     [Header("UI Panel")]
     public GameObject panel;
     public Transform buttonsContainer;
-    public Button buttonPrefab;
+    public GameObject buttonPrefab; // Lasciato come GameObject per flessibilità
     public Button rerollButton;
 
     private PlayerStats currentPlayer;
@@ -46,6 +46,7 @@ public class PowerUpUI : MonoBehaviour
         PopulateChoices(options);
     }
 
+    // --- LOGICA DI POPOLAMENTO CORRETTA ---
     private void PopulateChoices(List<PowerUp> options) 
     {
         foreach (Transform child in buttonsContainer)
@@ -53,10 +54,27 @@ public class PowerUpUI : MonoBehaviour
 
         foreach (PowerUp pu in options)
         {
-            Button b = Instantiate(buttonPrefab, buttonsContainer);
-            // Mostra sia il nome che la descrizione
-            b.GetComponentInChildren<TextMeshProUGUI>().text = $"{pu.displayName}\n<size=18>{pu.description}</size>";
+            GameObject buttonObj = Instantiate(buttonPrefab, buttonsContainer);
+            
+            // 1. Troviamo lo script PowerUpButtonUI sul nostro prefab
+            PowerUpButtonUI buttonUI = buttonObj.GetComponent<PowerUpButtonUI>();
+            if (buttonUI != null)
+            {
+                // 2. Usiamo il suo metodo Setup per popolare icona e testi nei posti giusti
+                buttonUI.Setup(pu);
+            }
+            else
+            {
+                // Fallback di sicurezza se lo script manca, per evitare errori
+                Debug.LogError("Il prefab del pulsante non ha lo script PowerUpButtonUI!");
+            }
+
+            // 3. Aggiungiamo l'azione al click del pulsante
+            Button b = buttonObj.GetComponent<Button>();
+            if (b != null)
+            {
             b.onClick.AddListener(() => OnPowerUpSelected(pu));
+            }
         }
     }
     
@@ -68,8 +86,6 @@ public class PowerUpUI : MonoBehaviour
         PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
         if (manager != null)
         {
-            // --- MODIFICA APPLICATA QUI ---
-            // Ora passiamo anche il 'currentPlayer' al metodo, come richiesto
             List<PowerUp> newOptions = manager.GetRandomPowerUps(3, currentPlayer);
             PopulateChoices(newOptions);
         }
@@ -79,7 +95,6 @@ public class PowerUpUI : MonoBehaviour
     {
         if (currentPlayer == null) return;
 
-        // Applica il potenziamento e registralo nella lista del giocatore
         pu.Apply(currentPlayer);
         currentPlayer.acquiredPowerUps.Add(pu.type);
 

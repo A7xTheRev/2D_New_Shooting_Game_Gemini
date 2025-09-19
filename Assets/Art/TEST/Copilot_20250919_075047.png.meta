@@ -1,12 +1,10 @@
 fileFormatVersion: 2
-guid: 72c7b984c82bbc14ab9b90f332347df5
+guid: ed89f8b23a072c747b17d6eb22116064
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -800318762757090962
-    second: Seamlessly tileable background of a deep space starfield, modern pixel
-      art, top-down perspective. A dark, deep purple and blue nebula cloud drifts
-      gently in the background. Scattered small, glowing stars_0
+      213: -3980171763995571960
+    second: Copilot_20250919_075047_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -39,12 +37,12 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
-    wrapU: 1
-    wrapV: 1
-    wrapW: 1
+    wrapU: 0
+    wrapV: 0
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -77,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -141,15 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Seamlessly tileable background of a deep space starfield, modern pixel
-        art, top-down perspective. A dark, deep purple and blue nebula cloud drifts
-        gently in the background. Scattered small, glowing stars_0
+      name: Copilot_20250919_075047_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1200
-        height: 1200
+        width: 1024
+        height: 1024
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -158,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e6198c65352b4e4f0800000000000000
-      internalID: -800318762757090962
+      spriteID: 80901065ed693c8c0800000000000000
+      internalID: -3980171763995571960
       vertices: []
       indices: 
       edges: []
@@ -178,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Seamlessly tileable background of a deep space starfield, modern pixel art, top-down perspective. A dark, deep purple and blue nebula cloud drifts gently in the background. Scattered small, glowing stars_0: -800318762757090962
+      Copilot_20250919_075047_0: -3980171763995571960
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

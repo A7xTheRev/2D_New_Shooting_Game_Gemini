@@ -43,6 +43,7 @@ public class PowerUp
     public PowerUpType type;
     public string displayName;
     [TextArea] public string description;
+    public Sprite icon; // --- CAMPO AGGIUNTO ---
     public float value;
     
     public PowerUpType prerequisite = PowerUpType.IncreaseDamage;
