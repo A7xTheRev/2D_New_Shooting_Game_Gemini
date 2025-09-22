@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94c49fdebbd63d144b8ce9379418a8ed, type: 3}
+  m_Name: SD_Spectre
+  m_EditorClassIdentifier: Assembly-CSharp::ShipData
+  shipName: SPECTRE
+  playstyle: Glass Cannon / High DPS
+  description: A high-tech prototype that sacrifices durability for overwhelming
+    firepower. Features an enhanced targeting system that increases critical hit
+    chance.
+  shipSprite: {fileID: 2225597744116941208, guid: 53550a85de7ffd14da1621ef56dac127, type: 3}
+  shipPrefab: {fileID: 5325657781964287179, guid: 620a2efa1e1086d49a0ec966d2d7060f, type: 3}
+  baseStats: {fileID: 11400000, guid: e40beb1adb8657d43879e143780f56f1, type: 2}
+  costInGems: 30
+  isDefaultShip: 0

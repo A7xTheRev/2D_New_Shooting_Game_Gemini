@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94c49fdebbd63d144b8ce9379418a8ed, type: 3}
+  m_Name: SD_Wasp
+  m_EditorClassIdentifier: Assembly-CSharp::ShipData
+  shipName: WASP
+  playstyle: Speedster / Hit & Run
+  description: A nimble scout ship built for speed and evasion. Its rapid-fire cannons
+    are weaker, but its unmatched mobility allows it to control the battlefield.
+  shipSprite: {fileID: 6738733967352536134, guid: 5fa65fa4c32b256498ad2564299196fd, type: 3}
+  shipPrefab: {fileID: 5325657781964287179, guid: 31192ccd706ce5441abced119b3c4603, type: 3}
+  baseStats: {fileID: 11400000, guid: 00a0d51239e46ec49922d1e7beafa5e5, type: 2}
+  costInGems: 25
+  isDefaultShip: 0

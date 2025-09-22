@@ -20,6 +20,7 @@ public class MenuManager : MonoBehaviour
     public GameObject storePanel;
     public GameObject hangarPanel;
     public GameObject backgroundPanel;
+    public GameObject shipPanel;
 
     [Header("UI Generale")]
     public TextMeshProUGUI coinsText;
@@ -132,10 +133,48 @@ public class MenuManager : MonoBehaviour
         }
     }
     
-    public void ShowMainPanel() { mainPanel.SetActive(true); storePanel.SetActive(false); hangarPanel.SetActive(false); backgroundPanel.SetActive(false); }
-    public void ShowStorePanel() { mainPanel.SetActive(false); storePanel.SetActive(true); hangarPanel.SetActive(false); backgroundPanel.SetActive(false); }
-    public void ShowHangarPanel() { mainPanel.SetActive(false); storePanel.SetActive(false); hangarPanel.SetActive(true); backgroundPanel.SetActive(false); }
-    public void ShowBackgroundPanel() { mainPanel.SetActive(false); storePanel.SetActive(false); hangarPanel.SetActive(false); backgroundPanel.SetActive(true); }
+    public void ShowMainPanel() 
+    { 
+        mainPanel.SetActive(true); 
+        storePanel.SetActive(false); 
+        hangarPanel.SetActive(false); 
+        backgroundPanel.SetActive(false);
+        shipPanel.SetActive(false); // Aggiunto
+    }
+    public void ShowStorePanel() 
+    { 
+        mainPanel.SetActive(false); 
+        storePanel.SetActive(true); 
+        hangarPanel.SetActive(false); 
+        backgroundPanel.SetActive(false);
+        shipPanel.SetActive(false); // Aggiunto
+    }
+    public void ShowHangarPanel() 
+    { 
+        mainPanel.SetActive(false); 
+        storePanel.SetActive(false); 
+        hangarPanel.SetActive(true); 
+        backgroundPanel.SetActive(false);
+        shipPanel.SetActive(false); // Aggiunto
+    }
+    public void ShowBackgroundPanel()
+    {
+        mainPanel.SetActive(false);
+        storePanel.SetActive(false);
+        hangarPanel.SetActive(false);
+        backgroundPanel.SetActive(true);
+        shipPanel.SetActive(false); // Aggiunto
+    }
+
+    // --- NUOVO METODO PER IL PANNELLO NAVICELLE ---
+    public void ShowShipPanel()
+    {
+        mainPanel.SetActive(false);
+        storePanel.SetActive(false);
+        hangarPanel.SetActive(false);
+        backgroundPanel.SetActive(false);
+        shipPanel.SetActive(true);
+    }
     
     public void OnBuyUpgradeButtonPressed(PermanentUpgradeType type) { ProgressionManager.Instance.BuyUpgrade(type); }
     public void OnBuySpecialUpgradeButtonPressed(AbilityID id) { ProgressionManager.Instance.BuySpecialUpgrade(id); }

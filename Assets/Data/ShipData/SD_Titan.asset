@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94c49fdebbd63d144b8ce9379418a8ed, type: 3}
+  m_Name: SD_Titan
+  m_EditorClassIdentifier: Assembly-CSharp::ShipData
+  shipName: TITAN
+  playstyle: Tank / High Survivability
+  description: A slow but heavily armored gunship. Built to withstand punishing amounts
+    of damage while providing a stable firing platform.
+  shipSprite: {fileID: 5991683537479436764, guid: c697ae075edcd2a4a9164fb532d96be3, type: 3}
+  shipPrefab: {fileID: 5325657781964287179, guid: 970caecd829d7414f9fa364b4f71529a, type: 3}
+  baseStats: {fileID: 11400000, guid: d8a5ee72701e21c41b3badb91a044b2c, type: 2}
+  costInGems: 20
+  isDefaultShip: 0

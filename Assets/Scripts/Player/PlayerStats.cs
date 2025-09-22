@@ -24,7 +24,7 @@ public class PlayerStats : MonoBehaviour
     [HideInInspector] public float endBlinkInterval;
     [HideInInspector] public float hitShakeDuration;
     [HideInInspector] public float hitShakeMagnitude;
-    
+
     // --- STATO ATTUALE IN PARTITA ---
     public int currentHealth;
     public int currentXP = 0;
@@ -47,13 +47,13 @@ public class PlayerStats : MonoBehaviour
     public int homingMissileLevel = 0;
     public int homingMissileCount = 1;
     public float homingMissileCooldownMultiplier = 1f;
-    
+
     // --- NUOVA SEZIONE PER I DRONI ---
     [Header("Statistiche Droni da Combattimento")]
     public int combatDroneLevel = 0;
     public float combatDroneFireRateMultiplier = 1f;
     public bool dronesHavePiercingShots = false;
-    
+
     // --- NUOVA SEZIONE ---
     [Header("Potenziamenti Elementali")]
     public bool hasIncendiaryRounds = false;
@@ -68,7 +68,7 @@ public class PlayerStats : MonoBehaviour
     public event Action<int> OnLevelUp;
     public event Action<int> OnSessionCoinsChanged;
     public event Action<int> OnSessionSpecialCurrencyChanged;
-    
+
     private bool isInvulnerable = false;
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
@@ -130,12 +130,17 @@ public class PlayerStats : MonoBehaviour
             }
         }
         currentHealth = maxHealth;
-        spriteRenderer = GetComponent<SpriteRenderer>();
+
+        // --- MODIFICA APPLICATA QUI ---
+        // Cerca lo SpriteRenderer anche negli oggetti figli.
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        // --- FINE MODIFICA ---
+
         if (spriteRenderer != null) { originalColor = spriteRenderer.color; }
         UpdateAllUI();
     }
 
-    void Update() 
+    void Update()
     {
         if (healthRegenPerSecond > 0 && currentHealth < maxHealth)
         {
@@ -149,22 +154,22 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    void OnDestroy() 
+    void OnDestroy()
     {
         if (playerLayer != -1 && enemyLayer != -1)
             Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
         if (playerLayer != -1 && enemyProjectilesLayer != -1)
             Physics2D.IgnoreLayerCollision(playerLayer, enemyProjectilesLayer, false);
     }
-    
-    public void TakeDamage(int amount) 
+
+    public void TakeDamage(int amount)
     {
         if (isInvulnerable) return;
-        
+
         CameraShake.Instance.StartShake(hitShakeDuration, hitShakeMagnitude);
-        
+
         AudioManager.Instance.PlaySound(AudioManager.Instance.playerHitSound);
-        
+
         currentHealth -= amount;
         if (currentHealth < 0) currentHealth = 0;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
@@ -208,7 +213,7 @@ public class PlayerStats : MonoBehaviour
     {
         StartCoroutine(ShieldCoroutine(duration));
     }
-    
+
     private void ApplyPermanentUpgrades()
     {
         if (ProgressionManager.Instance == null) return;
@@ -235,11 +240,11 @@ public class PlayerStats : MonoBehaviour
         AudioManager.Instance.PlaySound(AudioManager.Instance.levelUpSound);
         StartCoroutine(ShowLevelUpPanelSequence());
     }
-    
+
     private IEnumerator ShowLevelUpPanelSequence()
     {
         yield return new WaitForSecondsRealtime(levelUpPanelDelay);
-        
+
         PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
         if (manager != null)
         {
@@ -247,7 +252,7 @@ public class PlayerStats : MonoBehaviour
             PowerUpUI.Instance.ShowPowerUpChoices(options, this);
         }
     }
-    
+
     private System.Collections.IEnumerator InvulnerabilityCoroutine()
     {
         isInvulnerable = true;
@@ -271,7 +276,7 @@ public class PlayerStats : MonoBehaviour
 
         if (spriteRenderer != null)
             spriteRenderer.color = originalColor;
-        
+
         Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
         Physics2D.IgnoreLayerCollision(playerLayer, enemyProjectilesLayer, false);
         isInvulnerable = false;
@@ -311,7 +316,7 @@ public class PlayerStats : MonoBehaviour
             secondChanceAvailable = false;
             UIManager uiManager = FindFirstObjectByType<UIManager>();
             if (uiManager != null) { uiManager.UpdateSecondChanceUI(false); }
-            
+
             currentHealth = maxHealth / 2;
             OnHealthChanged?.Invoke(currentHealth, maxHealth);
             StartCoroutine(InvulnerabilityCoroutine());
@@ -319,10 +324,10 @@ public class PlayerStats : MonoBehaviour
         else
         {
             Debug.Log("Player morto");
-        
-        // --- RIGA AGGIUNTA QUI ---
-        // Assicuriamoci che il tempo torni normale prima di cambiare scena.
-        Time.timeScale = 1f;
+
+            // --- RIGA AGGIUNTA QUI ---
+            // Assicuriamoci che il tempo torni normale prima di cambiare scena.
+            Time.timeScale = 1f;
 
             StageManager stageManager = FindFirstObjectByType<StageManager>();
             int currentWave = (stageManager != null) ? stageManager.stageNumber : 1;
@@ -330,5 +335,16 @@ public class PlayerStats : MonoBehaviour
 
             UnityEngine.SceneManagement.SceneManager.LoadScene("GameOver");
         }
+    }
+    
+    public void InitializeFromData(PlayerData data)
+    {
+        if (data == null)
+        {
+            Debug.LogError("Tentativo di inizializzare PlayerStats con dati nulli!");
+            return;
+        }
+        playerData = data;
+        LoadStatsFromData();
     }
 }

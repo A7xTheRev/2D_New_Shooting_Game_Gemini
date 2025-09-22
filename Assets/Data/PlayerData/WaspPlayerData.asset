@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8372f513ff8621f4493cb2ff77071a3e, type: 3}
-  m_Name: DefaultPlayerData
+  m_Name: WaspPlayerData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
-  maxHealth: 100
-  damage: 12
-  abilityPower: 15
-  attackSpeed: 1.2
-  moveSpeed: 5
+  maxHealth: 85
+  damage: 9
+  abilityPower: 12
+  attackSpeed: 1.5
+  moveSpeed: 7
   critChance: 0
   critDamageMultiplier: 2
-  projectileSizeMultiplier: 1
+  projectileSizeMultiplier: 0.9
   invulnerabilityTime: 1.5
   startBlinkInterval: 0.2
   endBlinkInterval: 0.05

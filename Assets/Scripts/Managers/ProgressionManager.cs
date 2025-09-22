@@ -36,6 +36,8 @@ public class ProgressionManager : MonoBehaviour
 
     [Header("Potenziamenti Normali")] public List<PermanentUpgrade> availableUpgrades = new List<PermanentUpgrade>();
     [Header("Potenziamenti Speciali")] public List<SpecialAbility> allSpecialAbilities = new List<SpecialAbility>();
+    [Tooltip("Trascina qui tutti gli asset ShipData di tutte le navicelle del gioco.")]
+    public List<ShipData> allShips = new List<ShipData>();
     private int coins; private int specialCurrency; private AbilityID equippedAbilityID;
     // --- NUOVE VARIABILI PER I RECORD ---
     private int maxWaveReached;
@@ -43,6 +45,11 @@ public class ProgressionManager : MonoBehaviour
     // --- FINE NUOVE VARIABILI ---
     private Dictionary<PermanentUpgradeType, int> upgradeLevels = new Dictionary<PermanentUpgradeType, int>();
     private HashSet<AbilityID> unlockedAbilitiesSet = new HashSet<AbilityID>();
+
+    // --- NUOVI CAMPI PER GESTIRE LE NAVICELLE ---
+    private string equippedShipName;
+    private HashSet<string> unlockedShipNamesSet = new HashSet<string>();
+    // --- FINE NUOVI CAMPI ---
 
     public static event System.Action OnValuesChanged;
 
@@ -61,10 +68,26 @@ public class ProgressionManager : MonoBehaviour
         // Carica i record
         maxWaveReached = data.maxWaveReached;
         maxCoinsInSession = data.maxCoinsInSession;
+
+        // Carica navicelle
+        equippedShipName = data.equippedShipName;
+        unlockedShipNamesSet = new HashSet<string>(data.unlockedShipNames);
+
         upgradeLevels.Clear();
         for (int i = 0; i < data.savedUpgradeTypes.Count; i++) { upgradeLevels[data.savedUpgradeTypes[i]] = data.savedUpgradeLevels[i]; }
         foreach (var upgrade in availableUpgrades) { if (!upgradeLevels.ContainsKey(upgrade.upgradeType)) upgradeLevels[upgrade.upgradeType] = 0; upgrade.currentLevel = upgradeLevels[upgrade.upgradeType]; }
         unlockedAbilitiesSet = new HashSet<AbilityID>(data.unlockedSpecialAbilities);
+
+        // Assicurati che la navicella di default sia sempre sbloccata
+        ShipData defaultShip = allShips.Find(s => s.isDefaultShip);
+        if (defaultShip != null)
+        {
+            unlockedShipNamesSet.Add(defaultShip.shipName);
+            if (string.IsNullOrEmpty(equippedShipName))
+            {
+                equippedShipName = defaultShip.shipName;
+            }
+        }
     }
 
     void SaveData()
@@ -76,13 +99,18 @@ public class ProgressionManager : MonoBehaviour
         // Salva i record
         data.maxWaveReached = maxWaveReached;
         data.maxCoinsInSession = maxCoinsInSession;
+
+        // Salva navicelle
+        data.equippedShipName = equippedShipName;
+        data.unlockedShipNames = unlockedShipNamesSet.ToList();
+
         data.savedUpgradeTypes.Clear();
         data.savedUpgradeLevels.Clear();
         foreach (var pair in upgradeLevels) { data.savedUpgradeTypes.Add(pair.Key); data.savedUpgradeLevels.Add(pair.Value); }
         data.unlockedSpecialAbilities = unlockedAbilitiesSet.ToList();
         SaveSystem.SaveGame(data);
     }
-    
+
     // --- NUOVI METODI PUBBLICI PER I RECORD ---
     public int GetMaxWave() { return maxWaveReached; }
     public int GetMaxCoins() { return maxCoinsInSession; }
@@ -110,7 +138,7 @@ public class ProgressionManager : MonoBehaviour
         return newRecord;
     }
     // --- FINE NUOVI METODI ---
-    
+
     public int GetCoins() { return coins; }
     public int GetSpecialCurrency() { return specialCurrency; }
     public void AddCoins(int value) { coins += value; SaveData(); OnValuesChanged?.Invoke(); }
@@ -125,4 +153,35 @@ public class ProgressionManager : MonoBehaviour
     public SpecialAbility GetEquippedAbility() { if (equippedAbilityID == AbilityID.None) { return allSpecialAbilities.Find(a => a.isDefaultAbility); } return allSpecialAbilities.Find(a => a.abilityID == equippedAbilityID); }
     public void SetEquippedAbility(SpecialAbility ability) { if (ability != null) { equippedAbilityID = ability.abilityID; SaveData(); } }
     public void ResetProgress() { SaveSystem.ResetSave(); coins = 0; specialCurrency = 0; equippedAbilityID = AbilityID.None; upgradeLevels = new Dictionary<PermanentUpgradeType, int>(); unlockedAbilitiesSet = new HashSet<AbilityID>(); LoadData(); OnValuesChanged?.Invoke(); }
+
+    public ShipData GetEquippedShip()
+    {
+        return allShips.Find(s => s.shipName == equippedShipName);
+    }
+
+    public void SetEquippedShip(ShipData ship)
+    {
+        if (ship != null && unlockedShipNamesSet.Contains(ship.shipName))
+        {
+            equippedShipName = ship.shipName;
+            SaveData();
+        }
+    }
+
+    public bool IsShipUnlocked(string shipName)
+    {
+        return unlockedShipNamesSet.Contains(shipName);
+    }
+
+    public void UnlockShip(string shipName)
+    {
+        ShipData shipToUnlock = allShips.Find(s => s.shipName == shipName);
+        if (shipToUnlock != null && !IsShipUnlocked(shipName) && specialCurrency >= shipToUnlock.costInGems)
+        {
+            specialCurrency -= shipToUnlock.costInGems;
+            unlockedShipNamesSet.Add(shipName);
+            SaveData();
+            OnValuesChanged?.Invoke();
+        }
+    }
 }

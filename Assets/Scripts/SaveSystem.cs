@@ -15,6 +15,10 @@ public class SaveData
     // --- NUOVI CAMPI PER I RECORD ---
     public int maxWaveReached = 0;
     public int maxCoinsInSession = 0;
+
+    // --- NUOVI CAMPI PER LE NAVICELLE ---
+    public string equippedShipName; // Salviamo il nome della navicella equipaggiata
+    public List<string> unlockedShipNames = new List<string>(); // Lista dei nomi delle navicelle sbloccate
     // --- FINE NUOVI CAMPI ---
 }
 
