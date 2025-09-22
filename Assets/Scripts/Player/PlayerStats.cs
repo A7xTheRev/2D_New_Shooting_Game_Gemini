@@ -5,16 +5,41 @@ using System.Collections.Generic;
 
 public class PlayerStats : MonoBehaviour
 {
-    // ... (variabili esistenti) ...
-    [Header("PowerUp")]
+    [Header("Configurazione")]
+    [Tooltip("La 'scheda' con tutte le statistiche di base del giocatore.")]
+    public PlayerData playerData;
+
+    // --- STATISTICHE DI BASE (ora lette dal PlayerData) ---
+    // Le teniamo pubbliche ma nascoste dall'inspector, perché rappresentano lo stato ATTUALE in partita
+    [HideInInspector] public int maxHealth;
+    [HideInInspector] public int damage;
+    [HideInInspector] public int abilityPower;
+    [HideInInspector] public float attackSpeed;
+    [HideInInspector] public float moveSpeed;
+    [HideInInspector] public float critChance;
+    [HideInInspector] public float critDamageMultiplier;
+    [HideInInspector] public float projectileSizeMultiplier;
+    [HideInInspector] public float invulnerabilityTime;
+    [HideInInspector] public float startBlinkInterval;
+    [HideInInspector] public float endBlinkInterval;
+    [HideInInspector] public float hitShakeDuration;
+    [HideInInspector] public float hitShakeMagnitude;
+    
+    // --- STATO ATTUALE IN PARTITA ---
+    public int currentHealth;
+    public int currentXP = 0;
+    public int xpToLevelUp = 50;
+    public int level = 1;
+    public float levelUpPanelDelay = 0.5f;
+    public int sessionCoins = 0;
+    public int sessionSpecialCurrency = 0;
+
+    [Header("PowerUp Accumulati")]
     public float xpMultiplier = 1f;
     public int projectileCount = 1;
     public int bounceCountEnemy = 0;
     public int bounceCountWall = 0;
     public float healthRegenPerSecond = 0f;
-    public float critChance = 0f;
-    public float critDamageMultiplier = 2f;
-    public float projectileSizeMultiplier = 1f;
     public float coinDropMultiplier = 1f;
 
     // --- SEZIONE MISSILI AMPLIATA ---
@@ -36,40 +61,7 @@ public class PlayerStats : MonoBehaviour
     public bool hasChainLightning = false;
     // --- FINE NUOVA SEZIONE ---
 
-    [HideInInspector]
-    public List<PowerUpType> acquiredPowerUps = new List<PowerUpType>();
-    
-    // [Per completezza, ecco l'intero script aggiornato]
-    [Header("Statistiche base")]
-    public int maxHealth = 100;
-    public int currentHealth;
-    public int damage = 12;
-    public int abilityPower = 15;
-    public float attackSpeed = 1.2f;
-    public float moveSpeed = 5f;
-
-    [Header("Progressione in partita")]
-    public int currentXP = 0;
-    public int xpToLevelUp = 50;
-    public int level = 1;
-    public float levelUpPanelDelay = 0.5f;
-
-    [Header("Coins")]
-    public int sessionCoins = 0;
-    public static int lastSessionCoins = 0;
-
-    [Header("Valuta Speciale")]
-    public int sessionSpecialCurrency = 0;
-    public static int lastSessionSpecialCurrency = 0;
-
-    [Header("Danno e invulnerabilità")]
-    public float invulnerabilityTime = 1.5f;
-    public float startBlinkInterval = 0.2f; 
-    public float endBlinkInterval = 0.05f;
-
-    [Header("Effetti Visivi")]
-    public float hitShakeDuration = 0.2f;
-    public float hitShakeMagnitude = 0.1f;
+    [HideInInspector] public List<PowerUpType> acquiredPowerUps = new List<PowerUpType>();
 
     public event Action<int, int> OnHealthChanged;
     public event Action<int, int> OnXPChanged;
@@ -88,9 +80,34 @@ public class PlayerStats : MonoBehaviour
 
     void Awake()
     {
+        // Carica tutte le statistiche di base dalla "scheda"
+        if (playerData == null)
+        {
+            Debug.LogError("ATTENZIONE: Nessun PlayerData assegnato al PlayerStats!");
+            return;
+        }
+        LoadStatsFromData();
+
         playerLayer = LayerMask.NameToLayer("Player");
         enemyLayer = LayerMask.NameToLayer("Enemy");
         enemyProjectilesLayer = LayerMask.NameToLayer("EnemyProjectile");
+    }
+
+    void LoadStatsFromData()
+    {
+        maxHealth = playerData.maxHealth;
+        damage = playerData.damage;
+        abilityPower = playerData.abilityPower;
+        attackSpeed = playerData.attackSpeed;
+        moveSpeed = playerData.moveSpeed;
+        critChance = playerData.critChance;
+        critDamageMultiplier = playerData.critDamageMultiplier;
+        projectileSizeMultiplier = playerData.projectileSizeMultiplier;
+        invulnerabilityTime = playerData.invulnerabilityTime;
+        startBlinkInterval = playerData.startBlinkInterval;
+        endBlinkInterval = playerData.endBlinkInterval;
+        hitShakeDuration = playerData.hitShakeDuration;
+        hitShakeMagnitude = playerData.hitShakeMagnitude;
     }
 
     void Start()
@@ -101,12 +118,12 @@ public class PlayerStats : MonoBehaviour
             PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
             if (manager != null)
             {
-                List<PowerUp> options = manager.GetRandomPowerUps(3, this); // Passiamo 'this'
+                List<PowerUp> options = manager.GetRandomPowerUps(3, this);
                 if (options.Count > 0)
                 {
                     PowerUp startingPowerUp = options[0];
                     startingPowerUp.Apply(this);
-                    acquiredPowerUps.Add(startingPowerUp.type); // Registra il potenziamento
+                    acquiredPowerUps.Add(startingPowerUp.type);
                     UIManager uiManager = FindFirstObjectByType<UIManager>();
                     if (uiManager != null) { uiManager.ShowNotification($"Starting Power-Up:\n{startingPowerUp.displayName}", 4f); }
                 }
@@ -303,14 +320,13 @@ public class PlayerStats : MonoBehaviour
         {
             Debug.Log("Player morto");
         
-            // --- LOGICA DI SALVATAGGIO MODIFICATA ---
-            // Troviamo lo StageManager per sapere a che ondata siamo arrivati
+        // --- RIGA AGGIUNTA QUI ---
+        // Assicuriamoci che il tempo torni normale prima di cambiare scena.
+        Time.timeScale = 1f;
+
             StageManager stageManager = FindFirstObjectByType<StageManager>();
             int currentWave = (stageManager != null) ? stageManager.stageNumber : 1;
-        
-            // Usiamo il nuovo metodo statico per passare tutti i dati alla schermata di Game Over
             GameOverManager.SetEndGameStats(currentWave, sessionCoins, sessionSpecialCurrency);
-            // --- FINE MODIFICA ---
 
             UnityEngine.SceneManagement.SceneManager.LoadScene("GameOver");
         }

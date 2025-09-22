@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 1250557559443550168}
   - component: {fileID: 831596489700528874}
   m_Layer: 9
-  m_Name: Enemy_Base
+  m_Name: Enemy_Standard
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -568,9 +568,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdde63428ebb42c4a8a3fe4ca0bc0375, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
-  allowStatScaling: 1
+  enemyData: {fileID: 11400000, guid: e541be16d1e1f6a46890f9509f5cd6ac, type: 2}
   maxHealth: 25
-  currentHealth: 0
   moveSpeed: 1.2
   contactDamage: 10
   projectileDamage: 0
@@ -579,12 +578,14 @@ MonoBehaviour:
   xpReward: 10
   specialCurrencyReward: 0
   hasDeathAnimation: 0
-  flashColor: {r: 0.7647059, g: 0.078431375, b: 0.06666667, a: 0.8862745}
-  flashDuration: 0.1
   deathVFXTag: EnemyExplosion
   deathShakeDuration: 0
   deathShakeMagnitude: 0
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
+  allowStatScaling: 1
+  flashColor: {r: 0.7647059, g: 0.078431375, b: 0.06666667, a: 0.8862745}
+  flashDuration: 0.1
+  currentHealth: 0
 --- !u!114 &831596489700528874
 MonoBehaviour:
   m_ObjectHideFlags: 0

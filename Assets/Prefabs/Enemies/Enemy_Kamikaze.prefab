@@ -564,9 +564,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdde63428ebb42c4a8a3fe4ca0bc0375, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
-  allowStatScaling: 1
+  enemyData: {fileID: 11400000, guid: 010df52cd92aee2428cca3945f7dadc3, type: 2}
   maxHealth: 15
-  currentHealth: 0
   moveSpeed: 6
   contactDamage: 20
   projectileDamage: 0
@@ -575,12 +574,14 @@ MonoBehaviour:
   xpReward: 15
   specialCurrencyReward: 0
   hasDeathAnimation: 0
-  flashColor: {r: 0.7647059, g: 0.078431375, b: 0.06666667, a: 0.8862745}
-  flashDuration: 0.1
   deathVFXTag: EnemyExplosion
   deathShakeDuration: 0
   deathShakeMagnitude: 0
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
+  allowStatScaling: 1
+  flashColor: {r: 0.7647059, g: 0.078431375, b: 0.06666667, a: 0.8862745}
+  flashDuration: 0.1
+  currentHealth: 0
 --- !u!114 &-7570748365612212358
 MonoBehaviour:
   m_ObjectHideFlags: 0

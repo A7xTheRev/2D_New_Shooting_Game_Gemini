@@ -7,11 +7,19 @@ using System.Collections.Generic;
 
 public class MenuManager : MonoBehaviour
 {
+    // Nuova classe interna per collegare facilmente pulsanti e dati nell'Inspector
+    [System.Serializable]
+    public class WeaponSelectionButton
+    {
+        public WeaponData weaponData;
+        public Button button;
+    }
+
     [Header("Pannelli Schermate")]
     public GameObject mainPanel;
     public GameObject storePanel;
     public GameObject hangarPanel;
-    public GameObject backgroundPanel; // --- NUOVO RIFERIMENTO ---
+    public GameObject backgroundPanel;
 
     [Header("UI Generale")]
     public TextMeshProUGUI coinsText;
@@ -22,9 +30,8 @@ public class MenuManager : MonoBehaviour
     public TextMeshProUGUI maxCoinsText;
 
     [Header("Pulsanti Arma")]
-    public Button laserButton;
-    public Button standardButton;
-    public Button missileButton;
+    // Sostituiamo i vecchi riferimenti singoli con una lista configurabile
+    public List<WeaponSelectionButton> weaponButtons;
 
     [Header("Selezione Abilità Speciale (Hangar)")]
     public Image hangarAbilityIcon;
@@ -58,12 +65,8 @@ public class MenuManager : MonoBehaviour
         public GameObject unlockedIndicator; 
     }
     
-    public static event Action<string> OnWeaponChanged;
-    private static string selectedWeapon = "Standard";
-    
     private int currentAbilityIndex = 0;
     private List<SpecialAbility> unlockedAbilities;
-
     private bool isQuitting = false;
 
     void OnApplicationQuit()
@@ -80,6 +83,7 @@ public class MenuManager : MonoBehaviour
 
     void Start()
     {
+        // Collega i listener per i pannelli di upgrade
         foreach (var panel in normalUpgradePanels)
         {
             PermanentUpgradeType type = panel.upgradeType;
@@ -93,9 +97,14 @@ public class MenuManager : MonoBehaviour
             panel.buyButton.onClick.AddListener(() => OnBuySpecialUpgradeButtonPressed(id));
         }
 
+        // Collega i listener per i pulsanti delle armi in modo dinamico
+        foreach (var weaponButton in weaponButtons)
+        {
+            weaponButton.button.onClick.AddListener(() => SelectWeapon(weaponButton.weaponData));
+        }
+
         ShowMainPanel();
-        string savedWeapon = PlayerPrefs.GetString("SelectedWeapon", selectedWeapon);
-        HighlightSelectedWeapon(savedWeapon);
+        LoadAndHighlightSavedWeapon();
         UpdateAllUI();
         UpdateRecordUI();
     }
@@ -120,56 +129,80 @@ public class MenuManager : MonoBehaviour
         {
             if (maxWaveText != null) maxWaveText.text = "Max Wave: " + ProgressionManager.Instance.GetMaxWave();
             if (maxCoinsText != null) maxCoinsText.text = "Max Coins: " + ProgressionManager.Instance.GetMaxCoins();
-            }
         }
+    }
     
-    // --- METODI DI VISUALIZZAZIONE PANNELLI AGGIORNATI ---
-    public void ShowMainPanel() 
-    { 
-        mainPanel.SetActive(true); 
-        storePanel.SetActive(false); 
-        hangarPanel.SetActive(false); 
-        backgroundPanel.SetActive(false); // Aggiunto
-    }
-    public void ShowStorePanel() 
-    { 
-        mainPanel.SetActive(false); 
-        storePanel.SetActive(true); 
-        hangarPanel.SetActive(false); 
-        backgroundPanel.SetActive(false); // Aggiunto
-    }
-    public void ShowHangarPanel() 
-    { 
-        mainPanel.SetActive(false); 
-        storePanel.SetActive(false); 
-        hangarPanel.SetActive(true); 
-        backgroundPanel.SetActive(false); // Aggiunto
-    }
-
-    // --- NUOVO METODO PER IL PANNELLO DEGLI SFONDI ---
-    public void ShowBackgroundPanel()
-    {
-        mainPanel.SetActive(false);
-        storePanel.SetActive(false);
-        hangarPanel.SetActive(false);
-        backgroundPanel.SetActive(true);
-    }
+    public void ShowMainPanel() { mainPanel.SetActive(true); storePanel.SetActive(false); hangarPanel.SetActive(false); backgroundPanel.SetActive(false); }
+    public void ShowStorePanel() { mainPanel.SetActive(false); storePanel.SetActive(true); hangarPanel.SetActive(false); backgroundPanel.SetActive(false); }
+    public void ShowHangarPanel() { mainPanel.SetActive(false); storePanel.SetActive(false); hangarPanel.SetActive(true); backgroundPanel.SetActive(false); }
+    public void ShowBackgroundPanel() { mainPanel.SetActive(false); storePanel.SetActive(false); hangarPanel.SetActive(false); backgroundPanel.SetActive(true); }
     
     public void OnBuyUpgradeButtonPressed(PermanentUpgradeType type) { ProgressionManager.Instance.BuyUpgrade(type); }
     public void OnBuySpecialUpgradeButtonPressed(AbilityID id) { ProgressionManager.Instance.BuySpecialUpgrade(id); }
     public void OnResetButtonPressed() { if (ProgressionManager.Instance != null) { ProgressionManager.Instance.ResetProgress(); } }
     
-    public void StartGame() { SceneManager.LoadScene("GameScene"); }
-
-    public void SelectWeapon(string weaponName)
+    public void StartGame() 
     {
-        selectedWeapon = weaponName;
-        PlayerPrefs.SetString("SelectedWeapon", weaponName);
+        string selectedWeaponName = PlayerPrefs.GetString("SelectedWeapon", "Standard");
+        WeaponData dataToPass = null;
+        
+        foreach(var wb in weaponButtons)
+        {
+            if(wb.weaponData.weaponName == selectedWeaponName)
+            {
+                dataToPass = wb.weaponData;
+                break;
+            }
+        }
+        
+        if (dataToPass != null && GameDataManager.Instance != null)
+        {
+            GameDataManager.Instance.selectedWeapon = dataToPass;
+            Debug.Log("AVVIO PARTITA CON: " + dataToPass.weaponName); // Messaggio di Debug
+        }
+        else
+        {
+            Debug.LogError("Impossibile trovare i dati per l'arma selezionata ("+ selectedWeaponName +") o il GameDataManager!");
+            // Come fallback, potremmo caricare la prima arma della lista
+            if(weaponButtons.Count > 0) GameDataManager.Instance.selectedWeapon = weaponButtons[0].weaponData;
+        }
+
+        SceneManager.LoadScene("GameScene"); 
+    }
+
+    // Metodo di selezione arma aggiornato
+    public void SelectWeapon(WeaponData weaponData)
+    {
+        Debug.Log("ARMA SELEZIONATA: " + weaponData.weaponName); // Messaggio di Debug
+        PlayerPrefs.SetString("SelectedWeapon", weaponData.weaponName);
         PlayerPrefs.Save();
-        HighlightSelectedWeapon(weaponName);
-        OnWeaponChanged?.Invoke(weaponName);
+        HighlightSelectedWeapon(weaponData.weaponName);
     }
     
+    private void LoadAndHighlightSavedWeapon()
+    {
+        string savedWeaponName = PlayerPrefs.GetString("SelectedWeapon", "Standard");
+        HighlightSelectedWeapon(savedWeaponName);
+    }
+    
+    private void HighlightSelectedWeapon(string weaponName)
+    {
+        Color selectedColor = Color.green;
+        Color normalColor = Color.white;
+
+        foreach (var wb in weaponButtons)
+        {
+            if (wb.weaponData.weaponName == weaponName)
+            {
+                wb.button.image.color = selectedColor;
+            }
+            else
+            {
+                wb.button.image.color = normalColor;
+            }
+        }
+    }
+
     public void CycleAbility(int direction)
     {
         if (unlockedAbilities == null || unlockedAbilities.Count <= 1) return;
@@ -267,19 +300,5 @@ public class MenuManager : MonoBehaviour
 
         if (hangarPrevButton != null) hangarPrevButton.interactable = currentAbilityIndex > 0;
         if (hangarNextButton != null) hangarNextButton.interactable = currentAbilityIndex < unlockedAbilities.Count - 1;
-    }
-
-    private void HighlightSelectedWeapon(string weaponName)
-    {
-        Color selectedColor = Color.green;
-        Color normalColor = Color.white;
-        if (laserButton != null) laserButton.image.color = (weaponName == "Laser") ? selectedColor : normalColor;
-        if (standardButton != null) standardButton.image.color = (weaponName == "Standard") ? selectedColor : normalColor;
-        if (missileButton != null) missileButton.image.color = (weaponName == "Missile") ? selectedColor : normalColor;
-    }
-    
-    public static string GetSelectedWeapon() 
-    { 
-        return PlayerPrefs.GetString("SelectedWeapon", selectedWeapon); 
     }
 }

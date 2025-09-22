@@ -337,19 +337,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 10958986}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1769251312}
-        m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
-        m_MethodName: SelectWeapon
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: Missile
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &10958986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2028,19 +2016,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 174550068}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1769251312}
-        m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
-        m_MethodName: SelectWeapon
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: Standard
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &174550068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5664,19 +5640,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 544115517}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1769251312}
-        m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
-        m_MethodName: SelectWeapon
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: Laser
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &544115517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14964,9 +14928,13 @@ MonoBehaviour:
   specialCurrencyText: {fileID: 368693033}
   maxWaveText: {fileID: 223948177}
   maxCoinsText: {fileID: 1167456868}
-  laserButton: {fileID: 544115516}
-  standardButton: {fileID: 174550067}
-  missileButton: {fileID: 10958985}
+  weaponButtons:
+  - weaponData: {fileID: 11400000, guid: 07b7f0800366ef44ca7b035626fe8138, type: 2}
+    button: {fileID: 544115516}
+  - weaponData: {fileID: 11400000, guid: a2106a96ff171d649a2d9ecef4c7eea6, type: 2}
+    button: {fileID: 174550067}
+  - weaponData: {fileID: 11400000, guid: 5f71ca4ff32de954c95adf3694a32740, type: 2}
+    button: {fileID: 10958985}
   hangarAbilityIcon: {fileID: 255068639}
   hangarAbilityName: {fileID: 1918397315}
   hangarAbilityDescription: {fileID: 1654715654}
@@ -16434,6 +16402,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2030521960}
   m_CullTransparentMesh: 1
+--- !u!1 &2033826941
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2033826943}
+  - component: {fileID: 2033826942}
+  m_Layer: 0
+  m_Name: GameDataManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2033826942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2033826941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1879c5e7c7f5c5045820ee4576cfe130, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameDataManager
+  selectedWeapon: {fileID: 0}
+--- !u!4 &2033826943
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2033826941}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.06392, y: 3.78206, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2042742103
 GameObject:
   m_ObjectHideFlags: 0
@@ -16974,6 +16987,7 @@ SceneRoots:
   - {fileID: 960649762}
   - {fileID: 973597991}
   - {fileID: 597784376}
+  - {fileID: 2033826943}
   - {fileID: 136825818}
   - {fileID: 273966911}
   - {fileID: 1372978382}

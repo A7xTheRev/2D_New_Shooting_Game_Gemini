@@ -18,53 +18,50 @@ public class PlayerController : MonoBehaviour
     public float slowMotionDelay = 1f;
     public UnityEngine.UI.Image slowMotionVignette;
 
+    // La nuova variabile che contiene i dati dell'arma equipaggiata
+    private WeaponData currentWeaponData;
+
     private PlayerStats stats;
     private Camera cam;
     private ProjectilePool projectilePool;
     private AbilityController abilityController;
-    
     private float timeSinceLastTouch = 0f;
     private Color vignetteColor;
-
-    [Header("Statistiche Arma Attiva")]
-    public float currentWeaponDamageMultiplier = 1f;
-    public float currentWeaponSpeedMultiplier = 1f;
-    public float currentWeaponAreaDamage = 0f;
-    private string currentWeaponImpactTag; 
-
-    private string currentWeaponName;
     private float fireTimer;
-    
     private bool ignoreInputThisFrame = false;
+    // --- NUOVA VARIABILE DI CONTROLLO ---
+    public bool controlsEnabled = false;
 
     void Awake()
     {
         stats = GetComponent<PlayerStats>();
         cam = Camera.main;
         abilityController = GetComponent<AbilityController>();
-        ApplyWeaponStats(MenuManager.GetSelectedWeapon());
         if (slowMotionVignette != null) { vignetteColor = slowMotionVignette.color; }
     }
 
     void Start()
     {
         projectilePool = ProjectilePool.Instance;
-        ApplyWeaponStats(MenuManager.GetSelectedWeapon());
-    }
 
-    void OnEnable() 
-    { 
-        MenuManager.OnWeaponChanged += ApplyWeaponStats; 
-        Time.timeScale = 1f;
-    }
-    void OnDisable() 
-    { 
-        Time.timeScale = 1f; 
-        MenuManager.OnWeaponChanged -= ApplyWeaponStats; 
+        // Legge l'arma selezionata dal GameDataManager e la equipaggia
+        if (GameDataManager.Instance != null && GameDataManager.Instance.selectedWeapon != null)
+        {
+            EquipWeapon(GameDataManager.Instance.selectedWeapon);
+        }
+        else
+        {
+            Debug.LogError("Nessuna arma selezionata trovata nel GameDataManager! Assicurati che l'oggetto GameDataManager esista nella scena MainMenu.");
+        }
     }
 
     void Update()
     {
+        // --- NUOVO CONTROLLO INIZIALE ---
+        // Se i controlli non sono attivi, non fare nulla in Update.
+        if (!controlsEnabled) return;
+        // --- FINE NUOVO CONTROLLO ---
+
         if (Time.timeScale > 0f && ignoreInputThisFrame)
         {
             ignoreInputThisFrame = false;
@@ -78,7 +75,18 @@ public class PlayerController : MonoBehaviour
 
         HandleMovementAndAbility();
         HandleShooting();
-        // LA CHIAMATA A HandleHomingMissiles() È STATA RIMOSSA
+    }
+
+    // --- NUOVO METODO PUBBLICO PER EQUIPAGGIARE UN'ARMA ---
+    public void EquipWeapon(WeaponData weaponData)
+    {
+        if (weaponData == null)
+        {
+            Debug.LogError("Si è tentato di equipaggiare un'arma nulla!");
+            return;
+        }
+        currentWeaponData = weaponData;
+        Debug.Log("Arma equipaggiata: " + currentWeaponData.weaponName);
     }
     
     void HandleMovementAndAbility()
@@ -98,6 +106,9 @@ public class PlayerController : MonoBehaviour
 
     void HandleShooting()
     {
+        // Aggiungiamo un controllo per assicurarci di avere un'arma equipaggiata
+        if (currentWeaponData == null) return;
+
         fireTimer -= Time.deltaTime;
         if (fireTimer <= 0f)
         {
@@ -108,7 +119,12 @@ public class PlayerController : MonoBehaviour
 
     void Shoot()
     {
-        if (projectilePool == null || firePoint == null || string.IsNullOrEmpty(currentWeaponName)) return;
+        if (projectilePool == null || firePoint == null) return;
+        if (currentWeaponData == null) 
+        {
+            Debug.LogError("ERRORE: Tento di sparare ma non ho un'arma equipaggiata (currentWeaponData è nullo)!");
+            return;
+        }
         
         AudioManager.Instance.PlaySound(AudioManager.Instance.playerShootSound);
 
@@ -119,8 +135,9 @@ public class PlayerController : MonoBehaviour
 
     void SpawnProjectile(Vector2 direction, Vector3 position)
     {
-        GameObject projGameObject = projectilePool.GetProjectileForWeapon(currentWeaponName);
+        GameObject projGameObject = projectilePool.GetProjectileForWeapon(currentWeaponData.weaponName);
         if (projGameObject == null) return;
+        
         projGameObject.transform.position = position;
         projGameObject.transform.rotation = firePoint.rotation;
         projGameObject.transform.localScale = Vector3.one * stats.projectileSizeMultiplier;
@@ -129,41 +146,12 @@ public class PlayerController : MonoBehaviour
         if (p != null) 
         { 
             p.baseDamage = stats.damage; 
-            p.damageMultiplier = currentWeaponDamageMultiplier; 
-            p.speed *= currentWeaponSpeedMultiplier; 
-            p.areaDamageRadius = currentWeaponAreaDamage;
-            p.impactVFXTag = currentWeaponImpactTag; 
+            p.damageMultiplier = currentWeaponData.damageMultiplier; 
+            p.speed *= currentWeaponData.projectileSpeedMultiplier; 
+            p.areaDamageRadius = currentWeaponData.areaDamageRadius;
+            p.impactVFXTag = currentWeaponData.impactVFXTag; 
             p.SetOwner(stats); 
             p.Launch(direction); 
-        }
-    }
-
-    private void ApplyWeaponStats(string weapon)
-    {
-        currentWeaponName = weapon;
-        switch (weapon)
-        {
-            case "Laser": 
-                currentWeaponDamageMultiplier = 0.7f; 
-                currentWeaponSpeedMultiplier = 1.5f; 
-                currentWeaponAreaDamage = 0f;
-                currentWeaponImpactTag = "LaserImpact";
-                break;
-
-            case "Missile": 
-                currentWeaponDamageMultiplier = 1f; 
-                currentWeaponSpeedMultiplier = 0.8f; 
-                currentWeaponAreaDamage = 1f; 
-                currentWeaponImpactTag = "MissileImpact";
-                break;
-
-            default:
-            case "Standard": 
-                currentWeaponDamageMultiplier = 1f; 
-                currentWeaponSpeedMultiplier = 1f; 
-                currentWeaponAreaDamage = 0f; 
-                currentWeaponImpactTag = "StandardImpact";
-                break;
         }
     }
 }

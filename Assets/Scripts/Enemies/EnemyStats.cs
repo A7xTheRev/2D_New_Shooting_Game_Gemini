@@ -5,39 +5,35 @@ using System.Collections.Generic;
 
 public class EnemyStats : MonoBehaviour
 {
-    [Header("Scaling")]
-    public bool allowStatScaling = true;
+    [Header("Configurazione")]
+    [Tooltip("La 'scheda' con tutte le statistiche di questo tipo di nemico.")]
+    public EnemyData enemyData;
 
-    [Header("Statistiche base")]
-    public int maxHealth = 50;
+    // Statistiche caricate dall'EnemyData
+    [HideInInspector] public int maxHealth;
+    [HideInInspector] public float moveSpeed;
+    [HideInInspector] public int contactDamage;
+    [HideInInspector] public int projectileDamage;
+    [HideInInspector] public float fireRate;
+    [HideInInspector] public int coinReward;
+    [HideInInspector] public int xpReward;
+    [HideInInspector] public int specialCurrencyReward;
+    [HideInInspector] public bool hasDeathAnimation;
+    [HideInInspector] public string deathVFXTag;
+    [HideInInspector] public float deathShakeDuration;
+    [HideInInspector] public float deathShakeMagnitude;
+    [HideInInspector] public GameObject burnVFX;
+    [HideInInspector] public bool allowStatScaling;
+    // --- VARIABILI AGGIUNTE ---
+    [HideInInspector] public Color flashColor;
+    [HideInInspector] public float flashDuration;
+    // --- FINE AGGIUNTA ---
+
+    // L'unica statistica che cambia durante il gioco
     public int currentHealth;
-    public float moveSpeed = 2f;
-    public int contactDamage = 10;
-    public int projectileDamage = 10;
-    public float fireRate = 3f;
 
-    [Header("Ricompense")]
-    public int coinReward = 5;
-    public int xpReward = 20;
-    public int specialCurrencyReward = 0;
-    
-    [Header("Animazione")]
-    public bool hasDeathAnimation = false;
-    
-    [Header("Effetto Visivo (Hit)")]
-    public Color flashColor = Color.white;
-    public float flashDuration = 0.1f;
-    
-    [Header("Effetto Visivo (Morte)")]
-    public string deathVFXTag = "EnemyExplosion";
-    public float deathShakeDuration = 0f;
-    public float deathShakeMagnitude = 0f;
-
-    [Header("Effetti di Stato")]
-    public GameObject burnVFX;
-    
     public event Action<int, int> OnHealthChanged;
-    
+
     private bool isDying = false;
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
@@ -47,6 +43,32 @@ public class EnemyStats : MonoBehaviour
 
     void Awake()
     {
+        if (enemyData == null)
+        {
+            Debug.LogError("ATTENZIONE: Nessun EnemyData assegnato a " + gameObject.name);
+            return;
+        }
+
+        // Carica tutti i dati dalla "scheda"
+        allowStatScaling = enemyData.allowStatScaling;
+        maxHealth = enemyData.maxHealth;
+        moveSpeed = enemyData.moveSpeed;
+        contactDamage = enemyData.contactDamage;
+        projectileDamage = enemyData.projectileDamage;
+        fireRate = enemyData.fireRate;
+        coinReward = enemyData.coinReward;
+        xpReward = enemyData.xpReward;
+        specialCurrencyReward = enemyData.specialCurrencyReward;
+        hasDeathAnimation = enemyData.hasDeathAnimation;
+        deathVFXTag = enemyData.deathVFXTag;
+        deathShakeDuration = enemyData.deathShakeDuration;
+        deathShakeMagnitude = enemyData.deathShakeMagnitude;
+        burnVFX = enemyData.burnVFX;
+        // --- RIGHE AGGIUNTE ---
+        flashColor = enemyData.flashColor;
+        flashDuration = enemyData.flashDuration;
+        // --- FINE AGGIUNTA ---
+
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
     }
@@ -60,7 +82,7 @@ public class EnemyStats : MonoBehaviour
         currentHealth = maxHealth;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
-    
+
     public void TakeDamage(int damageAmount, bool isCrit)
     {
         if (isDying) return;
@@ -76,7 +98,7 @@ public class EnemyStats : MonoBehaviour
             if (flashCoroutine != null) StopCoroutine(flashCoroutine);
             flashCoroutine = StartCoroutine(FlashEffect());
         }
-        
+
         if (currentHealth <= 0)
         {
             Die();
@@ -85,10 +107,7 @@ public class EnemyStats : MonoBehaviour
 
     public void ApplyBurn(float duration)
     {
-        if (burnCoroutine != null)
-        {
-            StopCoroutine(burnCoroutine);
-        }
+        if (burnCoroutine != null) StopCoroutine(burnCoroutine);
         burnCoroutine = StartCoroutine(BurnEffect(duration));
     }
 
@@ -112,7 +131,7 @@ public class EnemyStats : MonoBehaviour
         {
             yield return new WaitForSeconds(1f);
             timer -= 1f;
-            
+
             if (this != null && currentHealth > 0)
             {
                 int currentBurnDamage = Mathf.Max(1, burnDamage);
@@ -124,22 +143,19 @@ public class EnemyStats : MonoBehaviour
             }
         }
 
-        if (vfxInstance != null)
-        {
-            Destroy(vfxInstance);
-        }
+        if (vfxInstance != null) Destroy(vfxInstance);
         burnCoroutine = null;
     }
-    
+
     private void ShowDamageNumber(int damageAmount, bool isCrit)
     {
         GameObject numberObject = VFXPool.Instance.GetVFX("DamageNumber");
         if (numberObject != null)
         {
             Vector3 spawnPosition = transform.position + new Vector3(UnityEngine.Random.Range(-0.3f, 0.3f), 0.5f, 0);
-            spawnPosition.z = -1f; 
+            spawnPosition.z = -1f;
             numberObject.transform.position = spawnPosition;
-            
+
             DamageNumber dn = numberObject.GetComponent<DamageNumber>();
             if (dn != null)
             {
@@ -147,7 +163,7 @@ public class EnemyStats : MonoBehaviour
             }
         }
     }
-    
+
     private IEnumerator FlashEffect()
     {
         spriteRenderer.color = flashColor;
@@ -167,7 +183,12 @@ public class EnemyStats : MonoBehaviour
         // Effetti comuni a tutte le morti (disattiva collider, shake, suono)
         GetComponent<Collider2D>().enabled = false;
         if (GetComponent<Rigidbody2D>() != null) GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
-        if (deathShakeDuration > 0f && deathShakeMagnitude > 0f) CameraShake.Instance.StartShake(deathShakeDuration, deathShakeMagnitude);
+
+        if (deathShakeDuration > 0f && deathShakeMagnitude > 0f)
+        {
+            CameraShake.Instance.StartShake(deathShakeDuration, deathShakeMagnitude);
+        }
+
         AudioManager.Instance.PlaySound(AudioManager.Instance.enemyDeathSound);
 
         // Controlla se questo oggetto fa parte di un Super Boss
@@ -188,11 +209,11 @@ public class EnemyStats : MonoBehaviour
                 if (!string.IsNullOrEmpty(deathVFXTag)) { /* Logica esplosione boss finale */ }
                 Destroy(parentBoss.gameObject);
             }
-            return; // Esci dal metodo per non dare ricompense multiple.
+            return;
         }
 
         // --- Se non è parte di un boss, è un nemico normale. Esegui la logica standard. ---
-        
+
         PlayerStats player = FindFirstObjectByType<PlayerStats>();
         if (player != null)
         {
@@ -200,7 +221,7 @@ public class EnemyStats : MonoBehaviour
             GameManager.Instance?.EnemyDefeated(finalCoinReward, xpReward, specialCurrencyReward);
             player.GetComponent<AbilityController>()?.AddChargeFromKill();
         }
-        
+
         if (animator != null && hasDeathAnimation)
         {
             animator.SetTrigger("Die");
@@ -219,9 +240,15 @@ public class EnemyStats : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    
+
     public void OnDeathAnimationFinished()
     {
         Destroy(gameObject);
+    }
+    
+    public void SetOriginalColorAfterEliteTint(Color newColor)
+    {
+        spriteRenderer.color = newColor;
+        originalColor = newColor;
     }
 }

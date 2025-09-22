@@ -383,14 +383,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c59541404bff843428a370be267ce2b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
+  playerData: {fileID: 11400000, guid: bfb99696b16a6a54abb0beef88463472, type: 2}
+  maxHealth: 100
+  damage: 12
+  abilityPower: 15
+  attackSpeed: 1.2
+  moveSpeed: 5
+  critChance: 0
+  critDamageMultiplier: 2
+  projectileSizeMultiplier: 1
+  invulnerabilityTime: 2
+  startBlinkInterval: 0.2
+  endBlinkInterval: 0.05
+  hitShakeDuration: 0.4
+  hitShakeMagnitude: 0.04
+  currentHealth: 0
+  currentXP: 0
+  xpToLevelUp: 75
+  level: 1
+  levelUpPanelDelay: 0.5
+  sessionCoins: 0
+  sessionSpecialCurrency: 0
   xpMultiplier: 1
   projectileCount: 1
   bounceCountEnemy: 0
   bounceCountWall: 0
   healthRegenPerSecond: 0
-  critChance: 0
-  critDamageMultiplier: 2
-  projectileSizeMultiplier: 1
   coinDropMultiplier: 1
   homingMissileLevel: 0
   homingMissileCount: 1
@@ -402,23 +420,6 @@ MonoBehaviour:
   hasCryoRounds: 0
   hasChainLightning: 0
   acquiredPowerUps: 
-  maxHealth: 100
-  currentHealth: 0
-  damage: 12
-  abilityPower: 15
-  attackSpeed: 1.2
-  moveSpeed: 5
-  currentXP: 0
-  xpToLevelUp: 75
-  level: 1
-  levelUpPanelDelay: 0.5
-  sessionCoins: 0
-  sessionSpecialCurrency: 0
-  invulnerabilityTime: 2
-  startBlinkInterval: 0.2
-  endBlinkInterval: 0.05
-  hitShakeDuration: 0.4
-  hitShakeMagnitude: 0.04
 --- !u!114 &3338396899420807692
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -437,9 +438,6 @@ MonoBehaviour:
   slowMotionFactor: 0.3
   slowMotionDelay: 1
   slowMotionVignette: {fileID: 0}
-  currentWeaponDamageMultiplier: 1
-  currentWeaponSpeedMultiplier: 1
-  currentWeaponAreaDamage: 0
 --- !u!114 &3924887619528305801
 MonoBehaviour:
   m_ObjectHideFlags: 0

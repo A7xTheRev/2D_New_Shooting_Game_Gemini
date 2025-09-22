@@ -19,12 +19,16 @@ public class EliteStats : MonoBehaviour
     public Color eliteColorTint = Color.red;
     // --- FINE NUOVA SEZIONE ---
 
-    void Awake()
+    // --- METODO RINOMINATO DA Awake A Start ---
+    // In questo modo, siamo sicuri che venga eseguito DOPO l'Awake di EnemyStats,
+    // che ha già caricato i dati base dall'EnemyData.
+    void Start()
     {
         EnemyStats stats = GetComponent<EnemyStats>();
 
         // Applica i moltiplicatori alle statistiche
         stats.maxHealth = Mathf.RoundToInt(stats.maxHealth * healthMultiplier);
+        stats.currentHealth = stats.maxHealth; // Assicurati di aggiornare anche la vita corrente
         stats.contactDamage = Mathf.RoundToInt(stats.contactDamage * damageMultiplier);
         stats.projectileDamage = Mathf.RoundToInt(stats.projectileDamage * damageMultiplier);
         stats.moveSpeed *= speedMultiplier;
@@ -47,7 +51,8 @@ public class EliteStats : MonoBehaviour
         SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = eliteColorTint;
+            // Salva il colore originale modificato, per il flash
+            stats.SetOriginalColorAfterEliteTint(eliteColorTint);
         }
         // --- FINE NUOVA LOGICA ---
     }

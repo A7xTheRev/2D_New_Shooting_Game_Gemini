@@ -38,16 +38,22 @@ public class StageManager : MonoBehaviour
 
     private bool isSpawningWave = false;
     private bool isBossWave = false;
+    private bool gameHasStarted = false; // --- NUOVO "SEMAFORO" ---
 
-    void Start()
+    public void BeginSpawning()
     {
+        // --- MODIFICA ---
+        // Ora questo metodo avvia il GIOCO, non solo lo spawn
+        gameHasStarted = true;
         isSpawningWave = true;
         StartCoroutine(SpawnStageCoroutine());
     }
 
     void Update()
     {
-        if (!isSpawningWave && GameObject.FindGameObjectsWithTag("Enemy").Length == 0 && FindFirstObjectByType<BossTurret>() == null)
+        // --- CONDIZIONE MODIFICATA ---
+        // Controlla solo se il gioco è ufficialmente iniziato
+        if (gameHasStarted && !isSpawningWave && GameObject.FindGameObjectsWithTag("Enemy").Length == 0 && FindFirstObjectByType<BossTurret>() == null)
         {
             if (isBossWave)
             {
@@ -154,6 +160,7 @@ public class StageManager : MonoBehaviour
         SpawnEnemy(bossSpawnPosition, randomBossPrefab);
         isSpawningWave = false;
     }
+
     private IEnumerator SpawnSuperBossCoroutine()
     {
         isBossWave = true;

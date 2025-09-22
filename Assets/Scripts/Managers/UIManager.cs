@@ -16,6 +16,10 @@ public class UIManager : MonoBehaviour
     public GameObject secondChanceIcon;
     public TextMeshProUGUI notificationText;
 
+    // --- NUOVO RIFERIMENTO PER IL COUNTDOWN ---
+    [Header("UI di Gioco")]
+    public TextMeshProUGUI countdownText;
+
     [Header("UI Abilità Speciale")]
     public Slider abilitySlider;
     public Image abilityIconImage;
@@ -57,7 +61,7 @@ public class UIManager : MonoBehaviour
         {
             notificationText.gameObject.SetActive(false);
         }
-        
+
         if (abilityController != null)
         {
             abilityController.OnChargeChanged += UpdateAbilityUI;
@@ -69,9 +73,10 @@ public class UIManager : MonoBehaviour
         }
         else if (abilitySlider != null)
         {
-             abilitySlider.gameObject.SetActive(false);
-             if (abilityIconImage != null) abilityIconImage.gameObject.SetActive(false);
+            abilitySlider.gameObject.SetActive(false);
+            if (abilityIconImage != null) abilityIconImage.gameObject.SetActive(false);
         }
+        StartCoroutine(StartGameCountdownCoroutine());
     }
 
     void Update()
@@ -105,7 +110,7 @@ public class UIManager : MonoBehaviour
         yield return new WaitForSeconds(duration);
         notificationText.gameObject.SetActive(false);
     }
-    
+
     public void UpdateLevelUI(int newLevel)
     {
         if (levelText != null)
@@ -142,7 +147,7 @@ public class UIManager : MonoBehaviour
         if (specialCurrencyText != null)
             specialCurrencyText.text = "Gemme: " + amount;
     }
-    
+
     public void UpdateSecondChanceUI(bool isAvailable)
     {
         if (secondChanceIcon != null)
@@ -162,5 +167,43 @@ public class UIManager : MonoBehaviour
         {
             abilityIconImage.sprite = icon;
         }
+    }
+    private IEnumerator StartGameCountdownCoroutine()
+    {
+        // Trova i componenti da controllare
+        PlayerController playerController = FindFirstObjectByType<PlayerController>();
+        StageManager stageManager = FindFirstObjectByType<StageManager>();
+
+        // 1. "Congela" il giocatore
+        if (playerController != null) playerController.controlsEnabled = false;
+
+        // 2. Esegui il conto alla rovescia
+        if (countdownText != null)
+        {
+            countdownText.gameObject.SetActive(true);
+
+            countdownText.text = "3";
+            yield return new WaitForSeconds(1f);
+
+            countdownText.text = "2";
+            yield return new WaitForSeconds(1f);
+
+            countdownText.text = "1";
+            yield return new WaitForSeconds(1f);
+
+            countdownText.text = "GO!";
+            yield return new WaitForSeconds(0.5f);
+
+            countdownText.gameObject.SetActive(false);
+        }
+        else
+        {
+            // Se non c'è un testo, aspetta semplicemente per 3 secondi
+            yield return new WaitForSeconds(3f);
+        }
+        
+        // 3. "Scongela" il giocatore e avvia lo spawn dei nemici
+        if (playerController != null) playerController.controlsEnabled = true;
+        if (stageManager != null) stageManager.BeginSpawning();
     }
 }
