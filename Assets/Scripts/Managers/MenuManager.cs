@@ -11,16 +11,15 @@ public class MenuManager : MonoBehaviour
     public GameObject mainPanel;
     public GameObject storePanel;
     public GameObject hangarPanel;
+    public GameObject backgroundPanel; // --- NUOVO RIFERIMENTO ---
 
     [Header("UI Generale")]
     public TextMeshProUGUI coinsText;
     public TextMeshProUGUI specialCurrencyText;
 
-    // --- NUOVI RIFERIMENTI PER I RECORD ---
     [Header("UI Record Personali")]
     public TextMeshProUGUI maxWaveText;
     public TextMeshProUGUI maxCoinsText;
-    // --- FINE NUOVI RIFERIMENTI ---
 
     [Header("Pulsanti Arma")]
     public Button laserButton;
@@ -65,10 +64,8 @@ public class MenuManager : MonoBehaviour
     private int currentAbilityIndex = 0;
     private List<SpecialAbility> unlockedAbilities;
 
-    // --- NUOVA VARIABILE PER IL FIX ---
     private bool isQuitting = false;
 
-    // --- NUOVO METODO PER IL FIX ---
     void OnApplicationQuit()
     {
         isQuitting = true;
@@ -79,7 +76,6 @@ public class MenuManager : MonoBehaviour
         int targetFPS = PlayerPrefs.GetInt("TargetFPS", 60);
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = targetFPS;
-        Debug.Log($"[MenuManager] Limite FPS impostato all'avvio: {targetFPS}");
     }
 
     void Start()
@@ -101,7 +97,7 @@ public class MenuManager : MonoBehaviour
         string savedWeapon = PlayerPrefs.GetString("SelectedWeapon", selectedWeapon);
         HighlightSelectedWeapon(savedWeapon);
         UpdateAllUI();
-        UpdateRecordUI(); // NUOVA CHIAMATA
+        UpdateRecordUI();
     }
 
     void OnEnable() 
@@ -109,37 +105,55 @@ public class MenuManager : MonoBehaviour
         if (ProgressionManager.Instance != null) { ProgressionManager.OnValuesChanged += UpdateAllUI; } 
         SetupAbilitySelection(); 
         UpdateAllUI(); 
-        UpdateRecordUI(); // NUOVA CHIAMATA
+        UpdateRecordUI();
     }
 
-    // --- METODO OnDisable MODIFICATO ---
     void OnDisable() 
     { 
-        // Se il gioco sta chiudendo, non fare nulla per evitare l'errore
         if (isQuitting) return;
-
         if (ProgressionManager.Instance != null) { ProgressionManager.OnValuesChanged -= UpdateAllUI; } 
     }
 
-    // --- NUOVO METODO PER AGGIORNARE I RECORD ---
     private void UpdateRecordUI()
     {
         if (ProgressionManager.Instance != null)
         {
-            if (maxWaveText != null)
-            {
-                maxWaveText.text = "Max Wave: " + ProgressionManager.Instance.GetMaxWave();
-            }
-            if (maxCoinsText != null)
-            {
-                maxCoinsText.text = "Max Coins: " + ProgressionManager.Instance.GetMaxCoins();
+            if (maxWaveText != null) maxWaveText.text = "Max Wave: " + ProgressionManager.Instance.GetMaxWave();
+            if (maxCoinsText != null) maxCoinsText.text = "Max Coins: " + ProgressionManager.Instance.GetMaxCoins();
             }
         }
-    }
     
-    public void ShowMainPanel() { mainPanel.SetActive(true); storePanel.SetActive(false); hangarPanel.SetActive(false); }
-    public void ShowStorePanel() { mainPanel.SetActive(false); storePanel.SetActive(true); hangarPanel.SetActive(false); }
-    public void ShowHangarPanel() { mainPanel.SetActive(false); storePanel.SetActive(false); hangarPanel.SetActive(true); }
+    // --- METODI DI VISUALIZZAZIONE PANNELLI AGGIORNATI ---
+    public void ShowMainPanel() 
+    { 
+        mainPanel.SetActive(true); 
+        storePanel.SetActive(false); 
+        hangarPanel.SetActive(false); 
+        backgroundPanel.SetActive(false); // Aggiunto
+    }
+    public void ShowStorePanel() 
+    { 
+        mainPanel.SetActive(false); 
+        storePanel.SetActive(true); 
+        hangarPanel.SetActive(false); 
+        backgroundPanel.SetActive(false); // Aggiunto
+    }
+    public void ShowHangarPanel() 
+    { 
+        mainPanel.SetActive(false); 
+        storePanel.SetActive(false); 
+        hangarPanel.SetActive(true); 
+        backgroundPanel.SetActive(false); // Aggiunto
+    }
+
+    // --- NUOVO METODO PER IL PANNELLO DEGLI SFONDI ---
+    public void ShowBackgroundPanel()
+    {
+        mainPanel.SetActive(false);
+        storePanel.SetActive(false);
+        hangarPanel.SetActive(false);
+        backgroundPanel.SetActive(true);
+    }
     
     public void OnBuyUpgradeButtonPressed(PermanentUpgradeType type) { ProgressionManager.Instance.BuyUpgrade(type); }
     public void OnBuySpecialUpgradeButtonPressed(AbilityID id) { ProgressionManager.Instance.BuySpecialUpgrade(id); }
