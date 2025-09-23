@@ -42,4 +42,21 @@ public class StationaryAI : MonoBehaviour
             }
         }
     }
+
+    // --- NUOVO METODO AGGIUNTO ---
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        // Se entra in collisione con il giocatore...
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            // ...infligge danno da contatto...
+            PlayerStats playerStats = collision.gameObject.GetComponent<PlayerStats>();
+            if (playerStats != null)
+            {
+                playerStats.TakeDamage(stats.contactDamage);
+            }
+            // ...e innesca la sua sequenza di morte.
+            stats.Die();
+        }
+    }
 }

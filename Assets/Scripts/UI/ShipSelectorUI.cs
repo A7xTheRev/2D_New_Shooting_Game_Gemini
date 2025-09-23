@@ -6,107 +6,84 @@ using System.Collections.Generic;
 public class ShipSelectorUI : MonoBehaviour
 {
     [Header("Riferimenti UI")]
-    public Image shipPreviewImage;
     public TextMeshProUGUI shipNameText;
-    public TextMeshProUGUI shipPlaystyleText; // --- NUOVO RIFERIMENTO ---
+    public TextMeshProUGUI shipPlaystyleText;
     public TextMeshProUGUI shipDescriptionText;
-    public Button nextButton;
-    public Button prevButton;
     
+    [Header("Area di Scorrimento")]
+    [Tooltip("Il pannello 'Content' dello Scroll View che contiene le anteprime.")]
+    public Transform contentPanel;
+    [Tooltip("Il prefab dell'oggetto UI che mostra l'anteprima della nave.")]
+    public GameObject shipPreviewPrefab;
+    [Tooltip("Il riferimento allo script SnapController sullo Scroll View.")]
+    public SnapController snapController;
+
     [Header("Sezione Acquisto/Stato")]
-    public GameObject actionButtonContainer; // Contenitore del pulsante
-    public Button actionButton; // Pulsante che può essere "Acquista" o "Selezionato"
-    public TextMeshProUGUI actionButtonText; // Testo del pulsante
+    public GameObject actionButtonContainer;
+    public Button actionButton;
+    public TextMeshProUGUI actionButtonText;
 
     private int currentShipIndex = 0;
     private List<ShipData> allShips;
+    private List<RectTransform> shipPreviewItems = new List<RectTransform>();
 
     void Start()
     {
-        // Ottieni la lista di tutte le navicelle dal ProgressionManager
         if (ProgressionManager.Instance != null)
         {
             allShips = ProgressionManager.Instance.allShips;
         }
 
-        // Collega i metodi ai pulsanti
-        nextButton.onClick.AddListener(CycleNextShip);
-        prevButton.onClick.AddListener(CyclePreviousShip);
+        // Popola l'area di scorrimento con le anteprime delle navicelle
+        PopulateScrollView();
+
+        // Collega il metodo al pulsante di azione
         actionButton.onClick.AddListener(ActionButtonClicked);
-
-        // Imposta la visualizzazione sulla navicella attualmente equipaggiata
-        ShipData equippedShip = ProgressionManager.Instance.GetEquippedShip();
-        if (equippedShip != null)
+        
+        // Inizializza lo snap controller, passandogli le anteprime create
+        if (snapController != null)
         {
-            currentShipIndex = allShips.IndexOf(equippedShip);
+            snapController.Initialize(shipPreviewItems);
         }
+    }
+    
+    void PopulateScrollView()
+    {
+        // Pulisce eventuali anteprime vecchie
+        foreach (Transform child in contentPanel)
+        {
+            Destroy(child.gameObject);
+        }
+        shipPreviewItems.Clear();
 
-        UpdateUI();
+        // Crea un'anteprima per ogni navicella disponibile
+        foreach (ShipData ship in allShips)
+        {
+            GameObject itemObj = Instantiate(shipPreviewPrefab, contentPanel);
+            // Imposta lo sprite corretto sull'anteprima
+            itemObj.GetComponent<Image>().sprite = ship.shipSprite;
+            shipPreviewItems.Add(itemObj.GetComponent<RectTransform>());
+        }
     }
 
-    private void CycleNextShip()
+    // Questo metodo viene chiamato dallo SnapController quando la nave al centro cambia
+    public void UpdateUIForShipIndex(int index)
     {
-        currentShipIndex++;
-        if (currentShipIndex >= allShips.Count)
-        {
-            currentShipIndex = 0;
-        }
-        UpdateUI();
-    }
-
-    private void CyclePreviousShip()
-    {
-        currentShipIndex--;
-        if (currentShipIndex < 0)
-        {
-            currentShipIndex = allShips.Count - 1;
-        }
-        UpdateUI();
-    }
-
-    // Unico metodo che gestisce il click del pulsante
-    private void ActionButtonClicked()
-    {
-        ShipData currentShip = allShips[currentShipIndex];
-        bool isUnlocked = ProgressionManager.Instance.IsShipUnlocked(currentShip.shipName);
-
-        if (isUnlocked)
-        {
-            // Se è sbloccata, il click la equipaggia
-            ProgressionManager.Instance.SetEquippedShip(currentShip);
-        }
-        else
-        {
-            // Se è bloccata, il click prova a comprarla
-            ProgressionManager.Instance.UnlockShip(currentShip.shipName);
-        }
-        UpdateUI(); // Aggiorna la UI dopo l'azione
-    }
-
-    private void UpdateUI()
-    {
-        if (allShips == null || allShips.Count == 0) return;
+        currentShipIndex = index;
+        if (allShips == null || currentShipIndex >= allShips.Count) return;
 
         ShipData currentShip = allShips[currentShipIndex];
         ShipData equippedShip = ProgressionManager.Instance.GetEquippedShip();
-
-        // Aggiorna le informazioni di base
-        shipPreviewImage.sprite = currentShip.shipSprite;
+        
+        // Aggiorna tutti i testi
         shipNameText.text = currentShip.shipName;
+        shipPlaystyleText.text = "Playstyle: " + currentShip.playstyle;
         shipDescriptionText.text = currentShip.description;
-
-        // --- NUOVA LOGICA PER IL PLAYSTYLE ---
-        if (shipPlaystyleText != null)
-        {
-            shipPlaystyleText.text = "Playstyle: " + currentShip.playstyle;
-        }
-        // --- FINE NUOVA LOGICA ---
-
+        
         bool isUnlocked = ProgressionManager.Instance.IsShipUnlocked(currentShip.shipName);
 
         if (isUnlocked)
         {
-            // Se la nave è sbloccata, il pulsante serve a selezionarla
             if (currentShip == equippedShip)
             {
                 actionButton.interactable = false;
@@ -120,12 +97,27 @@ public class ShipSelectorUI : MonoBehaviour
         }
         else
         {
-            // Se la nave è bloccata, il pulsante serve a comprarla
             actionButton.interactable = ProgressionManager.Instance.GetSpecialCurrency() >= currentShip.costInGems;
             actionButtonText.text = "UNLOCK (" + currentShip.costInGems + " Gems)";
         }
+    }
 
-        prevButton.interactable = allShips.Count > 1;
-        nextButton.interactable = allShips.Count > 1;
+    private void ActionButtonClicked()
+    {
+        if (allShips == null || currentShipIndex >= allShips.Count) return;
+
+        ShipData currentShip = allShips[currentShipIndex];
+        bool isUnlocked = ProgressionManager.Instance.IsShipUnlocked(currentShip.shipName);
+
+        if (isUnlocked)
+        {
+            ProgressionManager.Instance.SetEquippedShip(currentShip);
+        }
+        else
+        {
+            ProgressionManager.Instance.UnlockShip(currentShip.shipName);
+        }
+        // Richiama l'aggiornamento della UI per riflettere il nuovo stato
+        UpdateUIForShipIndex(currentShipIndex);
     }
 }

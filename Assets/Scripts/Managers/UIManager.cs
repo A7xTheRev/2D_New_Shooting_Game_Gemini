@@ -5,7 +5,7 @@ using System.Collections;
 
 public class UIManager : MonoBehaviour
 {
-    [Header("UI Player")]
+    [Header("UI di Scena Fissa")]
     public Slider playerHealthBar;
     public Slider xpBar;
     public TextMeshProUGUI sessionCoinsText;
@@ -15,68 +15,87 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI levelText;
     public GameObject secondChanceIcon;
     public TextMeshProUGUI notificationText;
-
-    // --- NUOVO RIFERIMENTO PER IL COUNTDOWN ---
-    [Header("UI di Gioco")]
     public TextMeshProUGUI countdownText;
+    public GameObject optionsPanel;
+    [Tooltip("L'immagine della vignetta che si trova nel Canvas della GameScene.")]
+    public Image slowMotionVignetteImage; // Riferimento alla vignetta della scena
 
-    [Header("UI Abilità Speciale")]
+    [Header("UI del Giocatore (collegata dinamicamente)")]
     public Slider abilitySlider;
     public Image abilityIconImage;
-
-    [Header("Pannelli")]
-    public GameObject optionsPanel; // NUOVO RIFERIMENTO
 
     private PlayerStats player;
     private StageManager stageManager;
     private AbilityController abilityController;
 
+    void Awake()
+    {
+        // In Awake, troviamo solo i manager che sono già presenti nella scena all'inizio
+        stageManager = FindFirstObjectByType<StageManager>();
+    }
+
     void Start()
     {
-        player = FindFirstObjectByType<PlayerStats>();
-        stageManager = FindFirstObjectByType<StageManager>();
-        abilityController = FindFirstObjectByType<AbilityController>();
-
-        if (player != null)
+        // Nascondiamo gli elementi che non devono essere visibili subito
+        if (notificationText != null)
         {
-            player.OnLevelUp += UpdateLevelUI;
-            player.OnXPChanged += UpdateXPUI;
-            player.OnHealthChanged += UpdateHealthUI;
-            player.OnSessionCoinsChanged += UpdateSessionCoinsUI;
-            player.OnSessionSpecialCurrencyChanged += UpdateSpecialCurrencyUI;
+            notificationText.gameObject.SetActive(false);
+        }
+        
+        // Avviamo il conto alla rovescia, che si occuperà di inizializzare il resto
+        StartCoroutine(StartGameCountdownCoroutine());
+    }
 
-            UpdateSessionCoinsUI(player.sessionCoins);
-            UpdateSpecialCurrencyUI(player.sessionSpecialCurrency);
-            UpdateLevelUI(player.level);
-            UpdateXPUI(player.currentXP, player.xpToLevelUp);
-            UpdateHealthUI(player.currentHealth, player.maxHealth);
+    void OnDestroy()
+    {
+        // È una buona pratica annullare l'iscrizione agli eventi quando l'oggetto viene distrutto
+        UnsubscribeFromEvents();
+    }
+
+    // Nuovo metodo che si occupa di tutta la logica di inizializzazione della UI
+    private void InitializeUI()
+    {
+        // Ora che il giocatore è stato creato, possiamo trovare i suoi componenti
+        player = FindFirstObjectByType<PlayerStats>();
+        if (player == null)
+        {
+            Debug.LogError("InitializeUI: Player non trovato! La UI non può essere inizializzata.");
+            return;
+        }
+        abilityController = player.GetComponent<AbilityController>();
+
+        // --- COLLEGAMENTO DINAMICO DELLA VIGNETTA ---
+        PlayerController pc = player.GetComponent<PlayerController>();
+        if (pc != null && slowMotionVignetteImage != null)
+        {
+            pc.slowMotionVignette = slowMotionVignetteImage;
+        }
+        // --- FINE COLLEGAMENTO ---
+
+        // Iscriviti a tutti gli eventi del giocatore e dell'abilità
+        SubscribeToEvents();
+
+        // Aggiorna tutti gli elementi della UI con i valori iniziali
+        UpdateSessionCoinsUI(player.sessionCoins);
+        UpdateSpecialCurrencyUI(player.sessionSpecialCurrency);
+        UpdateLevelUI(player.level);
+        UpdateXPUI(player.currentXP, player.xpToLevelUp);
+        UpdateHealthUI(player.currentHealth, player.maxHealth);
+        
+        // Gestisci la visibilità e lo stato iniziale della barra dell'abilità
+        bool hasAbility = (abilityController != null && abilityController.equippedAbility != null);
+        if (abilitySlider != null) abilitySlider.gameObject.SetActive(hasAbility);
+        if (abilityIconImage != null) abilityIconImage.gameObject.SetActive(hasAbility);
+
+        if (hasAbility)
+        {
+             UpdateAbilityUI(0, abilityController.equippedAbility.maxCharge, abilityController.equippedAbility.icon);
         }
 
         if (ProgressionManager.Instance != null && secondChanceIcon != null)
         {
             UpdateSecondChanceUI(ProgressionManager.Instance.IsSpecialUpgradeUnlocked(AbilityID.SecondChance));
         }
-
-        if (notificationText != null)
-        {
-            notificationText.gameObject.SetActive(false);
-        }
-
-        if (abilityController != null)
-        {
-            abilityController.OnChargeChanged += UpdateAbilityUI;
-            if (abilityController.equippedAbility == null)
-            {
-                if (abilitySlider != null) abilitySlider.gameObject.SetActive(false);
-                if (abilityIconImage != null) abilityIconImage.gameObject.SetActive(false);
-            }
-        }
-        else if (abilitySlider != null)
-        {
-            abilitySlider.gameObject.SetActive(false);
-            if (abilityIconImage != null) abilityIconImage.gameObject.SetActive(false);
-        }
-        StartCoroutine(StartGameCountdownCoroutine());
     }
 
     void Update()
@@ -85,14 +104,80 @@ public class UIManager : MonoBehaviour
             stageText.text = "STAGE: " + stageManager.stageNumber;
     }
 
-    // --- NUOVO METODO PER LA PAUSA ---
+    private IEnumerator StartGameCountdownCoroutine()
+    {
+        if (slowMotionVignetteImage != null)
+        {
+            slowMotionVignetteImage.color = new Color(slowMotionVignetteImage.color.r, slowMotionVignetteImage.color.g, slowMotionVignetteImage.color.b, 0);
+        }
+
+        PlayerController playerController = FindFirstObjectByType<PlayerController>();
+        if (playerController != null) playerController.controlsEnabled = false;
+
+        if (countdownText != null)
+        {
+            countdownText.gameObject.SetActive(true);
+            countdownText.text = "3";
+            yield return new WaitForSecondsRealtime(1f);
+            countdownText.text = "2";
+            yield return new WaitForSecondsRealtime(1f);
+            countdownText.text = "1";
+            yield return new WaitForSecondsRealtime(1f);
+            countdownText.text = "GO!";
+            yield return new WaitForSecondsRealtime(0.5f);
+            countdownText.gameObject.SetActive(false);
+        }
+        else
+        {
+            yield return new WaitForSecondsRealtime(3f);
+        }
+        
+        InitializeUI();
+        
+        // Ora cerchiamo di nuovo il player controller perché potrebbe essere stato appena spawnato
+        playerController = FindFirstObjectByType<PlayerController>();
+        if (playerController != null) playerController.controlsEnabled = true;
+
+        if (stageManager != null) stageManager.BeginSpawning();
+    }
+
+    private void SubscribeToEvents()
+    {
+        if (player != null)
+        {
+            player.OnLevelUp += UpdateLevelUI;
+            player.OnXPChanged += UpdateXPUI;
+            player.OnHealthChanged += UpdateHealthUI;
+            player.OnSessionCoinsChanged += UpdateSessionCoinsUI;
+            player.OnSessionSpecialCurrencyChanged += UpdateSpecialCurrencyUI;
+        }
+        if (abilityController != null)
+        {
+            abilityController.OnChargeChanged += UpdateAbilityUI;
+        }
+    }
+
+    private void UnsubscribeFromEvents()
+    {
+        if (player != null)
+        {
+            player.OnLevelUp -= UpdateLevelUI;
+            player.OnXPChanged -= UpdateXPUI;
+            player.OnHealthChanged -= UpdateHealthUI;
+            player.OnSessionCoinsChanged -= UpdateSessionCoinsUI;
+            player.OnSessionSpecialCurrencyChanged -= UpdateSpecialCurrencyUI;
+        }
+        if (abilityController != null)
+        {
+            abilityController.OnChargeChanged -= UpdateAbilityUI;
+        }
+    }
+    
     public void OpenOptionsMenu()
     {
         if (optionsPanel != null)
         {
-            // Mette in pausa il gioco
             Time.timeScale = 0f;
-            // Mostra il pannello delle opzioni
             optionsPanel.SetActive(true);
         }
     }
@@ -121,18 +206,15 @@ public class UIManager : MonoBehaviour
     {
         if (xpText != null)
             xpText.text = $"XP: {currentXP}/{xpToLevelUp}";
-        if (xpBar != null)
+        if (xpBar != null && xpToLevelUp > 0)
         {
-            if (xpToLevelUp > 0)
-            {
-                xpBar.value = (float)currentXP / xpToLevelUp;
-            }
+            xpBar.value = (float)currentXP / xpToLevelUp;
         }
     }
 
     public void UpdateHealthUI(int currentHealth, int maxHealth)
     {
-        if (playerHealthBar != null)
+        if (playerHealthBar != null && maxHealth > 0)
             playerHealthBar.value = (float)currentHealth / maxHealth;
     }
 
@@ -147,7 +229,7 @@ public class UIManager : MonoBehaviour
         if (specialCurrencyText != null)
             specialCurrencyText.text = "Gemme: " + amount;
     }
-
+    
     public void UpdateSecondChanceUI(bool isAvailable)
     {
         if (secondChanceIcon != null)
@@ -158,52 +240,13 @@ public class UIManager : MonoBehaviour
 
     public void UpdateAbilityUI(float currentCharge, float maxCharge, Sprite icon)
     {
-        if (abilitySlider != null)
+        if (abilitySlider != null && maxCharge > 0)
         {
-            if (maxCharge > 0)
-                abilitySlider.value = currentCharge / maxCharge;
+            abilitySlider.value = currentCharge / maxCharge;
         }
         if (abilityIconImage != null)
         {
             abilityIconImage.sprite = icon;
         }
-    }
-    private IEnumerator StartGameCountdownCoroutine()
-    {
-        // Trova i componenti da controllare
-        PlayerController playerController = FindFirstObjectByType<PlayerController>();
-        StageManager stageManager = FindFirstObjectByType<StageManager>();
-
-        // 1. "Congela" il giocatore
-        if (playerController != null) playerController.controlsEnabled = false;
-
-        // 2. Esegui il conto alla rovescia
-        if (countdownText != null)
-        {
-            countdownText.gameObject.SetActive(true);
-
-            countdownText.text = "3";
-            yield return new WaitForSeconds(1f);
-
-            countdownText.text = "2";
-            yield return new WaitForSeconds(1f);
-
-            countdownText.text = "1";
-            yield return new WaitForSeconds(1f);
-
-            countdownText.text = "GO!";
-            yield return new WaitForSeconds(0.5f);
-
-            countdownText.gameObject.SetActive(false);
-        }
-        else
-        {
-            // Se non c'è un testo, aspetta semplicemente per 3 secondi
-            yield return new WaitForSeconds(3f);
-        }
-        
-        // 3. "Scongela" il giocatore e avvia lo spawn dei nemici
-        if (playerController != null) playerController.controlsEnabled = true;
-        if (stageManager != null) stageManager.BeginSpawning();
     }
 }
