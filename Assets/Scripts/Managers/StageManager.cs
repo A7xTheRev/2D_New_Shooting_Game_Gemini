@@ -1,49 +1,61 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
 public class StageManager : MonoBehaviour
 {
-    [Header("Liste Prefab")]
-    public List<GameObject> enemyPrefabs;
-    public List<GameObject> elitePrefabs;
-    public List<GameObject> bossPrefabs;
+    [Header("Configurazione Modalità Endless")]
+    [Tooltip("Liste di prefab usate solo se si avvia la modalità Endless.")]
+    public List<GameObject> endlessEnemyPrefabs;
+    public List<GameObject> endlessElitePrefabs;
+    public List<GameObject> endlessBossPrefabs;
+    public GameObject endlessSuperBossPrefab;
+    public int endlessSuperBossStage = 20;
 
-    // --- NUOVA SEZIONE PER IL SUPER BOSS ---
-    [Header("Super Boss")]
-    [Tooltip("Trascina qui il prefab del Super Boss.")]
-    public GameObject superBossPrefab;
-    [Tooltip("L'ondata in cui apparirà il Super Boss.")]
-    public int superBossStage = 20;
-    // --- FINE NUOVA SEZIONE ---
+    [Header("Gestione Stage Globale")]
+    public int stageNumber = 1; // In Story mode, è il livello. In Endless, è l'ondata.
+    public float growthRate = 0.18f;
+    public int enemiesPerStage = 8;
+    public int stageToStartElites = 5;
+    public float spawnY = 6f;
+    public float spawnXMin = -8f;
+    public float spawnXMax = 8f;
+    public float spawnDelayMin = 0.3f;
+    public float spawnDelayMax = 1f;
 
     [Header("Probabilità di Spawn")]
     [Range(0f, 1f)]
     public float eliteSpawnChance = 0.1f;
 
-    [Header("Gestione Stage")]
-    public int stageNumber = 1;
-    public float growthRate = 0.18f;
-    public int enemiesPerStage = 8;
-    public int stageToStartElites = 5;
-    public float spawnY = 6f;
-
-    [Header("Limiti orizzontali spawn")]
-    public float spawnXMin = -8f;
-    public float spawnXMax = 8f;
-
-    [Header("Limiti ritardo spawn")]
-    public float spawnDelayMin = 0.3f;
-    public float spawnDelayMax = 1f;
-
+    // Variabili interne per gestire la modalità corrente
     private bool isSpawningWave = false;
     private bool isBossWave = false;
-    private bool gameHasStarted = false; // --- NUOVO "SEMAFORO" ---
+    private bool gameHasStarted = false;
+    private GameMode currentMode;
+    private SectorData currentSector;
+
+    void Start()
+    {
+        // All'avvio, decide quale modalità di gioco eseguire
+        if (GameDataManager.Instance != null)
+        {
+            currentMode = GameDataManager.Instance.selectedGameMode;
+            currentSector = GameDataManager.Instance.selectedSector;
+        }
+
+        // Fallback di sicurezza se la modalità storia è selezionata ma non ci sono dati
+        if (currentMode == GameMode.Story && currentSector == null)
+        {
+            Debug.LogError("Modalità Storia selezionata ma nessun SectorData fornito! Avvio in modalità Endless come fallback.");
+            currentMode = GameMode.Endless;
+        }
+
+        Debug.Log("Modalità di Gioco Avviata: " + currentMode);
+    }
 
     public void BeginSpawning()
     {
-        // --- MODIFICA ---
-        // Ora questo metodo avvia il GIOCO, non solo lo spawn
         gameHasStarted = true;
         isSpawningWave = true;
         StartCoroutine(SpawnStageCoroutine());
@@ -51,13 +63,25 @@ public class StageManager : MonoBehaviour
 
     void Update()
     {
-        // --- CONDIZIONE MODIFICATA ---
-        // Controlla solo se il gioco è ufficialmente iniziato
+        // Controlla se l'ondata è finita per passare alla successiva
         if (gameHasStarted && !isSpawningWave && GameObject.FindGameObjectsWithTag("Enemy").Length == 0 && FindFirstObjectByType<BossTurret>() == null)
         {
+            // Se era una boss wave, gestisci la fine della battaglia
             if (isBossWave)
             {
                 isBossWave = false;
+                
+                // Se siamo in modalità Storia e il boss è stato sconfitto, il settore è completato
+                if (currentMode == GameMode.Story)
+                {
+                    Debug.Log("SETTORE " + currentSector.sectorName + " COMPLETATO!");
+                    // Qui puoi aggiungere una schermata di vittoria, per ora torniamo al menu
+                    Time.timeScale = 1f;
+                    SceneManager.LoadScene("MainMenu");
+                    return; // Ferma l'esecuzione per evitare di chiamare NextStage()
+                }
+
+                // In modalità endless, ripristina la musica normale
                 AudioManager.Instance.PlayMusic(AudioManager.Instance.gameplayMusic);
             }
             NextStage();
@@ -66,26 +90,28 @@ public class StageManager : MonoBehaviour
 
     public void NextStage()
     {
-        isSpawningWave = true;
+        isSpawningWave = true; 
         stageNumber++;
 
-        // --- LOGICA DI SPAWN AGGIORNATA ---
-        // 1. Controlla se è lo stage del Super Boss
-        if (stageNumber == superBossStage && superBossPrefab != null)
+        // Logica a bivi basata sulla modalità di gioco
+        if (currentMode == GameMode.Story)
         {
-            StartCoroutine(SpawnSuperBossCoroutine());
+            // Se siamo nell'ultimo livello del settore, spawna il boss guardiano
+            if (stageNumber >= currentSector.numberOfLevels) // Usiamo >= per sicurezza
+            {
+                StartCoroutine(SpawnGuardianBossCoroutine());
+            }
+            else
+            {
+                StartCoroutine(SpawnStageCoroutine());
+            }
         }
-        // 2. Altrimenti, controlla se è uno stage per un boss normale
-        else if (stageNumber % 10 == 0)
+        else // Modalità Endless
         {
-            StartCoroutine(SpawnBossCoroutine());
+            if (stageNumber == endlessSuperBossStage) StartCoroutine(SpawnGuardianBossCoroutine());
+            else if (stageNumber % 10 == 0) StartCoroutine(SpawnBossCoroutine());
+            else StartCoroutine(SpawnStageCoroutine());
         }
-        // 3. Altrimenti, è un'ondata normale
-        else
-        {
-            StartCoroutine(SpawnStageCoroutine());
-        }
-        // --- FINE LOGICA AGGIORNATA ---
     }
 
     public void SpawnEnemy(Vector3 position, GameObject enemyToSpawn)
@@ -95,27 +121,17 @@ public class StageManager : MonoBehaviour
         EnemyStats es = e.GetComponent<EnemyStats>();
         if (es != null)
         {
-            float multiplier = 1f;
-            if (stageNumber > 1) {
-                multiplier = 1f + (stageNumber - 1) * growthRate;
-            }
-
-            // --- LOGICA MODIFICATA ---
-            // 1. Applica lo scaling solo se il flag è attivo
+            float multiplier = 1f + (stageNumber - 1) * growthRate;
             if (es.allowStatScaling)
             {
                 es.maxHealth = Mathf.RoundToInt(es.maxHealth * multiplier);
                 es.currentHealth = es.maxHealth;
             }
-            
-            // 2. Controlla se l'oggetto appena creato è un Super Boss
             SuperBossAI superBoss = e.GetComponent<SuperBossAI>();
             if (superBoss != null)
             {
-                // Se sì, passagli il moltiplicatore di vita
                 superBoss.InitializeBoss(multiplier);
             }
-            // --- FINE MODIFICA ---
         }
         e.tag = "Enemy";
     }
@@ -124,57 +140,61 @@ public class StageManager : MonoBehaviour
     {
         yield return new WaitForSeconds(1.5f);
 
+        // Sceglie da quale lista di nemici pescare in base alla modalità
+        List<GameObject> enemiesToUse;
+        List<GameObject> elitesToUse;
+
+        if (currentMode == GameMode.Story)
+        {
+            // Ora usiamo direttamente le liste di prefab dal SectorData
+            enemiesToUse = currentSector.availableEnemies;
+            elitesToUse = currentSector.availableElites;
+        }
+        else
+        {
+            enemiesToUse = endlessEnemyPrefabs;
+            elitesToUse = endlessElitePrefabs;
+        }
+
         for (int i = 0; i < enemiesPerStage; i++)
         {
             GameObject prefabToSpawn;
-
-            if (stageNumber >= stageToStartElites && elitePrefabs.Count > 0 && Random.value < eliteSpawnChance)
+            if (stageNumber >= stageToStartElites && elitesToUse != null && elitesToUse.Count > 0 && Random.value < eliteSpawnChance)
             {
-                prefabToSpawn = elitePrefabs[Random.Range(0, elitePrefabs.Count)];
+                prefabToSpawn = elitesToUse[Random.Range(0, elitesToUse.Count)];
             }
             else
             {
-                prefabToSpawn = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
+                prefabToSpawn = enemiesToUse[Random.Range(0, enemiesToUse.Count)];
             }
-
             float xPos = Random.Range(spawnXMin, spawnXMax);
             Vector3 pos = new Vector3(xPos, spawnY, 0f);
             SpawnEnemy(pos, prefabToSpawn);
-
             float delay = Random.Range(spawnDelayMin, spawnDelayMax);
             yield return new WaitForSeconds(delay);
         }
-
         isSpawningWave = false;
     }
 
-    private IEnumerator SpawnBossCoroutine()
-    {
-        isBossWave = true; // Segna che è iniziata una boss wave
-        AudioManager.Instance.PlayMusic(AudioManager.Instance.bossMusic); // CAMBIA LA MUSICA!
-
-        Debug.Log($"WAVE {stageNumber}: ARRIVA UN BOSS!");
-        yield return new WaitForSeconds(2.5f);
-        GameObject randomBossPrefab = bossPrefabs[Random.Range(0, bossPrefabs.Count)];
-        Vector3 bossSpawnPosition = new Vector3(0, spawnY, 0);
-        SpawnEnemy(bossSpawnPosition, randomBossPrefab);
-        isSpawningWave = false;
-    }
-
-    private IEnumerator SpawnSuperBossCoroutine()
+    private IEnumerator SpawnBossCoroutine() // Solo per Endless
     {
         isBossWave = true;
         AudioManager.Instance.PlayMusic(AudioManager.Instance.bossMusic);
-
-        Debug.Log($"WAVE {stageNumber}: ARRIVA IL SUPER BOSS!");
         yield return new WaitForSeconds(2.5f);
-        
-        // La posizione di spawn potrebbe essere più in alto per dargli spazio per l'entrata in scena
+        GameObject randomBossPrefab = endlessBossPrefabs[Random.Range(0, endlessBossPrefabs.Count)];
+        SpawnEnemy(new Vector3(0, spawnY, 0), randomBossPrefab);
+        isSpawningWave = false;
+    }
+
+    private IEnumerator SpawnGuardianBossCoroutine() // Per Story e Endless
+    {
+        isBossWave = true;
+        AudioManager.Instance.PlayMusic(AudioManager.Instance.bossMusic);
+        yield return new WaitForSeconds(2.5f);
+
+        GameObject bossToSpawn = (currentMode == GameMode.Story) ? currentSector.guardianBossPrefab : endlessSuperBossPrefab;
         Vector3 bossSpawnPosition = new Vector3(0, spawnY + 2f, 0); 
-        
-        // Spawna il prefab specifico del Super Boss
-        SpawnEnemy(bossSpawnPosition, superBossPrefab);
-        
+        SpawnEnemy(bossSpawnPosition, bossToSpawn);
         isSpawningWave = false;
     }
 }

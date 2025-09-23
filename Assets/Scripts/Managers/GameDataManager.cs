@@ -4,8 +4,11 @@ public class GameDataManager : MonoBehaviour
 {
     public static GameDataManager Instance;
 
-    // Qui salveremo l'arma scelta dal giocatore nel menu
+    // Dati persistenti per la sessione di gioco
     public WeaponData selectedWeapon;
+    public ShipData selectedShip; // Aggiunto per coerenza futura
+    public GameMode selectedGameMode;
+    public SectorData selectedSector;
 
     void Awake()
     {

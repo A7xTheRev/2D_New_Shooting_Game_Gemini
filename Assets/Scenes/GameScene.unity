@@ -2284,21 +2284,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ddf3bd5fbfcce048a0839bdac269ed2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StageManager
-  enemyPrefabs:
-  - {fileID: 7499889512634669778, guid: 3a462d3c8b7648043b5f06dbfc01a853, type: 3}
-  - {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}
+  endlessEnemyPrefabs:
   - {fileID: 2389486308191132201, guid: 0b255ee10f82e7143b40fc1a5f92d042, type: 3}
   - {fileID: 7186771976571656329, guid: e805cf1c1bde70541923f72a0104ffb1, type: 3}
+  - {fileID: 7499889512634669778, guid: 3a462d3c8b7648043b5f06dbfc01a853, type: 3}
   - {fileID: 8730231952669543138, guid: 675f5495df022e14f8dd04230b458cd0, type: 3}
-  elitePrefabs:
-  - {fileID: 2839590834492000749, guid: 8215937439e53974ea76ec0ec464cffc, type: 3}
+  - {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}
+  endlessElitePrefabs:
   - {fileID: 8996595999977987206, guid: 2da046ba7c5949c4db7650b4a4faffd1, type: 3}
-  bossPrefabs:
-  - {fileID: 1147663369917697346, guid: 9a4afc9c52d0d4b4b8c8f283027fd63d, type: 3}
+  - {fileID: 2839590834492000749, guid: 8215937439e53974ea76ec0ec464cffc, type: 3}
+  endlessBossPrefabs:
   - {fileID: 5860843275857830134, guid: 73c2fa898dcc5b74c9ebb6fbcb6ceba9, type: 3}
-  superBossPrefab: {fileID: 2360865920486709351, guid: 9cd1657c2c9750f4ab79e9b95ab815f2, type: 3}
-  superBossStage: 15
-  eliteSpawnChance: 0.1
+  - {fileID: 1147663369917697346, guid: 9a4afc9c52d0d4b4b8c8f283027fd63d, type: 3}
+  endlessSuperBossPrefab: {fileID: 2360865920486709351, guid: 9cd1657c2c9750f4ab79e9b95ab815f2, type: 3}
+  endlessSuperBossStage: 20
   stageNumber: 1
   growthRate: 0.35
   enemiesPerStage: 10
@@ -2308,6 +2307,7 @@ MonoBehaviour:
   spawnXMax: 1.6
   spawnDelayMin: 0.5
   spawnDelayMax: 2
+  eliteSpawnChance: 0.1
 --- !u!4 &949205807
 Transform:
   m_ObjectHideFlags: 0

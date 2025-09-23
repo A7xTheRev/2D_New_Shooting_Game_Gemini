@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 public class MenuManager : MonoBehaviour
 {
-    // Nuova classe interna per collegare facilmente pulsanti e dati nell'Inspector
+    // Classe interna per collegare pulsanti e dati arma nell'Inspector
     [System.Serializable]
     public class WeaponSelectionButton
     {
@@ -21,6 +21,12 @@ public class MenuManager : MonoBehaviour
     public GameObject hangarPanel;
     public GameObject backgroundPanel;
     public GameObject shipPanel;
+    public GameObject sectorSelectionPanel; // Aggiunto per la selezione della modalità
+
+    [Header("Selezione Settore (Story Mode)")]
+    public Transform sectorButtonContainer;
+    public GameObject sectorButtonPrefab;
+    public List<SectorData> allSectors;
 
     [Header("UI Generale")]
     public TextMeshProUGUI coinsText;
@@ -31,7 +37,6 @@ public class MenuManager : MonoBehaviour
     public TextMeshProUGUI maxCoinsText;
 
     [Header("Pulsanti Arma")]
-    // Sostituiamo i vecchi riferimenti singoli con una lista configurabile
     public List<WeaponSelectionButton> weaponButtons;
 
     [Header("Selezione Abilità Speciale (Hangar)")]
@@ -84,7 +89,6 @@ public class MenuManager : MonoBehaviour
 
     void Start()
     {
-        // Collega i listener per i pannelli di upgrade
         foreach (var panel in normalUpgradePanels)
         {
             PermanentUpgradeType type = panel.upgradeType;
@@ -97,8 +101,6 @@ public class MenuManager : MonoBehaviour
             panel.buyButton.onClick.RemoveAllListeners();
             panel.buyButton.onClick.AddListener(() => OnBuySpecialUpgradeButtonPressed(id));
         }
-
-        // Collega i listener per i pulsanti delle armi in modo dinamico
         foreach (var weaponButton in weaponButtons)
         {
             weaponButton.button.onClick.AddListener(() => SelectWeapon(weaponButton.weaponData));
@@ -139,7 +141,8 @@ public class MenuManager : MonoBehaviour
         storePanel.SetActive(false); 
         hangarPanel.SetActive(false); 
         backgroundPanel.SetActive(false);
-        shipPanel.SetActive(false); // Aggiunto
+        shipPanel.SetActive(false);
+        if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
     }
     public void ShowStorePanel() 
     { 
@@ -147,7 +150,8 @@ public class MenuManager : MonoBehaviour
         storePanel.SetActive(true); 
         hangarPanel.SetActive(false); 
         backgroundPanel.SetActive(false);
-        shipPanel.SetActive(false); // Aggiunto
+        shipPanel.SetActive(false);
+        if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
     }
     public void ShowHangarPanel() 
     { 
@@ -155,7 +159,8 @@ public class MenuManager : MonoBehaviour
         storePanel.SetActive(false); 
         hangarPanel.SetActive(true); 
         backgroundPanel.SetActive(false);
-        shipPanel.SetActive(false); // Aggiunto
+        shipPanel.SetActive(false);
+        if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
     }
     public void ShowBackgroundPanel()
     {
@@ -163,10 +168,9 @@ public class MenuManager : MonoBehaviour
         storePanel.SetActive(false);
         hangarPanel.SetActive(false);
         backgroundPanel.SetActive(true);
-        shipPanel.SetActive(false); // Aggiunto
+        shipPanel.SetActive(false);
+        if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
     }
-
-    // --- NUOVO METODO PER IL PANNELLO NAVICELLE ---
     public void ShowShipPanel()
     {
         mainPanel.SetActive(false);
@@ -174,45 +178,78 @@ public class MenuManager : MonoBehaviour
         hangarPanel.SetActive(false);
         backgroundPanel.SetActive(false);
         shipPanel.SetActive(true);
+        if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
+    }
+    
+    public void ShowSectorSelectionPanel()
+    {
+        mainPanel.SetActive(false);
+        storePanel.SetActive(false);
+        hangarPanel.SetActive(false);
+        backgroundPanel.SetActive(false);
+        shipPanel.SetActive(false);
+        sectorSelectionPanel.SetActive(true);
+        PopulateSectorButtons();
+    }
+
+    private void PopulateSectorButtons()
+    {
+        foreach (Transform child in sectorButtonContainer)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach (SectorData sector in allSectors)
+        {
+            GameObject buttonObj = Instantiate(sectorButtonPrefab, sectorButtonContainer);
+            buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = sector.sectorName;
+            buttonObj.GetComponent<Button>().onClick.AddListener(() => StartStoryMode(sector));
+        }
+    }
+
+    public void StartStoryMode(SectorData sector)
+    {
+        if (GameDataManager.Instance != null)
+        {
+            GameDataManager.Instance.selectedGameMode = GameMode.Story;
+            GameDataManager.Instance.selectedSector = sector;
+            LaunchGame();
+        }
+    }
+
+    public void StartEndlessMode()
+    {
+        if (GameDataManager.Instance != null)
+        {
+            GameDataManager.Instance.selectedGameMode = GameMode.Endless;
+            GameDataManager.Instance.selectedSector = null;
+            LaunchGame();
+        }
+    }
+
+    private void LaunchGame()
+    {
+        string selectedWeaponName = PlayerPrefs.GetString("SelectedWeapon", "Standard");
+        WeaponData dataToPass = weaponButtons.Find(wb => wb.weaponData.weaponName == selectedWeaponName)?.weaponData;
+        
+        if (dataToPass != null && GameDataManager.Instance != null)
+        {
+            GameDataManager.Instance.selectedWeapon = dataToPass;
+        }
+        else
+        {
+            Debug.LogError("Impossibile trovare i dati per l'arma selezionata (" + selectedWeaponName + ") o il GameDataManager!");
+            if (weaponButtons.Count > 0 && GameDataManager.Instance != null) GameDataManager.Instance.selectedWeapon = weaponButtons[0].weaponData;
+        }
+        
+        SceneManager.LoadScene("GameScene");
     }
     
     public void OnBuyUpgradeButtonPressed(PermanentUpgradeType type) { ProgressionManager.Instance.BuyUpgrade(type); }
     public void OnBuySpecialUpgradeButtonPressed(AbilityID id) { ProgressionManager.Instance.BuySpecialUpgrade(id); }
     public void OnResetButtonPressed() { if (ProgressionManager.Instance != null) { ProgressionManager.Instance.ResetProgress(); } }
     
-    public void StartGame() 
-    {
-        string selectedWeaponName = PlayerPrefs.GetString("SelectedWeapon", "Standard");
-        WeaponData dataToPass = null;
-        
-        foreach(var wb in weaponButtons)
-        {
-            if(wb.weaponData.weaponName == selectedWeaponName)
-            {
-                dataToPass = wb.weaponData;
-                break;
-            }
-        }
-        
-        if (dataToPass != null && GameDataManager.Instance != null)
-        {
-            GameDataManager.Instance.selectedWeapon = dataToPass;
-            Debug.Log("AVVIO PARTITA CON: " + dataToPass.weaponName); // Messaggio di Debug
-        }
-        else
-        {
-            Debug.LogError("Impossibile trovare i dati per l'arma selezionata ("+ selectedWeaponName +") o il GameDataManager!");
-            // Come fallback, potremmo caricare la prima arma della lista
-            if(weaponButtons.Count > 0) GameDataManager.Instance.selectedWeapon = weaponButtons[0].weaponData;
-        }
-
-        SceneManager.LoadScene("GameScene"); 
-    }
-
-    // Metodo di selezione arma aggiornato
     public void SelectWeapon(WeaponData weaponData)
     {
-        Debug.Log("ARMA SELEZIONATA: " + weaponData.weaponName); // Messaggio di Debug
         PlayerPrefs.SetString("SelectedWeapon", weaponData.weaponName);
         PlayerPrefs.Save();
         HighlightSelectedWeapon(weaponData.weaponName);
@@ -228,16 +265,11 @@ public class MenuManager : MonoBehaviour
     {
         Color selectedColor = Color.green;
         Color normalColor = Color.white;
-
         foreach (var wb in weaponButtons)
         {
-            if (wb.weaponData.weaponName == weaponName)
+            if (wb.button != null)
             {
-                wb.button.image.color = selectedColor;
-            }
-            else
-            {
-                wb.button.image.color = normalColor;
+                wb.button.image.color = (wb.weaponData.weaponName == weaponName) ? selectedColor : normalColor;
             }
         }
     }
@@ -261,7 +293,7 @@ public class MenuManager : MonoBehaviour
         
         UpdateHangarAbilityUI();
     }
-
+    
     private void UpdateSingleUpgradeUI(UpgradeUIPanel panel)
     {
         if (panel == null || panel.buyButton == null || panel.levelText == null || panel.costText == null) return;
