@@ -195,36 +195,60 @@ public class ProgressionManager : MonoBehaviour
         UpdateMissionProgress(MissionType.COLLECT_COINS_TOTAL, amount);
     }
 
+    public void NotifySectorCompleted(string completedSectorName)
+    {
+        UpdateMissionProgress(MissionType.COMPLETE_SECTOR, 1, completedSectorName);
+    }
+
+    public void ReportEndlessSurvivalTime(float seconds)
+    {
+        int minutes = Mathf.FloorToInt(seconds / 60);
+        if (minutes > 0)
+        {
+            UpdateMissionProgress(MissionType.SURVIVE_MINUTES_ENDLESS, minutes);
+        }
+    }
+
     private void UpdateMissionProgress(MissionType type, int amount, string targetID = "")
     {
-        bool progressMade = false;
         foreach (MissionData mission in allMissions)
         {
-            if (mission.missionType == type && !claimedMissions.Contains(mission.missionID) && GetMissionProgress(mission.missionID) < mission.targetValue)
+            if (mission.missionType == type && !claimedMissions.Contains(mission.missionID))
             {
-                if (type == MissionType.KILL_ENEMIES_OF_TYPE && mission.targetEnemyID != targetID)
+                if ((type == MissionType.KILL_ENEMIES_OF_TYPE || type == MissionType.COMPLETE_SECTOR) && mission.targetEnemyID != targetID)
                 {
                     continue;
                 }
 
                 int currentProgress = GetMissionProgress(mission.missionID);
-                missionProgress[mission.missionID] = Mathf.Min(currentProgress + amount, mission.targetValue);
+                int newProgress = currentProgress;
+
+                if (type == MissionType.SURVIVE_MINUTES_ENDLESS)
+                {
+                    if (amount > currentProgress)
+                    {
+                        newProgress = amount;
+                    }
+                    else
+                    {
+                        continue; 
+                    }
+                }
+                else
+                {
+                    newProgress = currentProgress + amount;
+                }
                 
-                // --- RIGA DI DEBUG REINSERITA QUI ---
+                missionProgress[mission.missionID] = Mathf.Min(newProgress, mission.targetValue);
                 Debug.Log($"Progresso missione '{mission.title}': {missionProgress[mission.missionID]}/{mission.targetValue}");
-                // --- FINE RIGA REINSERITA ---
                 
                 if(missionProgress[mission.missionID] >= mission.targetValue)
                 {
                     Debug.Log($"MISSIONE COMPLETATA: '{mission.title}'!");
-                    OnValuesChanged?.Invoke(); // Notifica la UI che una missione è pronta per essere riscattata
+                    OnValuesChanged?.Invoke();
                 }
             }
         }
-        // --- MODIFICA CHIAVE QUI ---
-        // Il salvataggio è stato rimosso da qui per evitare di salvare ad ogni uccisione.
-        // Verrà chiamato in momenti più opportuni (es. acquisto, fine partita, etc.)
-        // if (progressMade) { SaveData(); } 
     }
     
     public int GetMissionProgress(string missionID)

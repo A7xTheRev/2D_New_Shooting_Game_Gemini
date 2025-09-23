@@ -16,16 +16,15 @@ public class GameOverManager : MonoBehaviour
     private static int lastSessionWave = 1;
     private static int lastSessionCoins = 0;
     private static int lastSessionGems = 0;
-    // --- FINE NUOVE VARIABILI ---
+    private static float lastSessionTime = 0f; // NUOVO
 
-
-    // --- NUOVO METODO STATICO DA CHIAMARE PRIMA DI CARICARE LA SCENA ---
-    // Altri script (come PlayerStats) useranno questo metodo per passare i dati
-    public static void SetEndGameStats(int wave, int coins, int gems)
+    // Metodo statico aggiornato
+    public static void SetEndGameStats(int wave, int coins, int gems, float time)
     {
         lastSessionWave = wave;
         lastSessionCoins = coins;
         lastSessionGems = gems;
+        lastSessionTime = time; // NUOVO
     }
 
 
@@ -48,6 +47,11 @@ public class GameOverManager : MonoBehaviour
         // Controlla se abbiamo stabilito un nuovo record
         if (ProgressionManager.Instance != null)
         {
+            // Se la partita era in Endless, notifica il tempo di sopravvivenza
+            if (GameDataManager.Instance != null && GameDataManager.Instance.selectedGameMode == GameMode.Endless)
+            {
+                ProgressionManager.Instance.ReportEndlessSurvivalTime(lastSessionTime);
+            }
             bool isNewRecord = ProgressionManager.Instance.CheckForNewHighScores(lastSessionWave, lastSessionCoins);
 
             // Se sì, mostra l'indicatore di nuovo record
@@ -71,6 +75,7 @@ public class GameOverManager : MonoBehaviour
         lastSessionCoins = 0;
         lastSessionGems = 0;
         lastSessionWave = 1;
+        lastSessionTime = 0f;
     }
 
     public void BackToMenu()

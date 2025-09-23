@@ -332,7 +332,10 @@ public class PlayerStats : MonoBehaviour
 
             StageManager stageManager = FindFirstObjectByType<StageManager>();
             int currentWave = (stageManager != null) ? stageManager.stageNumber : 1;
-            GameOverManager.SetEndGameStats(currentWave, sessionCoins, sessionSpecialCurrency);
+            float timeSurvived = (stageManager != null) ? stageManager.GetSurvivalTime() : 0f;
+
+            // Passiamo anche il tempo di sopravvivenza
+            GameOverManager.SetEndGameStats(currentWave, sessionCoins, sessionSpecialCurrency, timeSurvived);
 
             UnityEngine.SceneManagement.SceneManager.LoadScene("GameOver");
         }

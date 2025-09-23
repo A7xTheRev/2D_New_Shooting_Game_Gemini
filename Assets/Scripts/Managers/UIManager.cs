@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using System; // Aggiunto per TimeSpan
 
 public class UIManager : MonoBehaviour
 {
@@ -19,7 +20,9 @@ public class UIManager : MonoBehaviour
     public GameObject optionsPanel;
     [Tooltip("L'immagine della vignetta che si trova nel Canvas della GameScene.")]
     public Image slowMotionVignetteImage; // Riferimento alla vignetta della scena
-
+    [Header("UI Specifica Modalità")]
+    [Tooltip("Il testo per mostrare il timer di sopravvivenza in modalità Endless.")]
+    public TextMeshProUGUI survivalTimerText; 
     [Header("UI del Giocatore (collegata dinamicamente)")]
     public Slider abilitySlider;
     public Image abilityIconImage;
@@ -96,12 +99,36 @@ public class UIManager : MonoBehaviour
         {
             UpdateSecondChanceUI(ProgressionManager.Instance.IsSpecialUpgradeUnlocked(AbilityID.SecondChance));
         }
+
+        // --- NUOVA LOGICA PER IL TIMER ---
+        // Controlla la modalità di gioco e mostra/nascondi il timer di conseguenza
+        if (survivalTimerText != null)
+        {
+            bool isEndless = (GameDataManager.Instance != null && GameDataManager.Instance.selectedGameMode == GameMode.Endless);
+            survivalTimerText.gameObject.SetActive(isEndless);
+        }
+        // --- FINE NUOVA LOGICA ---
     }
 
     void Update()
     {
-        if (stageManager != null && stageText != null)
+        if (stageManager != null)
+        {
+            // Aggiorna il testo dell'ondata
+            if(stageText != null)
             stageText.text = "STAGE: " + stageManager.stageNumber;
+
+            // --- NUOVA LOGICA DI AGGIORNAMENTO TIMER ---
+            // Se il testo del timer è attivo, aggiornalo ogni frame
+            if (survivalTimerText != null && survivalTimerText.gameObject.activeInHierarchy)
+            {
+                float time = stageManager.GetSurvivalTime();
+                // Usiamo TimeSpan per formattare facilmente il tempo in minuti e secondi
+                TimeSpan timeSpan = TimeSpan.FromSeconds(time);
+                survivalTimerText.text = string.Format("{0:D2}:{1:D2}", timeSpan.Minutes, timeSpan.Seconds);
+            }
+            // --- FINE NUOVA LOGICA ---
+        }
     }
 
     private IEnumerator StartGameCountdownCoroutine()

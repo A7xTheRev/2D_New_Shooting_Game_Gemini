@@ -43,6 +43,8 @@ public class StageManager : MonoBehaviour
     private GameMode currentMode;
     private SectorData currentSector;
 
+    private float survivalTimer = 0f;
+    
     void Start()
     {
         if (GameDataManager.Instance != null)
@@ -108,6 +110,11 @@ public class StageManager : MonoBehaviour
 
     void Update()
     {
+        if (gameHasStarted)
+        {
+            survivalTimer += Time.deltaTime; // Il timer avanza
+        }
+
         if (gameHasStarted && !isSpawningWave && GameObject.FindGameObjectsWithTag("Enemy").Length == 0 && FindFirstObjectByType<BossTurret>() == null)
         {
             if (isBossWave)
@@ -116,7 +123,7 @@ public class StageManager : MonoBehaviour
                 if (currentMode == GameMode.Story)
                 {
                     Debug.Log("SETTORE " + currentSector.sectorName + " COMPLETATO!");
-                    // Qui puoi aggiungere una schermata di vittoria, per ora torniamo al menu
+                    ProgressionManager.Instance?.NotifySectorCompleted(currentSector.name); // Qui usiamo il nome dell'asset come ID
                     Time.timeScale = 1f;
                     SceneManager.LoadScene("MainMenu");
                     return;
@@ -128,10 +135,14 @@ public class StageManager : MonoBehaviour
             NextStage();
         }
     }
+    public float GetSurvivalTime()
+    {
+        return survivalTimer;
+    }
 
     public void NextStage()
     {
-        isSpawningWave = true; 
+        isSpawningWave = true;
         stageNumber++;
 
         if (currentMode == GameMode.Story)
