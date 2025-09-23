@@ -34,6 +34,7 @@ public class StageManager : MonoBehaviour
     private bool gameHasStarted = false;
     private GameMode currentMode;
     private SectorData currentSector;
+    private int currentWorldIndex = 0;
 
     void Start()
     {
@@ -42,12 +43,17 @@ public class StageManager : MonoBehaviour
         {
             currentMode = GameDataManager.Instance.selectedGameMode;
             currentSector = GameDataManager.Instance.selectedSector;
+
+            if (currentMode == GameMode.Story && MenuManager.Instance != null && GameDataManager.Instance.selectedWorld != null)
+            {
+                currentWorldIndex = MenuManager.Instance.allWorlds.IndexOf(GameDataManager.Instance.selectedWorld);
+            }
         }
 
         // Fallback di sicurezza se la modalità storia è selezionata ma non ci sono dati
         if (currentMode == GameMode.Story && currentSector == null)
         {
-            Debug.LogError("Modalità Storia selezionata ma nessun SectorData fornito! Avvio in modalità Endless come fallback.");
+            Debug.LogError("Modalità Storia selezionata ma nessun SectorData fornito! Avvio in Endless.");
             currentMode = GameMode.Endless;
         }
 
@@ -96,8 +102,8 @@ public class StageManager : MonoBehaviour
         // Logica a bivi basata sulla modalità di gioco
         if (currentMode == GameMode.Story)
         {
-            // Se siamo nell'ultimo livello del settore, spawna il boss guardiano
-            if (stageNumber >= currentSector.numberOfLevels) // Usiamo >= per sicurezza
+            // --- CORREZIONE APPLICATA QUI ---
+            if (stageNumber >= currentSector.numberOfWaves)
             {
                 StartCoroutine(SpawnGuardianBossCoroutine());
             }
@@ -119,14 +125,24 @@ public class StageManager : MonoBehaviour
         if (enemyToSpawn == null) return;
         GameObject e = Instantiate(enemyToSpawn, position, enemyToSpawn.transform.rotation);
         EnemyStats es = e.GetComponent<EnemyStats>();
-        if (es != null)
+        if (es != null && es.allowStatScaling)
         {
-            float multiplier = 1f + (stageNumber - 1) * growthRate;
-            if (es.allowStatScaling)
+            float totalProgressLevel = 0;
+            if (currentMode == GameMode.Story)
             {
+                // --- CORREZIONE APPLICATA QUI ---
+                int completedWorldsValue = currentWorldIndex * currentSector.numberOfWaves;
+                totalProgressLevel = completedWorldsValue + (stageNumber - 1);
+            }
+            else
+            {
+                totalProgressLevel = stageNumber - 1;
+            }
+            
+            float multiplier = 1f + totalProgressLevel * growthRate;
                 es.maxHealth = Mathf.RoundToInt(es.maxHealth * multiplier);
                 es.currentHealth = es.maxHealth;
-            }
+
             SuperBossAI superBoss = e.GetComponent<SuperBossAI>();
             if (superBoss != null)
             {

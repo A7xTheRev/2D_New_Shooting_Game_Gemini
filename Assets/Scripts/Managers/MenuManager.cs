@@ -7,6 +7,8 @@ using System.Collections.Generic;
 
 public class MenuManager : MonoBehaviour
 {
+    public static MenuManager Instance { get; private set; }
+
     // Classe interna per collegare pulsanti e dati arma nell'Inspector
     [System.Serializable]
     public class WeaponSelectionButton
@@ -21,12 +23,12 @@ public class MenuManager : MonoBehaviour
     public GameObject hangarPanel;
     public GameObject backgroundPanel;
     public GameObject shipPanel;
-    public GameObject sectorSelectionPanel; // Aggiunto per la selezione della modalità
+    public GameObject sectorSelectionPanel;
 
-    [Header("Selezione Settore (Story Mode)")]
+    [Header("Selezione Modalità di Gioco")]
+    public List<WorldData> allWorlds; // Aggiunto per riferimento
     public Transform sectorButtonContainer;
     public GameObject sectorButtonPrefab;
-    public List<SectorData> allSectors;
 
     [Header("UI Generale")]
     public TextMeshProUGUI coinsText;
@@ -82,6 +84,16 @@ public class MenuManager : MonoBehaviour
 
     void Awake()
     {
+        // --- CODICE SINGLETON AGGIUNTO ---
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+        // --- FINE CODICE AGGIUNTO ---
         int targetFPS = PlayerPrefs.GetInt("TargetFPS", 60);
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = targetFPS;
@@ -183,34 +195,39 @@ public class MenuManager : MonoBehaviour
     
     public void ShowSectorSelectionPanel()
     {
+        if (allWorlds != null && allWorlds.Count > 0)
+    {
         mainPanel.SetActive(false);
         storePanel.SetActive(false);
         hangarPanel.SetActive(false);
         backgroundPanel.SetActive(false);
         shipPanel.SetActive(false);
         sectorSelectionPanel.SetActive(true);
-        PopulateSectorButtons();
+            PopulateSectorButtons(allWorlds[0]); // Per ora, apriamo il primo mondo
+        }
+        else
+        {
+            Debug.LogError("Nessun mondo (WorldData) è stato assegnato al MenuManager!");
+        }
     }
 
-    private void PopulateSectorButtons()
+    private void PopulateSectorButtons(WorldData world)
     {
-        foreach (Transform child in sectorButtonContainer)
-        {
-            Destroy(child.gameObject);
-        }
-        foreach (SectorData sector in allSectors)
+        foreach (Transform child in sectorButtonContainer) { Destroy(child.gameObject); }
+        foreach (SectorData sector in world.sectors)
         {
             GameObject buttonObj = Instantiate(sectorButtonPrefab, sectorButtonContainer);
             buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = sector.sectorName;
-            buttonObj.GetComponent<Button>().onClick.AddListener(() => StartStoryMode(sector));
+            buttonObj.GetComponent<Button>().onClick.AddListener(() => StartStoryMode(world, sector));
         }
     }
 
-    public void StartStoryMode(SectorData sector)
+    public void StartStoryMode(WorldData world, SectorData sector)
     {
         if (GameDataManager.Instance != null)
         {
             GameDataManager.Instance.selectedGameMode = GameMode.Story;
+            GameDataManager.Instance.selectedWorld = world;
             GameDataManager.Instance.selectedSector = sector;
             LaunchGame();
         }
@@ -221,6 +238,7 @@ public class MenuManager : MonoBehaviour
         if (GameDataManager.Instance != null)
         {
             GameDataManager.Instance.selectedGameMode = GameMode.Endless;
+            GameDataManager.Instance.selectedWorld = null;
             GameDataManager.Instance.selectedSector = null;
             LaunchGame();
         }
@@ -230,7 +248,6 @@ public class MenuManager : MonoBehaviour
     {
         string selectedWeaponName = PlayerPrefs.GetString("SelectedWeapon", "Standard");
         WeaponData dataToPass = weaponButtons.Find(wb => wb.weaponData.weaponName == selectedWeaponName)?.weaponData;
-        
         if (dataToPass != null && GameDataManager.Instance != null)
         {
             GameDataManager.Instance.selectedWeapon = dataToPass;

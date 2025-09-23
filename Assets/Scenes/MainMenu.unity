@@ -19941,12 +19941,10 @@ MonoBehaviour:
   backgroundPanel: {fileID: 766913821}
   shipPanel: {fileID: 311424050}
   sectorSelectionPanel: {fileID: 1132932371}
+  allWorlds:
+  - {fileID: 11400000, guid: 8ff6365b848d30d44852856f8647931b, type: 2}
   sectorButtonContainer: {fileID: 998127942}
   sectorButtonPrefab: {fileID: 6344393021643587891, guid: 3b2c0a3a83ab473459a95732c60ea87f, type: 3}
-  allSectors:
-  - {fileID: 11400000, guid: af059d8b9d4a6e74190e7ea84a08128d, type: 2}
-  - {fileID: 11400000, guid: 6356abae3f4db93419215973b2076b36, type: 2}
-  - {fileID: 11400000, guid: c5593c7113144c14f87e99489330fdb3, type: 2}
   coinsText: {fileID: 846765644}
   specialCurrencyText: {fileID: 368693033}
   maxWaveText: {fileID: 223948177}
@@ -22131,6 +22129,7 @@ MonoBehaviour:
   selectedWeapon: {fileID: 0}
   selectedShip: {fileID: 0}
   selectedGameMode: 0
+  selectedWorld: {fileID: 0}
   selectedSector: {fileID: 0}
 --- !u!4 &2033826943
 Transform:

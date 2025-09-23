@@ -6,7 +6,7 @@ public class SectorData : ScriptableObject
 {
     [Header("Informazioni Settore")]
     public string sectorName;
-    public int numberOfLevels = 5;
+    public int numberOfWaves = 5; // Rinominato da numberOfLevels per chiarezza
 
     [Header("Contenuti del Settore")]
     [Tooltip("La lista dei prefab dei nemici che possono apparire in questo settore.")]

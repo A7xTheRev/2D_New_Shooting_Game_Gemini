@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: accb595efd7b1094d85ad5b7eeae24d7, type: 3}
+  m_Name: WD_World1_MainCampaign
+  m_EditorClassIdentifier: Assembly-CSharp::WorldData
+  worldName: World1
+  sectors:
+  - {fileID: 11400000, guid: af059d8b9d4a6e74190e7ea84a08128d, type: 2}
+  - {fileID: 11400000, guid: 6356abae3f4db93419215973b2076b36, type: 2}
+  - {fileID: 11400000, guid: c5593c7113144c14f87e99489330fdb3, type: 2}
