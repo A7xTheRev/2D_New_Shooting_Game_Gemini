@@ -201,6 +201,7 @@ public class PlayerStats : MonoBehaviour
     {
         sessionCoins += amount;
         OnSessionCoinsChanged?.Invoke(sessionCoins);
+        ProgressionManager.Instance?.AddCoinsCollected(amount);
     }
 
     public void CollectSpecialCurrency(int amount)

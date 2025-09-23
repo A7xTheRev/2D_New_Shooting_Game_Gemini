@@ -12,13 +12,19 @@ public class SaveData
     public List<int> savedUpgradeLevels = new List<int>();
     public List<AbilityID> unlockedSpecialAbilities = new List<AbilityID>();
 
-    // --- NUOVI CAMPI PER I RECORD ---
     public int maxWaveReached = 0;
     public int maxCoinsInSession = 0;
 
-    // --- NUOVI CAMPI PER LE NAVICELLE ---
-    public string equippedShipName; // Salviamo il nome della navicella equipaggiata
-    public List<string> unlockedShipNames = new List<string>(); // Lista dei nomi delle navicelle sbloccate
+    public string equippedShipName;
+    public List<string> unlockedShipNames = new List<string>();
+    
+    // --- NUOVI CAMPI PER LE MISSIONI ---
+    // Salviamo i progressi attuali (es. "kill_kamikaze", 45)
+    public List<string> missionProgressID = new List<string>();
+    public List<int> missionProgressValue = new List<int>();
+    
+    // Salviamo la lista delle missioni già completate e riscosse
+    public List<string> claimedMissionsID = new List<string>();
     // --- FINE NUOVI CAMPI ---
 }
 

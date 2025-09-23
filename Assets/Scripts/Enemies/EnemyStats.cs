@@ -191,6 +191,15 @@ public class EnemyStats : MonoBehaviour
         GetComponent<Collider2D>().enabled = false;
         if (GetComponent<Rigidbody2D>() != null) GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
 
+        // --- MODIFICA PER LE MISSIONI ---
+        // Notifica il nome del prefab "pulito" (senza "(Clone)")
+        if (ProgressionManager.Instance != null)
+        {
+            string prefabName = gameObject.name.Replace("(Clone)", "");
+            ProgressionManager.Instance.AddEnemyKill(prefabName);
+        }
+        // --- FINE MODIFICA ---
+
         if (deathShakeDuration > 0f && deathShakeMagnitude > 0f)
         {
             CameraShake.Instance.StartShake(deathShakeDuration, deathShakeMagnitude);

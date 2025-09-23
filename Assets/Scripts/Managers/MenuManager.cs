@@ -23,8 +23,9 @@ public class MenuManager : MonoBehaviour
     public GameObject hangarPanel;
     public GameObject backgroundPanel;
     public GameObject shipPanel;
-    public GameObject worldSelectionPanel; // NUOVO: Pannello per i mondi
+    public GameObject worldSelectionPanel;
     public GameObject sectorSelectionPanel;
+    public GameObject missionsPanel;
 
     [Header("Selezione Modalità di Gioco")]
     public List<WorldData> allWorlds;
@@ -147,16 +148,17 @@ public class MenuManager : MonoBehaviour
             if (maxCoinsText != null) maxCoinsText.text = "Max Coins: " + ProgressionManager.Instance.GetMaxCoins();
         }
     }
-    
+
     private void DeactivateAllPanels()
-    { 
+    {
         mainPanel.SetActive(false);
-        storePanel.SetActive(false); 
-        hangarPanel.SetActive(false); 
+        storePanel.SetActive(false);
+        hangarPanel.SetActive(false);
         backgroundPanel.SetActive(false);
         shipPanel.SetActive(false);
         if (worldSelectionPanel != null) worldSelectionPanel.SetActive(false);
         if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
+        if (missionsPanel != null) missionsPanel.SetActive(false); // AGGIUNTO
     }
 
     public void ShowMainPanel()
@@ -184,20 +186,21 @@ public class MenuManager : MonoBehaviour
         DeactivateAllPanels();
         shipPanel.SetActive(true);
     }
-
-    // --- METODO MODIFICATO ---
-    // Questo viene chiamato dal pulsante "Story Mode"
     public void ShowWorldSelectionPanel()
     {
         if (allWorlds == null || allWorlds.Count == 0)
         {
             Debug.LogError("Nessun mondo (WorldData) è stato assegnato al MenuManager!");
             return;
-    }
-
+        }
         DeactivateAllPanels();
         worldSelectionPanel.SetActive(true);
         PopulateWorldButtons();
+    }
+    public void ShowMissionsPanel()
+    {
+        DeactivateAllPanels();
+        missionsPanel.SetActive(true);
     }
     
     // --- NUOVO METODO ---
