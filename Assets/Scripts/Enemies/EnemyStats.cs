@@ -27,7 +27,11 @@ public class EnemyStats : MonoBehaviour
     // --- VARIABILI AGGIUNTE ---
     [HideInInspector] public Color flashColor;
     [HideInInspector] public float flashDuration;
-    // --- FINE AGGIUNTA ---
+    
+    // --- NUOVE VARIABILI PER I DROP ---
+    [HideInInspector] public float gemDropChance;
+    [HideInInspector] public float healthDropChance;
+    // --- FINE NUOVE VARIABILI ---
 
     // L'unica statistica che cambia durante il gioco
     public int currentHealth;
@@ -64,10 +68,13 @@ public class EnemyStats : MonoBehaviour
         deathShakeDuration = enemyData.deathShakeDuration;
         deathShakeMagnitude = enemyData.deathShakeMagnitude;
         burnVFX = enemyData.burnVFX;
-        // --- RIGHE AGGIUNTE ---
         flashColor = enemyData.flashColor;
         flashDuration = enemyData.flashDuration;
-        // --- FINE AGGIUNTA ---
+
+        // --- CARICA LE NUOVE PROBABILITÀ ---
+        gemDropChance = enemyData.gemDropChance;
+        healthDropChance = enemyData.healthDropChance;
+        // --- FINE CARICAMENTO ---
 
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
@@ -217,8 +224,38 @@ public class EnemyStats : MonoBehaviour
         PlayerStats player = FindFirstObjectByType<PlayerStats>();
         if (player != null)
         {
+            // L'XP e le gemme vengono ancora aggiunte direttamente (per ora)
+            player.AddXP(xpReward);
+            
+            // Le MONETE ora vengono SPAWNATE
+            if (LootManager.Instance != null && LootManager.Instance.coinPickupPrefab != null)
+        {
             int finalCoinReward = Mathf.RoundToInt(coinReward * player.coinDropMultiplier);
-            GameManager.Instance?.EnemyDefeated(finalCoinReward, xpReward, specialCurrencyReward);
+                for (int i = 0; i < finalCoinReward; i++)
+                {
+                    // --- RIGA CORRETTA ---
+                    Vector3 spawnPos = transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 0.5f;
+                    Instantiate(LootManager.Instance.coinPickupPrefab, spawnPos, Quaternion.identity);
+                }
+            }
+
+            // Logica di drop unificata per le gemme
+            if (specialCurrencyReward > 0 && LootManager.Instance != null && LootManager.Instance.gemPickupPrefab != null && UnityEngine.Random.value < gemDropChance)
+            {
+                for (int i = 0; i < specialCurrencyReward; i++)
+                {
+                    Vector3 spawnPos = transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 0.5f;
+                    Instantiate(LootManager.Instance.gemPickupPrefab, spawnPos, Quaternion.identity);
+                }
+            }
+
+            // Drop Vita
+            if (LootManager.Instance != null && LootManager.Instance.healthPickupPrefab != null && UnityEngine.Random.value < healthDropChance)
+            {
+                Instantiate(LootManager.Instance.healthPickupPrefab, transform.position, Quaternion.identity);
+            }
+            // --- FINE NUOVA LOGICA ---
+
             player.GetComponent<AbilityController>()?.AddChargeFromKill();
         }
 

@@ -23,10 +23,13 @@ public class MenuManager : MonoBehaviour
     public GameObject hangarPanel;
     public GameObject backgroundPanel;
     public GameObject shipPanel;
+    public GameObject worldSelectionPanel; // NUOVO: Pannello per i mondi
     public GameObject sectorSelectionPanel;
 
     [Header("Selezione Modalità di Gioco")]
-    public List<WorldData> allWorlds; // Aggiunto per riferimento
+    public List<WorldData> allWorlds;
+    public Transform worldButtonContainer;    // NUOVO: Container per i pulsanti dei mondi
+    public GameObject worldButtonPrefab;      // NUOVO: Prefab per i pulsanti dei mondi
     public Transform sectorButtonContainer;
     public GameObject sectorButtonPrefab;
 
@@ -84,7 +87,6 @@ public class MenuManager : MonoBehaviour
 
     void Awake()
     {
-        // --- CODICE SINGLETON AGGIUNTO ---
         if (Instance == null)
         {
             Instance = this;
@@ -93,7 +95,6 @@ public class MenuManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        // --- FINE CODICE AGGIUNTO ---
         int targetFPS = PlayerPrefs.GetInt("TargetFPS", 60);
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = targetFPS;
@@ -147,70 +148,82 @@ public class MenuManager : MonoBehaviour
         }
     }
     
-    public void ShowMainPanel() 
+    private void DeactivateAllPanels()
     { 
-        mainPanel.SetActive(true); 
+        mainPanel.SetActive(false);
         storePanel.SetActive(false); 
         hangarPanel.SetActive(false); 
         backgroundPanel.SetActive(false);
         shipPanel.SetActive(false);
+        if (worldSelectionPanel != null) worldSelectionPanel.SetActive(false);
         if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
+    }
+
+    public void ShowMainPanel()
+    {
+        DeactivateAllPanels();
+        mainPanel.SetActive(true);
     }
     public void ShowStorePanel() 
     { 
-        mainPanel.SetActive(false); 
+        DeactivateAllPanels();
         storePanel.SetActive(true); 
-        hangarPanel.SetActive(false); 
-        backgroundPanel.SetActive(false);
-        shipPanel.SetActive(false);
-        if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
     }
     public void ShowHangarPanel() 
     { 
-        mainPanel.SetActive(false); 
-        storePanel.SetActive(false); 
+        DeactivateAllPanels();
         hangarPanel.SetActive(true); 
-        backgroundPanel.SetActive(false);
-        shipPanel.SetActive(false);
-        if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
     }
     public void ShowBackgroundPanel()
     {
-        mainPanel.SetActive(false);
-        storePanel.SetActive(false);
-        hangarPanel.SetActive(false);
+        DeactivateAllPanels();
         backgroundPanel.SetActive(true);
-        shipPanel.SetActive(false);
-        if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
     }
     public void ShowShipPanel()
     {
-        mainPanel.SetActive(false);
-        storePanel.SetActive(false);
-        hangarPanel.SetActive(false);
-        backgroundPanel.SetActive(false);
+        DeactivateAllPanels();
         shipPanel.SetActive(true);
-        if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
     }
-    
-    public void ShowSectorSelectionPanel()
+
+    // --- METODO MODIFICATO ---
+    // Questo viene chiamato dal pulsante "Story Mode"
+    public void ShowWorldSelectionPanel()
     {
-        if (allWorlds != null && allWorlds.Count > 0)
-    {
-        mainPanel.SetActive(false);
-        storePanel.SetActive(false);
-        hangarPanel.SetActive(false);
-        backgroundPanel.SetActive(false);
-        shipPanel.SetActive(false);
-        sectorSelectionPanel.SetActive(true);
-            PopulateSectorButtons(allWorlds[0]); // Per ora, apriamo il primo mondo
-        }
-        else
+        if (allWorlds == null || allWorlds.Count == 0)
         {
             Debug.LogError("Nessun mondo (WorldData) è stato assegnato al MenuManager!");
+            return;
+    }
+
+        DeactivateAllPanels();
+        worldSelectionPanel.SetActive(true);
+        PopulateWorldButtons();
+    }
+    
+    // --- NUOVO METODO ---
+    // Popola la UI con i pulsanti per ogni mondo
+    private void PopulateWorldButtons()
+    {
+        foreach (Transform child in worldButtonContainer) { Destroy(child.gameObject); }
+
+        foreach (WorldData world in allWorlds)
+        {
+            GameObject buttonObj = Instantiate(worldButtonPrefab, worldButtonContainer);
+            buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = world.worldName;
+            buttonObj.GetComponent<Button>().onClick.AddListener(() => OnWorldSelected(world));
         }
     }
 
+    // --- NUOVO METODO ---
+    // Chiamato quando un giocatore clicca su un mondo
+    private void OnWorldSelected(WorldData selectedWorld)
+    {
+        DeactivateAllPanels();
+        sectorSelectionPanel.SetActive(true);
+        PopulateSectorButtons(selectedWorld);
+    }
+
+    // Questo metodo ora viene chiamato da OnWorldSelected
     private void PopulateSectorButtons(WorldData world)
     {
         foreach (Transform child in sectorButtonContainer) { Destroy(child.gameObject); }
@@ -257,7 +270,13 @@ public class MenuManager : MonoBehaviour
             Debug.LogError("Impossibile trovare i dati per l'arma selezionata (" + selectedWeaponName + ") o il GameDataManager!");
             if (weaponButtons.Count > 0 && GameDataManager.Instance != null) GameDataManager.Instance.selectedWeapon = weaponButtons[0].weaponData;
         }
-        
+        // --- RIGA MANCANTE AGGIUNTA QUI ---
+        // Leggiamo la navicella equipaggiata dal ProgressionManager e la passiamo al GameDataManager
+        if (ProgressionManager.Instance != null && GameDataManager.Instance != null)
+        {
+            GameDataManager.Instance.selectedShip = ProgressionManager.Instance.GetEquippedShip();
+        }
+        // --- FINE RIGA AGGIUNTA ---
         SceneManager.LoadScene("GameScene");
     }
     
@@ -305,8 +324,8 @@ public class MenuManager : MonoBehaviour
         if (coinsText != null) coinsText.text = "Coins: " + ProgressionManager.Instance.GetCoins();
         if (specialCurrencyText != null) specialCurrencyText.text = "Gemme: " + ProgressionManager.Instance.GetSpecialCurrency();
         
-        foreach(var panel in normalUpgradePanels) { UpdateSingleUpgradeUI(panel); }
-        foreach(var panel in specialUpgradePanels) { UpdateSingleSpecialUpgradeUI(panel); }
+        foreach (var panel in normalUpgradePanels) { UpdateSingleUpgradeUI(panel); }
+        foreach (var panel in specialUpgradePanels) { UpdateSingleSpecialUpgradeUI(panel); }
         
         UpdateHangarAbilityUI();
     }
@@ -315,7 +334,7 @@ public class MenuManager : MonoBehaviour
     {
         if (panel == null || panel.buyButton == null || panel.levelText == null || panel.costText == null) return;
         PermanentUpgrade upgrade = ProgressionManager.Instance.GetUpgrade(panel.upgradeType);
-        if (upgrade == null) { if(panel.buyButton != null) panel.buyButton.gameObject.SetActive(false); return; }
+        if (upgrade == null) { if (panel.buyButton != null) panel.buyButton.gameObject.SetActive(false); return; }
         
         panel.levelText.text = $"Liv. {upgrade.currentLevel}/{upgrade.maxLevel}";
         if (upgrade.currentLevel >= upgrade.maxLevel) 
@@ -335,7 +354,7 @@ public class MenuManager : MonoBehaviour
     {
         if (panel == null || panel.buyButton == null || panel.descriptionText == null || panel.costText == null) return;
         SpecialAbility ability = ProgressionManager.Instance.allSpecialAbilities.Find(a => a.abilityID == panel.abilityID);
-        if (ability == null) { if(panel.buyButton != null) panel.buyButton.gameObject.SetActive(false); return; }
+        if (ability == null) { if (panel.buyButton != null) panel.buyButton.gameObject.SetActive(false); return; }
 
         panel.descriptionText.text = ability.description;
         if (ProgressionManager.Instance.IsSpecialUpgradeUnlocked(panel.abilityID))

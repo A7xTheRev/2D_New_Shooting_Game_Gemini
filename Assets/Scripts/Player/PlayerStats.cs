@@ -336,7 +336,7 @@ public class PlayerStats : MonoBehaviour
             UnityEngine.SceneManagement.SceneManager.LoadScene("GameOver");
         }
     }
-    
+
     public void InitializeFromData(PlayerData data)
     {
         if (data == null)
@@ -346,5 +346,30 @@ public class PlayerStats : MonoBehaviour
         }
         playerData = data;
         LoadStatsFromData();
+    }
+    
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        // Controlla se l'oggetto con cui abbiamo colliso ha un componente Pickup
+        Pickup pickup = other.GetComponent<Pickup>();
+        if (pickup != null)
+        {
+            // Controlla il tipo di pickup e agisci di conseguenza
+            switch (pickup.type)
+            {
+                case Pickup.PickupType.Coin:
+                    CollectCoin(pickup.value);
+                    break;
+                case Pickup.PickupType.Gem:
+                    CollectSpecialCurrency(pickup.value);
+                    break;
+                case Pickup.PickupType.Health:
+                    Heal(pickup.value);
+                    break;
+            }
+
+            // "Consuma" l'oggetto
+            pickup.Collect();
+        }
     }
 }

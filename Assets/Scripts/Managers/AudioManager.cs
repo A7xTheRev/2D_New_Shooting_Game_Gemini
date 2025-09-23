@@ -41,7 +41,7 @@ public class AudioManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(gameObject); // RIMOSSA DA QUI
 
             sfxPool = new List<AudioSource>();
             for (int i = 0; i < sfxPoolSize; i++)

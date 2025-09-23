@@ -19,7 +19,7 @@ public class BackgroundManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(gameObject); // RIMOSSA DA QUI
             LoadSelection();
         }
         else
@@ -54,7 +54,7 @@ public class BackgroundManager : MonoBehaviour
             currentBackgroundIndex = 0;
         }
         SaveSelection();
-        OnBackgroundChanged?.Invoke(); // Lancia il segnale!
+        OnBackgroundChanged?.Invoke();
     }
     
     public void CyclePreviousBackground()
@@ -65,7 +65,7 @@ public class BackgroundManager : MonoBehaviour
             currentBackgroundIndex = availableBackgrounds.Count - 1;
         }
         SaveSelection();
-        OnBackgroundChanged?.Invoke(); // Lancia il segnale!
+        OnBackgroundChanged?.Invoke();
     }
     
     // Metodo per impostare uno sfondo casuale

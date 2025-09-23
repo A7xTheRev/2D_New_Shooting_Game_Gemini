@@ -14,10 +14,14 @@ public class StageManager : MonoBehaviour
     public int endlessSuperBossStage = 20;
 
     [Header("Gestione Stage Globale")]
-    public int stageNumber = 1; // In Story mode, è il livello. In Endless, è l'ondata.
-    public float growthRate = 0.18f;
+    // --- MODIFICA: Variabili di crescita separate ---
+    [Tooltip("Il tasso di crescita per la modalità Storia. Deve essere basso per una progressione graduale.")]
+    public float storyGrowthRate = 0.05f;
+    [Tooltip("Il tasso di crescita per la modalità Endless. Può essere più alto per una sfida crescente.")]
+    public float endlessGrowthRate = 0.15f;
+    // --- FINE MODIFICA ---
     public int enemiesPerStage = 8;
-    public int stageToStartElites = 5;
+    public int stageToStartElites = 3; // Abbassato per vederli prima
     public float spawnY = 6f;
     public float spawnXMin = -8f;
     public float spawnXMax = 8f;
@@ -28,29 +32,43 @@ public class StageManager : MonoBehaviour
     [Range(0f, 1f)]
     public float eliteSpawnChance = 0.1f;
 
-    // Variabili interne per gestire la modalità corrente
+    private int globalDifficultyLevel = 0;
+    
+    [HideInInspector]
+    public int stageNumber = 1; // Rimosso dall'header, gestito internamente
+
     private bool isSpawningWave = false;
     private bool isBossWave = false;
     private bool gameHasStarted = false;
     private GameMode currentMode;
     private SectorData currentSector;
-    private int currentWorldIndex = 0;
 
     void Start()
     {
-        // All'avvio, decide quale modalità di gioco eseguire
         if (GameDataManager.Instance != null)
         {
             currentMode = GameDataManager.Instance.selectedGameMode;
             currentSector = GameDataManager.Instance.selectedSector;
 
-            if (currentMode == GameMode.Story && MenuManager.Instance != null && GameDataManager.Instance.selectedWorld != null)
+            if (currentMode == GameMode.Story)
             {
-                currentWorldIndex = MenuManager.Instance.allWorlds.IndexOf(GameDataManager.Instance.selectedWorld);
+                if (MenuManager.Instance != null && GameDataManager.Instance.selectedWorld != null)
+            {
+                    int worldIndex = MenuManager.Instance.allWorlds.IndexOf(GameDataManager.Instance.selectedWorld);
+                    int sectorIndex = GameDataManager.Instance.selectedWorld.sectors.IndexOf(currentSector);
+
+                    int completedSectorsInPreviousWorlds = 0;
+                    for (int i = 0; i < worldIndex; i++)
+                    {
+                        completedSectorsInPreviousWorlds += MenuManager.Instance.allWorlds[i].sectors.Count;
+                    }
+
+                    globalDifficultyLevel = completedSectorsInPreviousWorlds + sectorIndex;
+                    Debug.Log($"Inizio Settore. Livello Difficoltà Globale Base: {globalDifficultyLevel}");
+                }
             }
         }
 
-        // Fallback di sicurezza se la modalità storia è selezionata ma non ci sono dati
         if (currentMode == GameMode.Story && currentSector == null)
         {
             Debug.LogError("Modalità Storia selezionata ma nessun SectorData fornito! Avvio in Endless.");
@@ -59,6 +77,27 @@ public class StageManager : MonoBehaviour
 
         Debug.Log("Modalità di Gioco Avviata: " + currentMode);
     }
+
+    // --- NUOVA FUNZIONE PUBBLICA ---
+    // Qualsiasi script ora può chiedere allo StageManager il moltiplicatore di difficoltà corretto.
+    public float GetCurrentStatMultiplier()
+    {
+        float totalDifficultySteps = 0;
+        if (currentMode == GameMode.Story)
+        {
+            const int averageWavesPerSector = 5;
+            totalDifficultySteps = (globalDifficultyLevel * averageWavesPerSector) + (stageNumber - 1);
+        }
+        else
+        {
+            totalDifficultySteps = stageNumber - 1;
+        }
+
+        float currentGrowthRate = (currentMode == GameMode.Story) ? storyGrowthRate : endlessGrowthRate;
+        float multiplier = 1f + totalDifficultySteps * currentGrowthRate;
+        return multiplier;
+    }
+    // --- FINE NUOVA FUNZIONE ---
 
     public void BeginSpawning()
     {
@@ -69,22 +108,18 @@ public class StageManager : MonoBehaviour
 
     void Update()
     {
-        // Controlla se l'ondata è finita per passare alla successiva
         if (gameHasStarted && !isSpawningWave && GameObject.FindGameObjectsWithTag("Enemy").Length == 0 && FindFirstObjectByType<BossTurret>() == null)
         {
-            // Se era una boss wave, gestisci la fine della battaglia
             if (isBossWave)
             {
                 isBossWave = false;
-                
-                // Se siamo in modalità Storia e il boss è stato sconfitto, il settore è completato
                 if (currentMode == GameMode.Story)
                 {
                     Debug.Log("SETTORE " + currentSector.sectorName + " COMPLETATO!");
                     // Qui puoi aggiungere una schermata di vittoria, per ora torniamo al menu
                     Time.timeScale = 1f;
                     SceneManager.LoadScene("MainMenu");
-                    return; // Ferma l'esecuzione per evitare di chiamare NextStage()
+                    return;
                 }
 
                 // In modalità endless, ripristina la musica normale
@@ -99,11 +134,9 @@ public class StageManager : MonoBehaviour
         isSpawningWave = true; 
         stageNumber++;
 
-        // Logica a bivi basata sulla modalità di gioco
         if (currentMode == GameMode.Story)
         {
-            // --- CORREZIONE APPLICATA QUI ---
-            if (stageNumber >= currentSector.numberOfWaves)
+            if (stageNumber > currentSector.numberOfWaves)
             {
                 StartCoroutine(SpawnGuardianBossCoroutine());
             }
@@ -125,21 +158,12 @@ public class StageManager : MonoBehaviour
         if (enemyToSpawn == null) return;
         GameObject e = Instantiate(enemyToSpawn, position, enemyToSpawn.transform.rotation);
         EnemyStats es = e.GetComponent<EnemyStats>();
+
         if (es != null && es.allowStatScaling)
         {
-            float totalProgressLevel = 0;
-            if (currentMode == GameMode.Story)
-            {
-                // --- CORREZIONE APPLICATA QUI ---
-                int completedWorldsValue = currentWorldIndex * currentSector.numberOfWaves;
-                totalProgressLevel = completedWorldsValue + (stageNumber - 1);
-            }
-            else
-            {
-                totalProgressLevel = stageNumber - 1;
-            }
-            
-            float multiplier = 1f + totalProgressLevel * growthRate;
+            // Ora usiamo la nuova funzione centralizzata
+            float multiplier = GetCurrentStatMultiplier();
+
                 es.maxHealth = Mathf.RoundToInt(es.maxHealth * multiplier);
                 es.currentHealth = es.maxHealth;
 
@@ -156,7 +180,6 @@ public class StageManager : MonoBehaviour
     {
         yield return new WaitForSeconds(1.5f);
 
-        // Sceglie da quale lista di nemici pescare in base alla modalità
         List<GameObject> enemiesToUse;
         List<GameObject> elitesToUse;
 
@@ -172,10 +195,14 @@ public class StageManager : MonoBehaviour
             elitesToUse = endlessElitePrefabs;
         }
 
+        // Per ora, questa logica rimane semplice come richiesto (archetipo "Mixed")
         for (int i = 0; i < enemiesPerStage; i++)
         {
             GameObject prefabToSpawn;
-            if (stageNumber >= stageToStartElites && elitesToUse != null && elitesToUse.Count > 0 && Random.value < eliteSpawnChance)
+            // La probabilità di elite può dipendere anche dalla difficoltà globale!
+            float currentEliteChance = eliteSpawnChance + (globalDifficultyLevel * 0.01f);
+            
+            if (stageNumber >= stageToStartElites && elitesToUse != null && elitesToUse.Count > 0 && Random.value < currentEliteChance)
             {
                 prefabToSpawn = elitesToUse[Random.Range(0, elitesToUse.Count)];
             }

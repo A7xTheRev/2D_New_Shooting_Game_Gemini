@@ -107,14 +107,15 @@ public class BossZigZagAI : MonoBehaviour
         EnemyStats minionStats = minionInstance.GetComponent<EnemyStats>();
         if (minionStats != null && stageManager != null)
         {
-            if (stageManager.stageNumber > 1) 
-            {
-                float multiplier = 1f + (stageManager.stageNumber - 1) * stageManager.growthRate;
+            // --- MODIFICA CHIAVE QUI ---
+            // Chiediamo allo StageManager il moltiplicatore corretto
+            float multiplier = stageManager.GetCurrentStatMultiplier();
+            // --- FINE MODIFICA ---
+
                 minionStats.maxHealth = Mathf.RoundToInt(minionStats.maxHealth * multiplier);
                 minionStats.currentHealth = minionStats.maxHealth;
             }
         }
-    }
 
     void OnCollisionEnter2D(Collision2D collision)
     {

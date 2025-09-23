@@ -21,6 +21,8 @@ MonoBehaviour:
   coinReward: 2
   xpReward: 10
   specialCurrencyReward: 1
+  gemDropChance: 1
+  healthDropChance: 0.04
   hasDeathAnimation: 0
   flashColor: {r: 1, g: 0.30980393, b: 0.3372549, a: 0.8627451}
   flashDuration: 0.1

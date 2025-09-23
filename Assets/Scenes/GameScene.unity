@@ -145,7 +145,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6194583}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -762,6 +762,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 311083268}
   m_CullTransparentMesh: 1
+--- !u!1 &390283286
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 390283287}
+  m_Layer: 0
+  m_Name: ----------------------------------------
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &390283287
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 390283286}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 195, y: 347, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &454194771
 GameObject:
   m_ObjectHideFlags: 0
@@ -2298,8 +2329,8 @@ MonoBehaviour:
   - {fileID: 1147663369917697346, guid: 9a4afc9c52d0d4b4b8c8f283027fd63d, type: 3}
   endlessSuperBossPrefab: {fileID: 2360865920486709351, guid: 9cd1657c2c9750f4ab79e9b95ab815f2, type: 3}
   endlessSuperBossStage: 20
-  stageNumber: 1
-  growthRate: 0.35
+  storyGrowthRate: 0.05
+  endlessGrowthRate: 0.15
   enemiesPerStage: 10
   stageToStartElites: 5
   spawnY: 5.5
@@ -2308,6 +2339,7 @@ MonoBehaviour:
   spawnDelayMin: 0.5
   spawnDelayMax: 2
   eliteSpawnChance: 0.1
+  stageNumber: 1
 --- !u!4 &949205807
 Transform:
   m_ObjectHideFlags: 0
@@ -2316,7 +2348,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 949205805}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3320,8 +3352,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1589582345}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.35118, y: 0.7345, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.35118103, y: 0.7344971, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3379,7 +3411,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1612968485}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 653.59216, y: 1399.4756, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3402,6 +3434,53 @@ MonoBehaviour:
   buttonsContainer: {fileID: 806822008}
   buttonPrefab: {fileID: 6558849122599661650, guid: e7feba8d1e719494890d9f47c9a1ad69, type: 3}
   rerollButton: {fileID: 806822007}
+--- !u!1 &1725078738
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1725078739}
+  - component: {fileID: 1725078740}
+  m_Layer: 0
+  m_Name: LootManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1725078739
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725078738}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 195, y: 347, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1725078740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725078738}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e02cf43083780c04d8ae50df096d6eec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LootManager
+  coinPickupPrefab: {fileID: 1290416118062107480, guid: 86b178c3f2c85c4438892a9fde2414e2, type: 3}
+  gemPickupPrefab: {fileID: 1312441101637291684, guid: c2b4c06bfd1546046a2f2c0dd54c4b85, type: 3}
+  healthPickupPrefab: {fileID: 6993331808302148148, guid: a6319d1d7f614b041a039de1b147c92e, type: 3}
 --- !u!1 &1738260924
 GameObject:
   m_ObjectHideFlags: 0
@@ -4598,13 +4677,15 @@ GameObject:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 454194772}
   - {fileID: 949205807}
-  - {fileID: 1589582347}
-  - {fileID: 519420032}
-  - {fileID: 619394802}
   - {fileID: 1612968487}
   - {fileID: 6194585}
+  - {fileID: 1589582347}
+  - {fileID: 1725078739}
+  - {fileID: 390283287}
+  - {fileID: 454194772}
+  - {fileID: 519420032}
+  - {fileID: 619394802}
   - {fileID: 261549159}
   - {fileID: 497880256}
   - {fileID: 564704004}

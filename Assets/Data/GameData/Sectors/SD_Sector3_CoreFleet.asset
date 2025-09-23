@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SD_Sector3_CoreFleet
   m_EditorClassIdentifier: Assembly-CSharp::SectorData
   sectorName: The Core Fleet
-  numberOfLevels: 7
+  numberOfWaves: 10
   availableEnemies:
   - {fileID: 2389486308191132201, guid: 0b255ee10f82e7143b40fc1a5f92d042, type: 3}
   - {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}

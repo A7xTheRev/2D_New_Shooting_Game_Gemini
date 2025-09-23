@@ -14,19 +14,27 @@ public class EnemyData : ScriptableObject
     public int projectileDamage = 10;
     public float fireRate = 3f;
 
-    [Header("Ricompense")]
+    [Header("Ricompense e Drop")]
     public int coinReward = 5;
     public int xpReward = 20;
-    public int specialCurrencyReward = 0;
+    public int specialCurrencyReward = 0; // Gemme garantite (es. per i boss)
+    
+    // --- NUOVI CAMPI PER I DROP CASUALI ---
+    [Range(0f, 1f)]
+    [Tooltip("La probabilità (da 0 a 1) che questo nemico rilasci una gemma alla morte.")]
+    public float gemDropChance = 0.05f; // 5% di probabilità
+    
+    [Range(0f, 1f)]
+    [Tooltip("La probabilità (da 0 a 1) che questo nemico rilasci un medikit.")]
+    public float healthDropChance = 0.02f; // 2% di probabilità
+    // --- FINE NUOVI CAMPI ---
 
     [Header("Animazione")]
     public bool hasDeathAnimation = false;
 
-    // --- SEZIONE AGGIUNTA ---
     [Header("Effetto Visivo (Hit)")]
     public Color flashColor = Color.white;
     public float flashDuration = 0.1f;
-    // --- FINE SEZIONE ---
     
     [Header("Effetto Visivo (Morte)")]
     public string deathVFXTag = "EnemyExplosion";
