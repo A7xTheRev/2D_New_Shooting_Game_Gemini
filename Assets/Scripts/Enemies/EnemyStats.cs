@@ -191,14 +191,7 @@ public class EnemyStats : MonoBehaviour
         GetComponent<Collider2D>().enabled = false;
         if (GetComponent<Rigidbody2D>() != null) GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
 
-        // --- MODIFICA PER LE MISSIONI ---
-        // Notifica il nome del prefab "pulito" (senza "(Clone)")
-        if (ProgressionManager.Instance != null)
-        {
-            string prefabName = gameObject.name.Replace("(Clone)", "");
-            ProgressionManager.Instance.AddEnemyKill(prefabName);
-        }
-        // --- FINE MODIFICA ---
+        ProgressionManager.Instance?.AddEnemyKill(gameObject.name.Replace("(Clone)", ""));
 
         if (deathShakeDuration > 0f && deathShakeMagnitude > 0f)
         {
@@ -228,7 +221,15 @@ public class EnemyStats : MonoBehaviour
             return;
         }
 
-        // --- Se non è parte di un boss, è un nemico normale. Esegui la logica standard. ---
+        // --- LOGICA DI DIVISIONE MODULARE ---
+        // Cerca il componente che definisce il comportamento di divisione
+        SplittingBehavior splitter = GetComponent<SplittingBehavior>();
+        if (splitter != null)
+        {
+            // Se sì, chiama il suo metodo Split() per generare i figli
+            splitter.Split();
+        }
+        // --- FINE NUOVA LOGICA ---
 
         PlayerStats player = FindFirstObjectByType<PlayerStats>();
         if (player != null)

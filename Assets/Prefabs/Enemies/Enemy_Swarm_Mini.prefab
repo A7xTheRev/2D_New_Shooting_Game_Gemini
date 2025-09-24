@@ -19,10 +19,9 @@ GameObject:
   - component: {fileID: 8473320356151262056}
   - component: {fileID: 1162128806639430444}
   - component: {fileID: 4727307965886449388}
-  - component: {fileID: 3194910850261885671}
-  - component: {fileID: 1426060694917138831}
+  - component: {fileID: 2081433176397147946}
   m_Layer: 9
-  m_Name: Enemy_Swarm
+  m_Name: Enemy_Swarm_Mini
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -38,7 +37,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
   m_LocalPosition: {x: 0.727, y: -1.125, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_LocalScale: {x: 0.85, y: 0.85, z: 0.85}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 6273705998606440654}
@@ -422,76 +421,76 @@ CompositeCollider2D:
   m_ColliderPaths:
   - m_Collider: {fileID: 4282720604598149680}
     m_ColliderPaths:
-    - - X: 1068880
-        Y: 1647044
-      - X: -1068878
-        Y: 1647044
-      - X: -1068878
-        Y: -1653556
-      - X: 1068879
-        Y: -1653556
+    - - X: 605698
+        Y: 933325
+      - X: -605697
+        Y: 933325
+      - X: -605697
+        Y: -937015
+      - X: 605698
+        Y: -937015
   - m_Collider: {fileID: 7588068947008245513}
     m_ColliderPaths:
-    - - X: -1362092
-        Y: -1661359
-      - X: -2550000
-        Y: -1661359
-      - X: -2550000
-        Y: -2699999
-      - X: -1362092
-        Y: -2700000
+    - - X: -771852
+        Y: -941437
+      - X: -1445000
+        Y: -941437
+      - X: -1445000
+        Y: -1530000
+      - X: -771852
+        Y: -1530000
   - m_Collider: {fileID: 4938983001510027356}
     m_ColliderPaths:
-    - - X: 2550000
-        Y: -1672931
-      - X: 1506984
-        Y: -1672931
-      - X: 1506984
-        Y: -2700000
-      - X: 2550000
-        Y: -2700000
+    - - X: 1445000
+        Y: -947994
+      - X: 853958
+        Y: -947994
+      - X: 853958
+        Y: -1530000
+      - X: 1445000
+        Y: -1530000
   - m_Collider: {fileID: 2630165401814617057}
     m_ColliderPaths:
-    - - X: -902513
-        Y: -729117
-      - X: -1646185
-        Y: -729117
-      - X: -1646185
-        Y: -2072133
-      - X: -902513
-        Y: -2072133
+    - - X: -511424
+        Y: -413166
+      - X: -932838
+        Y: -413166
+      - X: -932838
+        Y: -1174208
+      - X: -511424
+        Y: -1174208
   - m_Collider: {fileID: 8746034980007302985}
     m_ColliderPaths:
-    - - X: 1652974
-        Y: -745216
-      - X: 888677
-        Y: -745216
-      - X: 888677
-        Y: -2088232
-      - X: 1652974
-        Y: -2088232
+    - - X: 936685
+        Y: -422289
+      - X: 503583
+        Y: -422289
+      - X: 503583
+        Y: -1183332
+      - X: 936685
+        Y: -1183332
   m_CompositePaths:
     m_Paths:
-    - - {x: 0.2549707, y: -0.27}
-      - {x: 0.2549707, y: -0.1672931}
-      - {x: 0.1652974, y: -0.1672637}
-      - {x: 0.16526811, y: -0.0745216}
-      - {x: 0.1068879, y: -0.0744922}
-      - {x: 0.1068587, y: 0.1647044}
-      - {x: -0.1068878, y: 0.1646751}
-      - {x: -0.1069172, y: -0.0729117}
-      - {x: -0.1646185, y: -0.072941}
-      - {x: -0.1646479, y: -0.1661359}
-      - {x: -0.255, y: -0.1661652}
-      - {x: -0.2549707, y: -0.2699999}
-      - {x: -0.1362092, y: -0.26997072}
-      - {x: -0.1361798, y: -0.2072133}
-      - {x: -0.090251304, y: -0.207184}
-      - {x: -0.090221904, y: -0.16535561}
-      - {x: 0.0888677, y: -0.16538501}
-      - {x: 0.088897005, y: -0.2088232}
-      - {x: 0.15069841, y: -0.2088526}
-      - {x: 0.1507277, y: -0.27}
+    - - {x: -0.0772145, y: -0.153}
+      - {x: -0.0771558, y: -0.1174208}
+      - {x: -0.051142402, y: -0.117391504}
+      - {x: -0.051113002, y: -0.093701504}
+      - {x: 0.0503583, y: -0.093730904}
+      - {x: 0.050387602, y: -0.1183332}
+      - {x: 0.0853958, y: -0.1183626}
+      - {x: 0.0854251, y: -0.153}
+      - {x: 0.1445, y: -0.1529707}
+      - {x: 0.1444707, y: -0.0947994}
+      - {x: 0.0936685, y: -0.09477}
+      - {x: 0.0936392, y: -0.0422289}
+      - {x: 0.0605698, y: -0.0421995}
+      - {x: 0.0605405, y: 0.0933325}
+      - {x: -0.0605697, y: 0.0933032}
+      - {x: -0.0605991, y: -0.0413166}
+      - {x: -0.0932838, y: -0.0413459}
+      - {x: -0.0933132, y: -0.0941437}
+      - {x: -0.1445, y: -0.094173}
+      - {x: -0.1444707, y: -0.153}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
@@ -508,7 +507,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdde63428ebb42c4a8a3fe4ca0bc0375, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
-  enemyData: {fileID: 11400000, guid: b03f612884ed13e4d922a621ba6b2e81, type: 2}
+  enemyData: {fileID: 11400000, guid: 8e9d355195583524da7a8ded854e3944, type: 2}
   maxHealth: 5
   moveSpeed: 2
   contactDamage: 10
@@ -528,7 +527,7 @@ MonoBehaviour:
   gemDropChance: 0
   healthDropChance: 0
   currentHealth: 0
---- !u!114 &3194910850261885671
+--- !u!114 &2081433176397147946
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -537,25 +536,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 8730231952669543138}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab83ef1f7c8c56b4ab19c521ff87916c, type: 3}
+  m_Script: {fileID: 11500000, guid: 16ec2c6cca79b4a4ca23ba22e4591560, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SwarmAI
-  waveAmplitude: 1
-  waveFrequency: 2
---- !u!114 &1426060694917138831
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8730231952669543138}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8daa823cef3002d46a40cc94b0de5eea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SplittingBehavior
-  minionPrefab: {fileID: 8730231952669543138, guid: f031ba6778bf7af488af8497f76102ca, type: 3}
-  numberOfMinions: 3
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
 --- !u!1001 &6643848185609795797
 PrefabInstance:
   m_ObjectHideFlags: 0

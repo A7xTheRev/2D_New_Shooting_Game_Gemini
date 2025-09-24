@@ -13,7 +13,7 @@ public class SwarmAI : MonoBehaviour
     private float camLeftEdge;
     private float camRightEdge;
     private float spriteWidth;
-    private float cleanupYThreshold; // Soglia di pulizia
+    private float cleanupYThreshold;
 
     void Awake()
     {
@@ -40,6 +40,7 @@ public class SwarmAI : MonoBehaviour
 
         float verticalMovement = -stats.moveSpeed * Time.deltaTime;
         float horizontalPosition = initialXPosition + Mathf.Sin(Time.time * waveFrequency) * waveAmplitude;
+        
         float clampedX = Mathf.Clamp(horizontalPosition, camLeftEdge + spriteWidth, camRightEdge - spriteWidth);
         transform.position = new Vector3(clampedX, transform.position.y + verticalMovement, transform.position.z);
     }
@@ -50,7 +51,7 @@ public class SwarmAI : MonoBehaviour
         {
             PlayerStats ps = collision.gameObject.GetComponent<PlayerStats>();
             if (ps != null) ps.TakeDamage(stats.contactDamage);
-            Destroy(gameObject);
+            stats.Die();
         }
     }
 }

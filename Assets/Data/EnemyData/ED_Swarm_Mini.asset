@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eda69b738cbace449a098635be1d68e9, type: 3}
-  m_Name: ED_Swarm
+  m_Name: ED_Swarm_Mini
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   allowStatScaling: 1
-  maxHealth: 15
-  moveSpeed: 2
-  contactDamage: 10
-  projectileDamage: 10
-  fireRate: 3
-  coinReward: 1
-  xpReward: 2
+  maxHealth: 10
+  moveSpeed: 3
+  contactDamage: 5
+  projectileDamage: 0
+  fireRate: 0
+  coinReward: 0
+  xpReward: 1
   specialCurrencyReward: 0
   gemDropChance: 0.05
-  healthDropChance: 0.02
+  healthDropChance: 0
   hasDeathAnimation: 0
   flashColor: {r: 1, g: 0.30980393, b: 0.3372549, a: 0.8627451}
   flashDuration: 0.1
