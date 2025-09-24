@@ -112,6 +112,22 @@ public class EnemyStats : MonoBehaviour
         }
     }
 
+     public void Heal(int amount)
+    {
+        if (isDying || currentHealth <= 0) return;
+
+        currentHealth += amount;
+        if (currentHealth > maxHealth)
+        {
+            currentHealth = maxHealth;
+        }
+
+        // Notifica la UI (es. la barra della vita) che la salute è cambiata
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        
+        // Qui potremmo anche mostrare un numero verde per indicare la cura
+    }
+
     public void ApplyBurn(float duration)
     {
         if (burnCoroutine != null) StopCoroutine(burnCoroutine);
