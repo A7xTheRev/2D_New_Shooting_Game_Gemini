@@ -13,6 +13,14 @@ MonoBehaviour:
   m_Name: WD_Missile
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: Missile
+  description: '+ Damage
+
+    + Area damage
+
+    - Attack speed
+
+    - Projectile
+    speed'
   damageMultiplier: 1.5
   projectileSpeedMultiplier: 0.8
   areaDamageRadius: 1.2

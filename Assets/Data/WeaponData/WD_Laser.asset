@@ -13,6 +13,11 @@ MonoBehaviour:
   m_Name: WD_Laser
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: Laser
+  description: '+ Attack speed
+
+    + Projectile speed
+
+    - Damage'
   damageMultiplier: 0.7
   projectileSpeedMultiplier: 2
   areaDamageRadius: 0

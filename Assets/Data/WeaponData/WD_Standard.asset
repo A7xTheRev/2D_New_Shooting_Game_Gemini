@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: WD_Standard
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: Standard
+  description: Balanced weapon
   damageMultiplier: 1
   projectileSpeedMultiplier: 1
   areaDamageRadius: 0

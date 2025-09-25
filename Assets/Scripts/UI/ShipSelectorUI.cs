@@ -43,7 +43,10 @@ public class ShipSelectorUI : MonoBehaviour
         // Inizializza lo snap controller, passandogli le anteprime create
         if (snapController != null)
         {
-            snapController.Initialize(shipPreviewItems);
+            // --- MODIFICA CHIAVE QUI ---
+            // Ora passiamo al controller sia la lista di oggetti, sia il metodo da richiamare.
+            snapController.Initialize(shipPreviewItems, UpdateUIForShipIndex);
+            // --- FINE MODIFICA ---
         }
     }
     
@@ -70,7 +73,7 @@ public class ShipSelectorUI : MonoBehaviour
     public void UpdateUIForShipIndex(int index)
     {
         currentShipIndex = index;
-        if (allShips == null || currentShipIndex >= allShips.Count) return;
+        if (allShips == null || currentShipIndex >= allShips.Count || ProgressionManager.Instance == null) return;
 
         ShipData currentShip = allShips[currentShipIndex];
         ShipData equippedShip = ProgressionManager.Instance.GetEquippedShip();

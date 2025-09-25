@@ -7,6 +7,10 @@ public class WeaponData : ScriptableObject
     [Tooltip("Il nome dell'arma, deve corrispondere a quello usato nei pool e nei menu (es. 'Standard', 'Laser', 'Missile').")]
     public string weaponName;
 
+    [Header("Informazioni UI")]
+    [TextArea]
+    public string description; 
+
     [Header("Statistiche di Base")]
     [Tooltip("Moltiplicatore del danno base del giocatore (1 = 100%).")]
     public float damageMultiplier = 1f;
