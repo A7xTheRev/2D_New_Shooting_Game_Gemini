@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8372f513ff8621f4493cb2ff77071a3e, type: 3}
   m_Name: TitanPlayerData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
-  maxHealth: 150
-  damage: 11
+  maxHealth: 180
+  damage: 10
   abilityPower: 15
   attackSpeed: 1.1
-  moveSpeed: 3.5
+  moveSpeed: 4.2
   critChance: 0
   critDamageMultiplier: 2
   projectileSizeMultiplier: 1.1

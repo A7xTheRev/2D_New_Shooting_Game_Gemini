@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: SpectrePlayerData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
   maxHealth: 70
-  damage: 16
+  damage: 14
   abilityPower: 10
   attackSpeed: 1.3
-  moveSpeed: 5.5
+  moveSpeed: 5.8
   critChance: 0.1
   critDamageMultiplier: 2.5
   projectileSizeMultiplier: 1

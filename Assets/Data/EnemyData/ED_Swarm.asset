@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: ED_Swarm
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   allowStatScaling: 1
-  maxHealth: 15
-  moveSpeed: 2
-  contactDamage: 10
-  projectileDamage: 10
-  fireRate: 3
-  coinReward: 1
-  xpReward: 2
-  specialCurrencyReward: 0
-  gemDropChance: 0.05
-  healthDropChance: 0.02
+  maxHealth: 40
+  moveSpeed: 1.8
+  contactDamage: 12
+  projectileDamage: 0
+  fireRate: 0
+  coinReward: 5
+  xpReward: 20
+  specialCurrencyReward: 1
+  gemDropChance: 0.02
+  healthDropChance: 0.03
   hasDeathAnimation: 0
   flashColor: {r: 1, g: 0.30980393, b: 0.3372549, a: 0.8627451}
   flashDuration: 0.1

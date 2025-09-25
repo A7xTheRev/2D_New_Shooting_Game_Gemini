@@ -13,14 +13,16 @@ MonoBehaviour:
   m_Name: ED_Superboss_Turret
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   allowStatScaling: 1
-  maxHealth: 1500
+  maxHealth: 3000
   moveSpeed: 1.5
   contactDamage: 0
-  projectileDamage: 15
+  projectileDamage: 20
   fireRate: 2.5
-  coinReward: 50
-  xpReward: 200
-  specialCurrencyReward: 0
+  coinReward: 100
+  xpReward: 500
+  specialCurrencyReward: 5
+  gemDropChance: 1
+  healthDropChance: 0.5
   hasDeathAnimation: 0
   flashColor: {r: 1, g: 0.30980393, b: 0.3372549, a: 0.8627451}
   flashDuration: 0.1

@@ -13,14 +13,16 @@ MonoBehaviour:
   m_Name: ED_Sniper
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   allowStatScaling: 1
-  maxHealth: 40
-  moveSpeed: 2
-  contactDamage: 5
-  projectileDamage: 15
-  fireRate: 2.5
-  coinReward: 5
-  xpReward: 20
-  specialCurrencyReward: 0
+  maxHealth: 120
+  moveSpeed: 1.5
+  contactDamage: 15
+  projectileDamage: 25
+  fireRate: 4
+  coinReward: 8
+  xpReward: 25
+  specialCurrencyReward: 1
+  gemDropChance: 0.03
+  healthDropChance: 0.05
   hasDeathAnimation: 0
   flashColor: {r: 1, g: 0.30980393, b: 0.3372549, a: 0.8627451}
   flashDuration: 0.1

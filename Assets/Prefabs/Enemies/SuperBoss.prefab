@@ -355,7 +355,7 @@ MonoBehaviour:
   mainHealthBarObject: {fileID: 6331985645506977438}
   patrolSpeed: 0.25
   patrolAreaPadding: 2
-  arrivalSpeed: 1
+  arrivalSpeed: 1.5
   arrivalPosition: {x: 0, y: 2.5}
   laserAttackPrefab: {fileID: 8127866032684246570, guid: 7341583c6d05e3d4284bdebbf38a1c52, type: 3}
   laserFirePoint: {fileID: 6575670510556803418}
@@ -540,6 +540,8 @@ MonoBehaviour:
   allowStatScaling: 1
   flashColor: {r: 0.7647059, g: 0.078431375, b: 0.06666667, a: 0.8862745}
   flashDuration: 0.1
+  gemDropChance: 0
+  healthDropChance: 0
   currentHealth: 0
 --- !u!1 &2869404903992684963
 GameObject:
@@ -745,6 +747,8 @@ MonoBehaviour:
   allowStatScaling: 1
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   flashDuration: 0.1
+  gemDropChance: 0
+  healthDropChance: 0
   currentHealth: 0
 --- !u!1 &3755957098383050855
 GameObject:
@@ -1043,6 +1047,8 @@ MonoBehaviour:
   allowStatScaling: 1
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   flashDuration: 0.1
+  gemDropChance: 0
+  healthDropChance: 0
   currentHealth: 0
 --- !u!1001 &4123695484520231911
 PrefabInstance:

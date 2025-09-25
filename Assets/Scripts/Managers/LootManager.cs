@@ -4,10 +4,18 @@ public class LootManager : MonoBehaviour
 {
     public static LootManager Instance;
 
-    [Header("Prefab dei Raccoglibili")]
-    public GameObject coinPickupPrefab;
-    public GameObject gemPickupPrefab;    // NUOVO
-    public GameObject healthPickupPrefab; // NUOVO
+    [Header("Prefab Monete")]
+    public GameObject coinBronzePrefab; // Valore 1
+    public GameObject coinSilverPrefab; // Valore 10
+    public GameObject coinGoldPrefab;   // Valore 50
+
+    [Header("Prefab Gemme")]
+    public GameObject gemBluePrefab;    // Valore 1
+    public GameObject gemGreenPrefab;   // Valore 5
+    public GameObject gemYellowPrefab;  // Valore 20
+
+    [Header("Prefab Utilità")]
+    public GameObject healthPickupPrefab;
 
     void Awake()
     {

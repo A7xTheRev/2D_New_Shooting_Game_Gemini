@@ -13,14 +13,16 @@ MonoBehaviour:
   m_Name: ED_Superboss_Core
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   allowStatScaling: 1
-  maxHealth: 2500
-  moveSpeed: 1.5
-  contactDamage: 0
-  projectileDamage: 25
+  maxHealth: 10000
+  moveSpeed: 1
+  contactDamage: 80
+  projectileDamage: 40
   fireRate: 1
-  coinReward: 100
-  xpReward: 400
-  specialCurrencyReward: 15
+  coinReward: 1000
+  xpReward: 5000
+  specialCurrencyReward: 50
+  gemDropChance: 1
+  healthDropChance: 1
   hasDeathAnimation: 0
   flashColor: {r: 1, g: 0.30980393, b: 0.3372549, a: 0.8627451}
   flashDuration: 0.1

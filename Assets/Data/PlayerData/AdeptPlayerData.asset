@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8372f513ff8621f4493cb2ff77071a3e, type: 3}
   m_Name: AdeptPlayerData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
-  maxHealth: 100
-  damage: 8
+  maxHealth: 110
+  damage: 11
   abilityPower: 30
-  attackSpeed: 1
+  attackSpeed: 1.2
   moveSpeed: 5
   critChance: 0
   critDamageMultiplier: 2

@@ -13,14 +13,16 @@ MonoBehaviour:
   m_Name: ED_Kamikaze
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   allowStatScaling: 1
-  maxHealth: 15
-  moveSpeed: 6
-  contactDamage: 20
+  maxHealth: 30
+  moveSpeed: 3.5
+  contactDamage: 40
   projectileDamage: 0
   fireRate: 0
   coinReward: 1
   xpReward: 15
-  specialCurrencyReward: 0
+  specialCurrencyReward: 1
+  gemDropChance: 0.005
+  healthDropChance: 0.01
   hasDeathAnimation: 0
   flashColor: {r: 1, g: 0.30980393, b: 0.3372549, a: 0.8627451}
   flashDuration: 0.1

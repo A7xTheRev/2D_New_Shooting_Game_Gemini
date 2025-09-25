@@ -18,7 +18,7 @@ MonoBehaviour:
   description: Inizia ogni partita con un potenziamento casuale di livello 1.
   icon: {fileID: 0}
   isDefaultAbility: 0
-  cost: 10
+  cost: 50
   chargeType: 0
   maxCharge: 100
   chargePerSecond: 0

@@ -597,8 +597,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70a92173d010ab849a2887fe0737ff73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealerAI
-  healAmount: 15
-  healRadius: 1.9
+  healAmount: 25
+  healRadius: 2
   healInterval: 5
   healVFXTag: HealPulse
   patrolSpeed: 1

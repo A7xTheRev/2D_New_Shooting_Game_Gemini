@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8372f513ff8621f4493cb2ff77071a3e, type: 3}
   m_Name: WaspPlayerData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
-  maxHealth: 85
+  maxHealth: 90
   damage: 9
   abilityPower: 12
-  attackSpeed: 1.5
-  moveSpeed: 7
+  attackSpeed: 1.4
+  moveSpeed: 6
   critChance: 0
   critDamageMultiplier: 2
   projectileSizeMultiplier: 0.9

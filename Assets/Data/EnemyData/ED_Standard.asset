@@ -13,14 +13,16 @@ MonoBehaviour:
   m_Name: ED_Standard
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   allowStatScaling: 1
-  maxHealth: 25
+  maxHealth: 50
   moveSpeed: 1.2
   contactDamage: 10
   projectileDamage: 0
   fireRate: 0
-  coinReward: 2
+  coinReward: 3
   xpReward: 10
-  specialCurrencyReward: 0
+  specialCurrencyReward: 1
+  gemDropChance: 0.01
+  healthDropChance: 0.02
   hasDeathAnimation: 0
   flashColor: {r: 1, g: 0.30980393, b: 0.3372549, a: 0.8627451}
   flashDuration: 0.1

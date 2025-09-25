@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: ED_Boss_Shooter
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   allowStatScaling: 1
-  maxHealth: 700
+  maxHealth: 2500
   moveSpeed: 1.5
-  contactDamage: 25
-  projectileDamage: 10
+  contactDamage: 50
+  projectileDamage: 25
   fireRate: 2.5
-  coinReward: 50
-  xpReward: 200
+  coinReward: 100
+  xpReward: 500
   specialCurrencyReward: 5
   gemDropChance: 1
-  healthDropChance: 0.1
+  healthDropChance: 0.5
   hasDeathAnimation: 0
   flashColor: {r: 1, g: 0.30980393, b: 0.3372549, a: 0.8627451}
   flashDuration: 0.1

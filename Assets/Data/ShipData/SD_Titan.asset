@@ -19,5 +19,5 @@ MonoBehaviour:
   shipSprite: {fileID: 5991683537479436764, guid: c697ae075edcd2a4a9164fb532d96be3, type: 3}
   shipPrefab: {fileID: 5325657781964287179, guid: 970caecd829d7414f9fa364b4f71529a, type: 3}
   baseStats: {fileID: 11400000, guid: d8a5ee72701e21c41b3badb91a044b2c, type: 2}
-  costInGems: 20
+  costInGems: 25
   isDefaultShip: 0

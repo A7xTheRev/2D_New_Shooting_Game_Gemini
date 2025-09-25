@@ -2322,9 +2322,9 @@ MonoBehaviour:
   - {fileID: 1147663369917697346, guid: 9a4afc9c52d0d4b4b8c8f283027fd63d, type: 3}
   endlessSuperBossPrefab: {fileID: 2360865920486709351, guid: 9cd1657c2c9750f4ab79e9b95ab815f2, type: 3}
   endlessSuperBossStage: 20
-  storyGrowthRate: 0.05
-  endlessGrowthRate: 0.2
-  enemiesPerStage: 10
+  storyGrowthRate: 0.045
+  endlessGrowthRate: 0.13
+  enemiesPerStage: 8
   stageToStartElites: 5
   spawnY: 5.5
   spawnXMin: -1.6
@@ -3309,7 +3309,7 @@ MonoBehaviour:
     displayName: Damage
     description: Increase damage
     icon: {fileID: 7720062035137820617, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 4
+    value: 3
     prerequisite: 3
     hasPrerequisite: 0
     isUnique: 0
@@ -3317,7 +3317,7 @@ MonoBehaviour:
     displayName: Attack Speed
     description: Increase attack speed
     icon: {fileID: 332618041, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 0.2
+    value: 0.15
     prerequisite: 3
     hasPrerequisite: 0
     isUnique: 0
@@ -3357,7 +3357,7 @@ MonoBehaviour:
     displayName: Max HP
     description: Increase max HP
     icon: {fileID: -1921472020, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 25
+    value: 20
     prerequisite: 3
     hasPrerequisite: 0
     isUnique: 0
@@ -3365,7 +3365,7 @@ MonoBehaviour:
     displayName: HP Regen
     description: Increase HP regen per second
     icon: {fileID: -1662408535, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 1
+    value: 0.5
     prerequisite: 3
     hasPrerequisite: 0
     isUnique: 0
@@ -3373,7 +3373,7 @@ MonoBehaviour:
     displayName: Move Speed
     description: Increase movement speed
     icon: {fileID: -1004856151, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 0.5
+    value: 0.4
     prerequisite: 3
     hasPrerequisite: 0
     isUnique: 0
@@ -3389,7 +3389,7 @@ MonoBehaviour:
     displayName: Bullet Size
     description: Increase projectile size
     icon: {fileID: -153081489, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 0.15
+    value: 0.1
     prerequisite: 3
     hasPrerequisite: 0
     isUnique: 0
@@ -3405,7 +3405,7 @@ MonoBehaviour:
     displayName: Ability Power
     description: Increase ability power, more damage with abilities
     icon: {fileID: -42010934, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 10
+    value: 5
     prerequisite: 3
     hasPrerequisite: 0
     isUnique: 0
@@ -3608,8 +3608,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e02cf43083780c04d8ae50df096d6eec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LootManager
-  coinPickupPrefab: {fileID: 1290416118062107480, guid: 86b178c3f2c85c4438892a9fde2414e2, type: 3}
-  gemPickupPrefab: {fileID: 1312441101637291684, guid: c2b4c06bfd1546046a2f2c0dd54c4b85, type: 3}
+  coinBronzePrefab: {fileID: 1290416118062107480, guid: 86b178c3f2c85c4438892a9fde2414e2, type: 3}
+  coinSilverPrefab: {fileID: 1290416118062107480, guid: a0472896ed700c349bb3203de1b73f60, type: 3}
+  coinGoldPrefab: {fileID: 1290416118062107480, guid: b77745b47774e47448115faa76b8a7de, type: 3}
+  gemBluePrefab: {fileID: 1312441101637291684, guid: c2b4c06bfd1546046a2f2c0dd54c4b85, type: 3}
+  gemGreenPrefab: {fileID: 1312441101637291684, guid: 8ff6cee51ae13464e95b53a3e84ad61d, type: 3}
+  gemYellowPrefab: {fileID: 1312441101637291684, guid: 8b1f257e8f3d25241a4da6cff3fb034e, type: 3}
   healthPickupPrefab: {fileID: 6993331808302148148, guid: a6319d1d7f614b041a039de1b147c92e, type: 3}
 --- !u!1 &1738260924
 GameObject:

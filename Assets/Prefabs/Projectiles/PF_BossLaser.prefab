@@ -276,7 +276,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SuperBossLaser
   chargeTime: 1.5
   fireTime: 2
-  flatDamage: 25
+  flatDamage: 35
   chargeIndicator: {fileID: 3641453757576196872}
   laserBeam: {fileID: 7518129715556624750}
 --- !u!50 &2233422917108613498

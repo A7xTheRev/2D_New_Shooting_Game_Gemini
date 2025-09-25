@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: ED_Healer
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   allowStatScaling: 1
-  maxHealth: 40
+  maxHealth: 100
   moveSpeed: 1
   contactDamage: 0
   projectileDamage: 0
   fireRate: 0
-  coinReward: 2
-  xpReward: 20
-  specialCurrencyReward: 0
+  coinReward: 10
+  xpReward: 30
+  specialCurrencyReward: 1
   gemDropChance: 0.05
-  healthDropChance: 0.01
+  healthDropChance: 0.08
   hasDeathAnimation: 0
   flashColor: {r: 1, g: 0.30980393, b: 0.3372549, a: 0.8627451}
   flashDuration: 0.1

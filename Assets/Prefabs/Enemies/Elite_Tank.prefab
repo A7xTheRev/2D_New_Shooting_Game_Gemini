@@ -405,6 +405,8 @@ MonoBehaviour:
   allowStatScaling: 1
   flashColor: {r: 0.7647059, g: 0.078431375, b: 0.06666667, a: 0.8862745}
   flashDuration: 0.1
+  gemDropChance: 0
+  healthDropChance: 0
   currentHealth: 0
 --- !u!114 &-5796037376070217089
 MonoBehaviour:
@@ -447,10 +449,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb3c58ac679735348b0645a5742224d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EliteStatus
-  healthMultiplier: 3
+  healthMultiplier: 4
   damageMultiplier: 2
-  speedMultiplier: 1.1
-  attackSpeedMultiplier: 1.3
+  speedMultiplier: 1.2
+  attackSpeedMultiplier: 1.5
   coinMultiplier: 5
   xpMultiplier: 4
   eliteColorTint: {r: 0.88235295, g: 0.52156866, b: 1, a: 1}

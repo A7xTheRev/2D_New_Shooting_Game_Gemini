@@ -24,18 +24,13 @@ public class EnemyStats : MonoBehaviour
     [HideInInspector] public float deathShakeMagnitude;
     [HideInInspector] public GameObject burnVFX;
     [HideInInspector] public bool allowStatScaling;
-    // --- VARIABILI AGGIUNTE ---
     [HideInInspector] public Color flashColor;
     [HideInInspector] public float flashDuration;
-    
-    // --- NUOVE VARIABILI PER I DROP ---
     [HideInInspector] public float gemDropChance;
     [HideInInspector] public float healthDropChance;
-    // --- FINE NUOVE VARIABILI ---
 
     // L'unica statistica che cambia durante il gioco
     public int currentHealth;
-
     public event Action<int, int> OnHealthChanged;
 
     private bool isDying = false;
@@ -70,11 +65,8 @@ public class EnemyStats : MonoBehaviour
         burnVFX = enemyData.burnVFX;
         flashColor = enemyData.flashColor;
         flashDuration = enemyData.flashDuration;
-
-        // --- CARICA LE NUOVE PROBABILITÀ ---
         gemDropChance = enemyData.gemDropChance;
         healthDropChance = enemyData.healthDropChance;
-        // --- FINE CARICAMENTO ---
 
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
@@ -115,7 +107,6 @@ public class EnemyStats : MonoBehaviour
      public void Heal(int amount)
     {
         if (isDying || currentHealth <= 0) return;
-
         currentHealth += amount;
         if (currentHealth > maxHealth)
         {
@@ -154,7 +145,6 @@ public class EnemyStats : MonoBehaviour
         {
             yield return new WaitForSeconds(1f);
             timer -= 1f;
-
             if (this != null && currentHealth > 0)
             {
                 int currentBurnDamage = Mathf.Max(1, burnDamage);
@@ -178,7 +168,6 @@ public class EnemyStats : MonoBehaviour
             Vector3 spawnPosition = transform.position + new Vector3(UnityEngine.Random.Range(-0.3f, 0.3f), 0.5f, 0);
             spawnPosition.z = -1f;
             numberObject.transform.position = spawnPosition;
-
             DamageNumber dn = numberObject.GetComponent<DamageNumber>();
             if (dn != null)
             {
@@ -196,6 +185,98 @@ public class EnemyStats : MonoBehaviour
             spriteRenderer.color = originalColor;
         }
         flashCoroutine = null;
+    }
+
+        private void GrantRewards(PlayerStats player)
+    {
+        if (player == null || LootManager.Instance == null) return;
+
+        player.AddXP(xpReward);
+
+        // --- NUOVA LOGICA DI DROP DINAMICA PER LE MONETE ---
+            int amountToDrop = Mathf.RoundToInt(coinReward * player.coinDropMultiplier);
+            
+        // Gestisce le monete d'oro
+        if (LootManager.Instance.coinGoldPrefab != null)
+        {
+            int goldValue = LootManager.Instance.coinGoldPrefab.GetComponent<Pickup>().value;
+            int goldCoins = amountToDrop / goldValue;
+            if (goldCoins > 0)
+        {
+                for (int i = 0; i < goldCoins; i++)
+                    Instantiate(LootManager.Instance.coinGoldPrefab, transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 0.5f, Quaternion.identity);
+                amountToDrop %= goldValue;
+            }
+        }
+
+        // Gestisce le monete d'argento
+        if (LootManager.Instance.coinSilverPrefab != null)
+        {
+            int silverValue = LootManager.Instance.coinSilverPrefab.GetComponent<Pickup>().value;
+            int silverCoins = amountToDrop / silverValue;
+            if (silverCoins > 0)
+            {
+                for (int i = 0; i < silverCoins; i++)
+                    Instantiate(LootManager.Instance.coinSilverPrefab, transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 0.5f, Quaternion.identity);
+                amountToDrop %= silverValue;
+            }
+            }
+
+        // Gestisce le monete di bronzo
+            if (amountToDrop > 0 && LootManager.Instance.coinBronzePrefab != null)
+            {
+                for (int i = 0; i < amountToDrop; i++)
+                    Instantiate(LootManager.Instance.coinBronzePrefab, transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 0.5f, Quaternion.identity);
+            }
+        // --- FINE LOGICA MONETE ---
+
+        // --- NUOVA LOGICA DI DROP DINAMICA PER LE GEMME ---
+        if (specialCurrencyReward > 0 && UnityEngine.Random.value < gemDropChance)
+        {
+            int gemsToDrop = specialCurrencyReward;
+
+            // Gemme Gialle (valore più alto)
+            if (LootManager.Instance.gemYellowPrefab != null)
+            {
+                int yellowValue = LootManager.Instance.gemYellowPrefab.GetComponent<Pickup>().value;
+                int yellowGems = gemsToDrop / yellowValue;
+                if (yellowGems > 0)
+                {
+                    for (int i = 0; i < yellowGems; i++)
+                        Instantiate(LootManager.Instance.gemYellowPrefab, transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 0.5f, Quaternion.identity);
+                    gemsToDrop %= yellowValue;
+                }
+            }
+
+            // Gemme Verdi (valore medio)
+            if (LootManager.Instance.gemGreenPrefab != null)
+            {
+                int greenValue = LootManager.Instance.gemGreenPrefab.GetComponent<Pickup>().value;
+                int greenGems = gemsToDrop / greenValue;
+                if (greenGems > 0)
+        {
+                    for (int i = 0; i < greenGems; i++)
+                        Instantiate(LootManager.Instance.gemGreenPrefab, transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 0.5f, Quaternion.identity);
+                    gemsToDrop %= greenValue;
+                }
+            }
+
+            // Gemme Blu (valore base)
+            if (gemsToDrop > 0 && LootManager.Instance.gemBluePrefab != null)
+            {
+                for (int i = 0; i < gemsToDrop; i++)
+                    Instantiate(LootManager.Instance.gemBluePrefab, transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 0.5f, Quaternion.identity);
+            }
+        }
+        // --- FINE LOGICA GEMME ---
+
+        // Drop Vita (invariato)
+        if (LootManager.Instance.healthPickupPrefab != null && UnityEngine.Random.value < healthDropChance)
+        {
+            Instantiate(LootManager.Instance.healthPickupPrefab, transform.position, Quaternion.identity);
+        }
+
+        player.GetComponent<AbilityController>()?.AddChargeFromKill();
     }
 
     public void Die()
@@ -220,18 +301,25 @@ public class EnemyStats : MonoBehaviour
         SuperBossAI parentBoss = GetComponentInParent<SuperBossAI>();
         if (parentBoss != null)
         {
-            // È una TORRETTA o il CORE?
+            // --- LOGICA ANIMAZIONE E RICOMPENSE BOSS CORRETTA ---
             if (GetComponent<BossTurret>() != null)
             {
-                // È una TORRETTA. Notifica il boss e distruggi solo questo oggetto.
+                // È una TORRETTA: notifica il boss e si distrugge. Nessuna ricompensa.
                 parentBoss.TurretDestroyed();
-                if (!string.IsNullOrEmpty(deathVFXTag)) { /* Logica esplosione torretta */ }
+                if (animator != null && hasDeathAnimation)
+                    animator.SetTrigger("Die");
+                else
                 Destroy(gameObject);
             }
-            else
+            else // È il Core
             {
-                // È il CORE. Distruggi l'intero oggetto del boss.
-                if (!string.IsNullOrEmpty(deathVFXTag)) { /* Logica esplosione boss finale */ }
+                // È il CORE: rilascia le ricompense e poi distrugge l'intero boss.
+                PlayerStats player = FindFirstObjectByType<PlayerStats>();
+                if (player != null) GrantRewards(player);
+                
+                if (animator != null && hasDeathAnimation)
+                    animator.SetTrigger("Die");
+                else
                 Destroy(parentBoss.gameObject);
             }
             return;
@@ -245,44 +333,12 @@ public class EnemyStats : MonoBehaviour
             // Se sì, chiama il suo metodo Split() per generare i figli
             splitter.Split();
         }
-        // --- FINE NUOVA LOGICA ---
-
-        PlayerStats player = FindFirstObjectByType<PlayerStats>();
-        if (player != null)
+        
+        // --- Logica per i nemici normali ---
+        PlayerStats normalPlayer = FindFirstObjectByType<PlayerStats>();
+        if (normalPlayer != null)
         {
-            // L'XP e le gemme vengono ancora aggiunte direttamente (per ora)
-            player.AddXP(xpReward);
-            
-            // Le MONETE ora vengono SPAWNATE
-            if (LootManager.Instance != null && LootManager.Instance.coinPickupPrefab != null)
-        {
-            int finalCoinReward = Mathf.RoundToInt(coinReward * player.coinDropMultiplier);
-                for (int i = 0; i < finalCoinReward; i++)
-                {
-                    // --- RIGA CORRETTA ---
-                    Vector3 spawnPos = transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 0.5f;
-                    Instantiate(LootManager.Instance.coinPickupPrefab, spawnPos, Quaternion.identity);
-                }
-            }
-
-            // Logica di drop unificata per le gemme
-            if (specialCurrencyReward > 0 && LootManager.Instance != null && LootManager.Instance.gemPickupPrefab != null && UnityEngine.Random.value < gemDropChance)
-            {
-                for (int i = 0; i < specialCurrencyReward; i++)
-                {
-                    Vector3 spawnPos = transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 0.5f;
-                    Instantiate(LootManager.Instance.gemPickupPrefab, spawnPos, Quaternion.identity);
-                }
-            }
-
-            // Drop Vita
-            if (LootManager.Instance != null && LootManager.Instance.healthPickupPrefab != null && UnityEngine.Random.value < healthDropChance)
-            {
-                Instantiate(LootManager.Instance.healthPickupPrefab, transform.position, Quaternion.identity);
-            }
-            // --- FINE NUOVA LOGICA ---
-
-            player.GetComponent<AbilityController>()?.AddChargeFromKill();
+            GrantRewards(normalPlayer);
         }
 
         if (animator != null && hasDeathAnimation)
@@ -306,7 +362,18 @@ public class EnemyStats : MonoBehaviour
 
     public void OnDeathAnimationFinished()
     {
+        // --- LOGICA AGGIUNTA PER GESTIRE LA DISTRUZIONE POST-ANIMAZIONE ---
+        SuperBossAI parentBoss = GetComponentInParent<SuperBossAI>();
+        if (parentBoss != null && GetComponent<BossTurret>() == null)
+        {
+            // Se sono il Core del boss, la mia animazione di morte distrugge l'intero boss.
+            Destroy(parentBoss.gameObject);
+        }
+        else
+        {
+            // Se sono un nemico normale o una torretta, distruggo solo me stesso.
         Destroy(gameObject);
+        }
     }
     
     public void SetOriginalColorAfterEliteTint(Color newColor)
