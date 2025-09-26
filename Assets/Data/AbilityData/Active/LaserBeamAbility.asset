@@ -21,7 +21,7 @@ MonoBehaviour:
     scales with ability power.
 
     Duration: 3 seconds'
-  icon: {fileID: 0}
+  icon: {fileID: 4724113372536018862, guid: e121db825a56cda4aa7fc5d3536496eb, type: 3}
   isDefaultAbility: 1
   cost: 0
   chargeType: 1

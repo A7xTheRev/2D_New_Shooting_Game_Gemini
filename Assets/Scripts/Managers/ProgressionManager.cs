@@ -180,8 +180,49 @@ public class ProgressionManager : MonoBehaviour
     public bool IsShipUnlocked(string shipName) { return unlockedShipNamesSet.Contains(shipName); }
     public void UnlockShip(string shipName) { ShipData shipToUnlock = allShips.Find(s => s.shipName == shipName); if (shipToUnlock != null && !IsShipUnlocked(shipName) && specialCurrency >= shipToUnlock.costInGems) { specialCurrency -= shipToUnlock.costInGems; unlockedShipNamesSet.Add(shipName); SaveData(); OnValuesChanged?.Invoke(); } }
 
-    public void ResetProgress() { SaveSystem.ResetSave(); coins = 0; specialCurrency = 0; equippedAbilityID = AbilityID.None; upgradeLevels.Clear(); unlockedAbilitiesSet.Clear(); unlockedShipNamesSet.Clear(); missionProgress.Clear(); claimedMissions.Clear(); LoadData(); OnValuesChanged?.Invoke(); }
+    // --- METODO RESETPROGRESS CORRETTO E RESO PIÙ ROBUSTO ---
+    public void ResetProgress() 
+    { 
+        // 1. Cancella il vecchio file di salvataggio fisico
+        SaveSystem.ResetSave(); 
 
+        // 2. Resetta tutte le variabili in memoria allo stato iniziale
+        coins = 0; 
+        specialCurrency = 0; 
+        maxWaveReached = 0;
+        maxCoinsInSession = 0;
+        equippedAbilityID = AbilityID.None; 
+        upgradeLevels.Clear(); 
+        unlockedAbilitiesSet.Clear(); 
+        unlockedShipNamesSet.Clear(); 
+        missionProgress.Clear(); 
+        claimedMissions.Clear(); 
+        
+        // 3. Imposta esplicitamente lo stato della navicella di default
+        ShipData defaultShip = allShips.Find(s => s.isDefaultShip);
+        if (defaultShip != null)
+        {
+            unlockedShipNamesSet.Add(defaultShip.shipName);
+            equippedShipName = defaultShip.shipName;
+        }
+        else
+        {
+            equippedShipName = null; // Nessuna nave equipaggiata se non c'è un default
+        }
+
+        // 4. Inizializza i livelli di potenziamento a 0
+        foreach (var upgrade in availableUpgrades)
+        {
+            upgrade.currentLevel = 0;
+        }
+
+        // 5. SALVA IMMEDIATAMENTE questo nuovo stato pulito, creando un nuovo file valido
+        SaveData(); 
+
+        // 6. Notifica la UI per aggiornare la visualizzazione
+        OnValuesChanged?.Invoke(); 
+        Debug.Log("Progresso resettato e nuovo stato iniziale salvato correttamente.");
+    }
     // --- METODI PER LE MISSIONI ---
 
     public void AddEnemyKill(string enemyPrefabName)

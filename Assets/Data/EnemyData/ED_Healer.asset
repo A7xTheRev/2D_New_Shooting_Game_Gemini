@@ -15,7 +15,7 @@ MonoBehaviour:
   allowStatScaling: 1
   maxHealth: 100
   moveSpeed: 1
-  contactDamage: 0
+  contactDamage: 15
   projectileDamage: 0
   fireRate: 0
   coinReward: 10

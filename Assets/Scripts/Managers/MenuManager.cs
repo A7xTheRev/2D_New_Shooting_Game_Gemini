@@ -26,31 +26,22 @@ public class MenuManager : MonoBehaviour
     public GameObject worldSelectionPanel;
     public GameObject sectorSelectionPanel;
     public GameObject missionsPanel;
+    public GameObject gameModeSelectionPanel; // <-- NUOVO RIFERIMENTO
 
     [Header("Selezione Modalità di Gioco")]
     public List<WorldData> allWorlds;
-    public Transform worldButtonContainer;    // NUOVO: Container per i pulsanti dei mondi
-    public GameObject worldButtonPrefab;      // NUOVO: Prefab per i pulsanti dei mondi
+    public Transform worldButtonContainer;
+    public GameObject worldButtonPrefab;
     public Transform sectorButtonContainer;
     public GameObject sectorButtonPrefab;
-
-    [Header("UI Generale")]
-    public TextMeshProUGUI coinsText;
-    public TextMeshProUGUI specialCurrencyText;
 
     [Header("UI Record Personali")]
     public TextMeshProUGUI maxWaveText;
     public TextMeshProUGUI maxCoinsText;
 
     [Header("Pulsanti Arma")]
+    // Questa lista ora serve solo per conoscere le armi disponibili, la UI è gestita altrove
     public List<WeaponSelectionButton> weaponButtons;
-
-    [Header("Selezione Abilità Speciale (Hangar)")]
-    public Image hangarAbilityIcon;
-    public TextMeshProUGUI hangarAbilityName;
-    public TextMeshProUGUI hangarAbilityDescription;
-    public Button hangarPrevButton;
-    public Button hangarNextButton;
 
     [Header("Pannelli Potenziamenti Normali")]
     public List<UpgradeUIPanel> normalUpgradePanels = new List<UpgradeUIPanel>();
@@ -77,8 +68,6 @@ public class MenuManager : MonoBehaviour
         public GameObject unlockedIndicator; 
     }
     
-    private int currentAbilityIndex = 0;
-    private List<SpecialAbility> unlockedAbilities;
     private bool isQuitting = false;
 
     void OnApplicationQuit()
@@ -115,13 +104,10 @@ public class MenuManager : MonoBehaviour
             panel.buyButton.onClick.RemoveAllListeners();
             panel.buyButton.onClick.AddListener(() => OnBuySpecialUpgradeButtonPressed(id));
         }
-        foreach (var weaponButton in weaponButtons)
-        {
-            weaponButton.button.onClick.AddListener(() => SelectWeapon(weaponButton.weaponData));
-        }
+        
+        // La vecchia logica dei pulsanti arma è stata rimossa perché ora è gestita da WeaponSelectorUI
 
         ShowMainPanel();
-        LoadAndHighlightSavedWeapon();
         UpdateAllUI();
         UpdateRecordUI();
     }
@@ -129,7 +115,6 @@ public class MenuManager : MonoBehaviour
     void OnEnable() 
     { 
         if (ProgressionManager.Instance != null) { ProgressionManager.OnValuesChanged += UpdateAllUI; } 
-        SetupAbilitySelection(); 
         UpdateAllUI(); 
         UpdateRecordUI();
     }
@@ -158,7 +143,8 @@ public class MenuManager : MonoBehaviour
         shipPanel.SetActive(false);
         if (worldSelectionPanel != null) worldSelectionPanel.SetActive(false);
         if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
-        if (missionsPanel != null) missionsPanel.SetActive(false); // AGGIUNTO
+        if (missionsPanel != null) missionsPanel.SetActive(false);
+        if (gameModeSelectionPanel != null) gameModeSelectionPanel.SetActive(false); // <-- RIGA AGGIUNTA
     }
 
     public void ShowMainPanel()
@@ -202,7 +188,23 @@ public class MenuManager : MonoBehaviour
         DeactivateAllPanels();
         missionsPanel.SetActive(true);
     }
-    
+    public void ShowGameModeSelectionPanel()
+    {
+        // Non nascondiamo gli altri pannelli per farlo apparire come un pop-up
+        if (gameModeSelectionPanel != null)
+        {
+            gameModeSelectionPanel.SetActive(true);
+        }
+    }
+
+    public void HideGameModeSelectionPanel()
+    {
+        if (gameModeSelectionPanel != null)
+        {
+            gameModeSelectionPanel.SetActive(false);
+        }
+    }
+
     // --- NUOVO METODO ---
     // Popola la UI con i pulsanti per ogni mondo
     private void PopulateWorldButtons()
@@ -273,13 +275,12 @@ public class MenuManager : MonoBehaviour
             Debug.LogError("Impossibile trovare i dati per l'arma selezionata (" + selectedWeaponName + ") o il GameDataManager!");
             if (weaponButtons.Count > 0 && GameDataManager.Instance != null) GameDataManager.Instance.selectedWeapon = weaponButtons[0].weaponData;
         }
-        // --- RIGA MANCANTE AGGIUNTA QUI ---
-        // Leggiamo la navicella equipaggiata dal ProgressionManager e la passiamo al GameDataManager
+        
         if (ProgressionManager.Instance != null && GameDataManager.Instance != null)
         {
             GameDataManager.Instance.selectedShip = ProgressionManager.Instance.GetEquippedShip();
         }
-        // --- FINE RIGA AGGIUNTA ---
+        
         SceneManager.LoadScene("GameScene");
     }
     
@@ -287,50 +288,21 @@ public class MenuManager : MonoBehaviour
     public void OnBuySpecialUpgradeButtonPressed(AbilityID id) { ProgressionManager.Instance.BuySpecialUpgrade(id); }
     public void OnResetButtonPressed() { if (ProgressionManager.Instance != null) { ProgressionManager.Instance.ResetProgress(); } }
     
+    // Questo metodo è ora chiamato dal nuovo WeaponSelectorUI
     public void SelectWeapon(WeaponData weaponData)
     {
         PlayerPrefs.SetString("SelectedWeapon", weaponData.weaponName);
         PlayerPrefs.Save();
-        HighlightSelectedWeapon(weaponData.weaponName);
-    }
-    
-    private void LoadAndHighlightSavedWeapon()
-    {
-        string savedWeaponName = PlayerPrefs.GetString("SelectedWeapon", "Standard");
-        HighlightSelectedWeapon(savedWeaponName);
-    }
-    
-    private void HighlightSelectedWeapon(string weaponName)
-    {
-        Color selectedColor = Color.green;
-        Color normalColor = Color.white;
-        foreach (var wb in weaponButtons)
-        {
-            if (wb.button != null)
-            {
-                wb.button.image.color = (wb.weaponData.weaponName == weaponName) ? selectedColor : normalColor;
-            }
-        }
-    }
-
-    public void CycleAbility(int direction)
-    {
-        if (unlockedAbilities == null || unlockedAbilities.Count <= 1) return;
-        currentAbilityIndex += direction;
-        currentAbilityIndex = Mathf.Clamp(currentAbilityIndex, 0, unlockedAbilities.Count - 1);
-        UpdateHangarAbilityUI();
     }
 
     private void UpdateAllUI()
     {
         if (ProgressionManager.Instance == null) return;
-        if (coinsText != null) coinsText.text = "Coins: " + ProgressionManager.Instance.GetCoins();
-        if (specialCurrencyText != null) specialCurrencyText.text = "Gemme: " + ProgressionManager.Instance.GetSpecialCurrency();
         
         foreach (var panel in normalUpgradePanels) { UpdateSingleUpgradeUI(panel); }
         foreach (var panel in specialUpgradePanels) { UpdateSingleSpecialUpgradeUI(panel); }
         
-        UpdateHangarAbilityUI();
+        // La chiamata a UpdateHangarAbilityUI è stata rimossa
     }
     
     private void UpdateSingleUpgradeUI(UpgradeUIPanel panel)
@@ -373,42 +345,5 @@ public class MenuManager : MonoBehaviour
             panel.costText.text = ability.cost.ToString();
             if (panel.unlockedIndicator != null) panel.unlockedIndicator.SetActive(false);
         }
-    }
-    
-    private void SetupAbilitySelection()
-    {
-        if (ProgressionManager.Instance == null) return;
-        unlockedAbilities = new List<SpecialAbility>();
-        foreach (var ability in ProgressionManager.Instance.allSpecialAbilities)
-        {
-            if (ProgressionManager.Instance.IsSpecialUpgradeUnlocked(ability.abilityID))
-            {
-                unlockedAbilities.Add(ability);
-            }
-        }
-        SpecialAbility equipped = ProgressionManager.Instance.GetEquippedAbility();
-        if (equipped != null)
-        {
-            currentAbilityIndex = unlockedAbilities.IndexOf(equipped);
-            if (currentAbilityIndex == -1) currentAbilityIndex = 0;
-        }
-        UpdateHangarAbilityUI();
-    }
-
-    private void UpdateHangarAbilityUI()
-    {
-        if (unlockedAbilities == null || unlockedAbilities.Count == 0) return;
-        if (currentAbilityIndex < 0 || currentAbilityIndex >= unlockedAbilities.Count) return;
-
-        SpecialAbility abilityToShow = unlockedAbilities[currentAbilityIndex];
-        
-        if (hangarAbilityIcon != null) hangarAbilityIcon.sprite = abilityToShow.icon;
-        if (hangarAbilityName != null) hangarAbilityName.text = abilityToShow.abilityName;
-        if (hangarAbilityDescription != null) hangarAbilityDescription.text = abilityToShow.description;
-
-        ProgressionManager.Instance.SetEquippedAbility(abilityToShow);
-
-        if (hangarPrevButton != null) hangarPrevButton.interactable = currentAbilityIndex > 0;
-        if (hangarNextButton != null) hangarNextButton.interactable = currentAbilityIndex < unlockedAbilities.Count - 1;
     }
 }

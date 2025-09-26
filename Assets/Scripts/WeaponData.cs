@@ -10,6 +10,7 @@ public class WeaponData : ScriptableObject
     [Header("Informazioni UI")]
     [TextArea]
     public string description; 
+    public Sprite weaponIcon; // <-- RIGA AGGIUNTA QUI
 
     [Header("Statistiche di Base")]
     [Tooltip("Moltiplicatore del danno base del giocatore (1 = 100%).")]

@@ -18,6 +18,7 @@ MonoBehaviour:
     + Projectile speed
 
     - Damage'
+  weaponIcon: {fileID: -7803065417098437583, guid: 56267ffc5c8fb9841b26d1f968c8686e, type: 3}
   damageMultiplier: 0.7
   projectileSpeedMultiplier: 2
   areaDamageRadius: 0

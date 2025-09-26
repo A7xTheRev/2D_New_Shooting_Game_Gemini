@@ -22,6 +22,15 @@ public class HealerAI : MonoBehaviour
     private float healTimer;
     private Vector2 targetPosition;
     private float minX, maxX, minY, maxY;
+    private EnemyStats stats; // <-- Variabile aggiunta per leggere le statistiche
+
+    // --- METODO AWAKE AGGIUNTO ---
+    void Awake()
+    {
+        // Ottiene un riferimento al proprio componente EnemyStats per leggere il danno da contatto
+        stats = GetComponent<EnemyStats>();
+    }
+    // --- FINE METODO AGGIUNTO ---
 
     void Start()
     {
@@ -123,7 +132,25 @@ public class HealerAI : MonoBehaviour
         }
     }
 
-    // Disegna un cerchio nell'editor per visualizzare il raggio di cura
+    // --- NUOVO METODO PER LA COLLISIONE ---
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        // Controlla se ha urtato il giocatore
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            PlayerStats playerStats = collision.gameObject.GetComponent<PlayerStats>();
+            // Se il giocatore e le statistiche di questo nemico esistono...
+            if (playerStats != null && stats != null)
+            {
+                // Infligge danno da contatto al giocatore
+                playerStats.TakeDamage(stats.contactDamage);
+                // Nota: a differenza di altri nemici, il Curatore non si autodistrugge
+                // all'impatto, ma rimane una minaccia e un ostacolo.
+            }
+        }
+    }
+    // --- FINE NUOVO METODO ---
+
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;

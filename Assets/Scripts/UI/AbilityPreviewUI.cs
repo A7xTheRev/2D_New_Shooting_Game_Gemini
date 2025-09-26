@@ -8,7 +8,8 @@ public class AbilityPreviewUI : MonoBehaviour
     public Image abilityIcon;
     public TextMeshProUGUI abilityNameText;
     public TextMeshProUGUI abilityDescriptionText;
-    public Image highlightImage; // Immagine usata per l'evidenziazione
+    [Tooltip("La singola immagine usata per l'highlight.")]
+    public Image highlightImage; // <-- RIPRISTINATO A IMAGE
 
     private SpecialAbility currentAbility;
 
@@ -35,6 +36,7 @@ public class AbilityPreviewUI : MonoBehaviour
     {
         if (highlightImage != null)
         {
+            // Ora controlliamo la visibilità con ".enabled"
             highlightImage.enabled = isSelected;
         }
     }

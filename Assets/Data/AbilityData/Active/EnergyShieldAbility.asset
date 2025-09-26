@@ -17,11 +17,11 @@ MonoBehaviour:
   abilityName: ENERGY SHIELD
   description: 'Evade any damage and become invisible.
 
-    Scales with ability power.
+    Duration scales with
+    ability power.
 
-    Duration:
-    3 seconds'
-  icon: {fileID: 0}
+    Duration: 3 seconds'
+  icon: {fileID: -2493852345860152370, guid: 8c9eff7b634771f4f9bce468d706de89, type: 3}
   isDefaultAbility: 1
   cost: 0
   chargeType: 0
