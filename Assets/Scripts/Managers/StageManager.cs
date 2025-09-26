@@ -112,7 +112,7 @@ public class StageManager : MonoBehaviour
     {
         if (gameHasStarted)
         {
-            survivalTimer += Time.deltaTime; // Il timer avanza
+            survivalTimer += Time.deltaTime;
         }
 
         if (gameHasStarted && !isSpawningWave && GameObject.FindGameObjectsWithTag("Enemy").Length == 0 && FindFirstObjectByType<BossTurret>() == null)
@@ -122,16 +122,47 @@ public class StageManager : MonoBehaviour
                 isBossWave = false;
                 if (currentMode == GameMode.Story)
                 {
-                    Debug.Log("SETTORE " + currentSector.sectorName + " COMPLETATO!");
-                    ProgressionManager.Instance?.NotifySectorCompleted(currentSector.name); // Qui usiamo il nome dell'asset come ID
+                    // --- NUOVA LOGICA DI COMPLETAMENTO SETTORE ---
+                    
+                    // 1. Raccogli i dati della performance
+                    PlayerStats player = FindFirstObjectByType<PlayerStats>();
+                    if (player != null)
+                    {
+                        // 1. Calcola gli obiettivi raggiunti
+                        SectorObjective objectivesAchieved = SectorObjective.NONE;
+
+                        // Obiettivo 1: Hai completato il settore (sempre vero se arrivi qui)
+                        objectivesAchieved |= SectorObjective.SECTOR_COMPLETED;
+
+                        // Obiettivo 2: Hai finito con più del 70% di vita?
+                        float healthPercentage = (float)player.currentHealth / player.maxHealth;
+                        if (healthPercentage > 0.7f)
+                        {
+                            objectivesAchieved |= SectorObjective.HEALTH_OVER_70_PERCENT;
+                        }
+
+                        // Obiettivo 3: Non hai subito danni?
+                        if (!player.tookDamageThisRun)
+                        {
+                            objectivesAchieved |= SectorObjective.NO_DAMAGE_TAKEN;
+                        }
+
+                        // 2. Passa tutti i dati al VictoryManager
+                        VictoryManager.SetVictoryStats(currentSector, player.sessionCoins, player.sessionSpecialCurrency, objectivesAchieved);
+                    }
+                    
+                    // 3. Carica la scena di vittoria
                     Time.timeScale = 1f;
-                    SceneManager.LoadScene("MainMenu");
+                    SceneManager.LoadScene("VictoryScene"); // <-- Carica la nuova scena
                     return;
+                    // --- FINE MODIFICA ---
                 }
 
-                // In modalità endless, ripristina la musica normale
+                // Se era un boss della modalità Endless, ripristina la musica
                 AudioManager.Instance.PlayMusic(AudioManager.Instance.gameplayMusic);
             }
+            
+            // Passa all'ondata successiva
             NextStage();
         }
     }

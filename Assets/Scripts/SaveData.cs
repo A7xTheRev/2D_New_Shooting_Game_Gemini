@@ -25,6 +25,10 @@ public class SaveData
     
     // Salviamo la lista delle missioni già completate e riscosse
     public List<string> claimedMissionsID = new List<string>();
+
+    // --- NUOVI CAMPI PER LA PROGRESSIONE DEI SETTORI ---
+    public List<string> sectorProgressID = new List<string>();
+    public List<int> sectorProgressValue = new List<int>(); // Salverà il "numero magico"
     // --- FINE NUOVI CAMPI ---
 }
 

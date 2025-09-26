@@ -12843,7 +12843,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1132932372
 RectTransform:
   m_ObjectHideFlags: 0
@@ -19914,6 +19914,7 @@ MonoBehaviour:
   gameModeSelectionPanel: {fileID: 175860673}
   allWorlds:
   - {fileID: 11400000, guid: 8ff6365b848d30d44852856f8647931b, type: 2}
+  - {fileID: 11400000, guid: a7eb1cbecc929054b809034e815f907d, type: 2}
   worldButtonContainer: {fileID: 1745677310}
   worldButtonPrefab: {fileID: 6344393021643587891, guid: 951d37cd25b1def42a3e75087aa5b784, type: 3}
   sectorButtonContainer: {fileID: 998127942}
@@ -20208,6 +20209,18 @@ MonoBehaviour:
       - m_Target: {fileID: 1769251312}
         m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
         m_MethodName: ShowMainPanel
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1769251312}
+        m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
+        m_MethodName: ShowGameModeSelectionPanel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -20779,7 +20792,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1769251312}
         m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
-        m_MethodName: ShowMainPanel
+        m_MethodName: ShowWorldSelectionPanel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

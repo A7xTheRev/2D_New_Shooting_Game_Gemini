@@ -25,6 +25,10 @@ public class PlayerStats : MonoBehaviour
     [HideInInspector] public float hitShakeDuration;
     [HideInInspector] public float hitShakeMagnitude;
 
+    // --- NUOVA VARIABILE PER GLI OBIETTIVI ---
+    [HideInInspector]
+    public bool tookDamageThisRun = false;
+
     // --- STATO ATTUALE IN PARTITA ---
     public int currentHealth;
     public int currentXP = 0;
@@ -113,6 +117,7 @@ public class PlayerStats : MonoBehaviour
     void Start()
     {
         ApplyPermanentUpgrades();
+        tookDamageThisRun = false;
         if (ProgressionManager.Instance != null && ProgressionManager.Instance.IsSpecialUpgradeUnlocked(AbilityID.StartingPowerUp))
         {
             PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
@@ -165,9 +170,10 @@ public class PlayerStats : MonoBehaviour
     public void TakeDamage(int amount)
     {
         if (isInvulnerable) return;
+        // Se subiamo danno per la prima volta, registralo.
+        tookDamageThisRun = true;
 
         CameraShake.Instance.StartShake(hitShakeDuration, hitShakeMagnitude);
-
         AudioManager.Instance.PlaySound(AudioManager.Instance.playerHitSound);
 
         currentHealth -= amount;

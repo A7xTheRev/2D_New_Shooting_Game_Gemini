@@ -62,6 +62,9 @@ public class ProgressionManager : MonoBehaviour
     private Dictionary<string, int> missionProgress = new Dictionary<string, int>();
     private HashSet<string> claimedMissions = new HashSet<string>();
 
+    // Dati progressione settori
+    private Dictionary<string, int> sectorProgress = new Dictionary<string, int>();
+
     public static event System.Action OnValuesChanged;
 
     void Awake()
@@ -116,6 +119,12 @@ public class ProgressionManager : MonoBehaviour
             missionProgress[data.missionProgressID[i]] = data.missionProgressValue[i];
         }
         claimedMissions = new HashSet<string>(data.claimedMissionsID);
+
+        sectorProgress.Clear();
+        for (int i = 0; i < data.sectorProgressID.Count; i++)
+        {
+            sectorProgress[data.sectorProgressID[i]] = data.sectorProgressValue[i];
+        }
     }
 
     void SaveData()
@@ -142,6 +151,9 @@ public class ProgressionManager : MonoBehaviour
         data.missionProgressID = missionProgress.Keys.ToList();
         data.missionProgressValue = missionProgress.Values.ToList();
         data.claimedMissionsID = claimedMissions.ToList();
+        
+        data.sectorProgressID = sectorProgress.Keys.ToList();
+        data.sectorProgressValue = sectorProgress.Values.ToList();
 
         SaveSystem.SaveGame(data);
     }
@@ -197,6 +209,7 @@ public class ProgressionManager : MonoBehaviour
         unlockedShipNamesSet.Clear(); 
         missionProgress.Clear(); 
         claimedMissions.Clear(); 
+        sectorProgress.Clear();
         
         // 3. Imposta esplicitamente lo stato della navicella di default
         ShipData defaultShip = allShips.Find(s => s.isDefaultShip);
@@ -223,6 +236,7 @@ public class ProgressionManager : MonoBehaviour
         OnValuesChanged?.Invoke(); 
         Debug.Log("Progresso resettato e nuovo stato iniziale salvato correttamente.");
     }
+    
     // --- METODI PER LE MISSIONI ---
 
     public void AddEnemyKill(string enemyPrefabName)
@@ -254,7 +268,7 @@ public class ProgressionManager : MonoBehaviour
     {
         foreach (MissionData mission in allMissions)
         {
-            if (mission.missionType == type && !claimedMissions.Contains(mission.missionID))
+            if (mission.missionType == type && !claimedMissions.Contains(mission.missionID) && GetMissionProgress(mission.missionID) < mission.targetValue)
             {
                 if ((type == MissionType.KILL_ENEMIES_OF_TYPE || type == MissionType.COMPLETE_SECTOR) && mission.targetEnemyID != targetID)
                 {
@@ -323,5 +337,45 @@ public class ProgressionManager : MonoBehaviour
                 Debug.Log($"Ricompensa per la missione '{mission.title}' riscattata!");
             }
         }
+    }
+
+    // --- NUOVI METODI PER LA PROGRESSIONE DEI SETTORI ---
+    
+    public void SetSectorProgress(string sectorID, SectorObjective objectivesAchieved)
+    {
+        int oldProgress = GetSectorProgressValue(sectorID);
+        int newProgress = oldProgress | (int)objectivesAchieved;
+
+        if (newProgress != oldProgress)
+        {
+            sectorProgress[sectorID] = newProgress;
+            SaveData();
+            Debug.Log($"Progresso per il settore '{sectorID}' aggiornato a: {newProgress}");
+        }
+    }
+
+    private int GetSectorProgressValue(string sectorID)
+    {
+        return sectorProgress.ContainsKey(sectorID) ? sectorProgress[sectorID] : 0;
+    }
+
+    public bool IsObjectiveComplete(string sectorID, SectorObjective objective)
+    {
+        int progress = GetSectorProgressValue(sectorID);
+        return (progress & (int)objective) == (int)objective;
+    }
+
+    public int GetStarCount(string sectorID)
+    {
+        if (!sectorProgress.ContainsKey(sectorID)) return 0;
+        
+        int progress = GetSectorProgressValue(sectorID);
+        int starCount = 0;
+        
+        if ((progress & (int)SectorObjective.SECTOR_COMPLETED) != 0) starCount++;
+        if ((progress & (int)SectorObjective.HEALTH_OVER_70_PERCENT) != 0) starCount++;
+        if ((progress & (int)SectorObjective.NO_DAMAGE_TAKEN) != 0) starCount++;
+
+        return starCount;
     }
 }

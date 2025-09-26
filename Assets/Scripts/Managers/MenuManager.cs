@@ -26,7 +26,7 @@ public class MenuManager : MonoBehaviour
     public GameObject worldSelectionPanel;
     public GameObject sectorSelectionPanel;
     public GameObject missionsPanel;
-    public GameObject gameModeSelectionPanel; // <-- NUOVO RIFERIMENTO
+    public GameObject gameModeSelectionPanel;
 
     [Header("Selezione Modalità di Gioco")]
     public List<WorldData> allWorlds;
@@ -104,8 +104,6 @@ public class MenuManager : MonoBehaviour
             panel.buyButton.onClick.RemoveAllListeners();
             panel.buyButton.onClick.AddListener(() => OnBuySpecialUpgradeButtonPressed(id));
         }
-        
-        // La vecchia logica dei pulsanti arma è stata rimossa perché ora è gestita da WeaponSelectorUI
 
         ShowMainPanel();
         UpdateAllUI();
@@ -144,34 +142,16 @@ public class MenuManager : MonoBehaviour
         if (worldSelectionPanel != null) worldSelectionPanel.SetActive(false);
         if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
         if (missionsPanel != null) missionsPanel.SetActive(false);
-        if (gameModeSelectionPanel != null) gameModeSelectionPanel.SetActive(false); // <-- RIGA AGGIUNTA
+        if (gameModeSelectionPanel != null) gameModeSelectionPanel.SetActive(false);
     }
 
-    public void ShowMainPanel()
-    {
-        DeactivateAllPanels();
-        mainPanel.SetActive(true);
-    }
-    public void ShowStorePanel() 
-    { 
-        DeactivateAllPanels();
-        storePanel.SetActive(true); 
-    }
-    public void ShowHangarPanel() 
-    { 
-        DeactivateAllPanels();
-        hangarPanel.SetActive(true); 
-    }
-    public void ShowBackgroundPanel()
-    {
-        DeactivateAllPanels();
-        backgroundPanel.SetActive(true);
-    }
-    public void ShowShipPanel()
-    {
-        DeactivateAllPanels();
-        shipPanel.SetActive(true);
-    }
+    public void ShowMainPanel() { DeactivateAllPanels(); mainPanel.SetActive(true); }
+    public void ShowStorePanel() { DeactivateAllPanels(); storePanel.SetActive(true); }
+    public void ShowHangarPanel() { DeactivateAllPanels(); hangarPanel.SetActive(true); }
+    public void ShowBackgroundPanel() { DeactivateAllPanels(); backgroundPanel.SetActive(true); }
+    public void ShowShipPanel() { DeactivateAllPanels(); shipPanel.SetActive(true); }
+    public void ShowMissionsPanel() { DeactivateAllPanels(); missionsPanel.SetActive(true); }
+    
     public void ShowWorldSelectionPanel()
     {
         if (allWorlds == null || allWorlds.Count == 0)
@@ -183,26 +163,15 @@ public class MenuManager : MonoBehaviour
         worldSelectionPanel.SetActive(true);
         PopulateWorldButtons();
     }
-    public void ShowMissionsPanel()
-    {
-        DeactivateAllPanels();
-        missionsPanel.SetActive(true);
-    }
+    
     public void ShowGameModeSelectionPanel()
     {
-        // Non nascondiamo gli altri pannelli per farlo apparire come un pop-up
-        if (gameModeSelectionPanel != null)
-        {
-            gameModeSelectionPanel.SetActive(true);
-        }
+        if (gameModeSelectionPanel != null) gameModeSelectionPanel.SetActive(true);
     }
 
     public void HideGameModeSelectionPanel()
     {
-        if (gameModeSelectionPanel != null)
-        {
-            gameModeSelectionPanel.SetActive(false);
-        }
+        if (gameModeSelectionPanel != null) gameModeSelectionPanel.SetActive(false);
     }
 
     // --- NUOVO METODO ---
@@ -211,11 +180,30 @@ public class MenuManager : MonoBehaviour
     {
         foreach (Transform child in worldButtonContainer) { Destroy(child.gameObject); }
 
-        foreach (WorldData world in allWorlds)
+        for (int i = 0; i < allWorlds.Count; i++)
         {
+            WorldData currentWorld = allWorlds[i];
             GameObject buttonObj = Instantiate(worldButtonPrefab, worldButtonContainer);
-            buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = world.worldName;
-            buttonObj.GetComponent<Button>().onClick.AddListener(() => OnWorldSelected(world));
+
+            // --- NUOVA LOGICA DI SETUP ---
+            bool isUnlocked = IsWorldUnlocked(i);
+            
+            WorldButtonUI buttonUI = buttonObj.GetComponent<WorldButtonUI>();
+            if (buttonUI != null)
+            {
+                buttonUI.Setup(currentWorld.worldName, isUnlocked);
+            }
+            else // Fallback se lo script manca
+            {
+                buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = currentWorld.worldName;
+                buttonObj.GetComponent<Button>().interactable = isUnlocked;
+            }
+
+            if (isUnlocked)
+            {
+                buttonObj.GetComponent<Button>().onClick.AddListener(() => OnWorldSelected(currentWorld));
+            }
+            // --- FINE NUOVA LOGICA ---
         }
     }
 
@@ -228,16 +216,90 @@ public class MenuManager : MonoBehaviour
         PopulateSectorButtons(selectedWorld);
     }
 
-    // Questo metodo ora viene chiamato da OnWorldSelected
+    // --- METODO AGGIORNATO CON LA NUOVA LOGICA DI PROGRESSIONE ---
     private void PopulateSectorButtons(WorldData world)
     {
         foreach (Transform child in sectorButtonContainer) { Destroy(child.gameObject); }
-        foreach (SectorData sector in world.sectors)
+
+        for (int i = 0; i < world.sectors.Count; i++)
         {
+            SectorData currentSector = world.sectors[i];
             GameObject buttonObj = Instantiate(sectorButtonPrefab, sectorButtonContainer);
-            buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = sector.sectorName;
-            buttonObj.GetComponent<Button>().onClick.AddListener(() => StartStoryMode(world, sector));
+            
+            bool isUnlocked = IsSectorUnlocked(world, i);
+            int starCount = ProgressionManager.Instance.GetStarCount(currentSector.name);
+
+            SectorButtonUI buttonUI = buttonObj.GetComponent<SectorButtonUI>();
+            if (buttonUI != null)
+            {
+                buttonUI.Setup(currentSector.sectorName, isUnlocked, starCount);
+            }
+            else
+            {
+                // Fallback per il vecchio sistema
+                buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = currentSector.sectorName;
+                buttonObj.GetComponent<Button>().interactable = isUnlocked;
+            }
+
+            if (isUnlocked)
+            {
+                buttonObj.GetComponent<Button>().onClick.AddListener(() => StartStoryMode(world, currentSector));
+            }
         }
+    }
+
+    private bool IsWorldUnlocked(int worldIndex)
+    {
+        if (ProgressionManager.Instance == null) return false;
+
+        // Il primo mondo (indice 0) è sempre sbloccato
+        if (worldIndex == 0)
+        {
+            return true;
+        }
+
+        // Per i mondi successivi, controlla il mondo precedente
+        if (worldIndex > 0)
+        {
+            WorldData previousWorld = allWorlds[worldIndex - 1];
+            // Prendi l'ultimo settore del mondo precedente
+            SectorData lastSectorOfPreviousWorld = previousWorld.sectors[previousWorld.sectors.Count - 1];
+            // Il mondo si sblocca se l'ultimo settore del mondo precedente è stato completato (ha > 0 stelle)
+            return ProgressionManager.Instance.GetStarCount(lastSectorOfPreviousWorld.name) > 0;
+        }
+
+        return false;
+    }
+    // --- NUOVO METODO PER LA LOGICA DI SBLOCCO ---
+    private bool IsSectorUnlocked(WorldData currentWorld, int sectorIndex)
+    {
+        if (ProgressionManager.Instance == null) return false;
+
+        int worldIndex = allWorlds.IndexOf(currentWorld);
+
+        // Il primo settore del primo mondo è sempre sbloccato
+        if (worldIndex == 0 && sectorIndex == 0)
+        {
+            return true;
+        }
+
+        // Se è il primo settore di un mondo (ma non il primo in assoluto)
+        if (sectorIndex == 0 && worldIndex > 0)
+        {
+            WorldData previousWorld = allWorlds[worldIndex - 1];
+            // Deve aver completato l'ultimo settore del mondo precedente
+            SectorData lastSectorOfPreviousWorld = previousWorld.sectors[previousWorld.sectors.Count - 1];
+            return ProgressionManager.Instance.GetStarCount(lastSectorOfPreviousWorld.name) > 0;
+        }
+
+        // Se è un settore successivo nello stesso mondo
+        if (sectorIndex > 0)
+        {
+            SectorData previousSector = currentWorld.sectors[sectorIndex - 1];
+            return ProgressionManager.Instance.GetStarCount(previousSector.name) > 0;
+        }
+
+        return false;
     }
 
     public void StartStoryMode(WorldData world, SectorData sector)
