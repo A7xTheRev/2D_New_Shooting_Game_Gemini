@@ -2851,13 +2851,16 @@ MonoBehaviour:
   weaponPools:
   - weaponName: Standard
     projectilePrefab: {fileID: 6873114612449049683, guid: 53694857502658540bc977cdb1570d4d, type: 3}
-    poolSize: 150
+    poolSize: 50
   - weaponName: Laser
     projectilePrefab: {fileID: 6873114612449049683, guid: 6fabdd806c1a7a6448909714317830ba, type: 3}
-    poolSize: 150
+    poolSize: 50
   - weaponName: Missile
     projectilePrefab: {fileID: 6705111437116058308, guid: 65e1560848115794c8d22279145e39c0, type: 3}
-    poolSize: 150
+    poolSize: 50
+  - weaponName: Shotgun
+    projectilePrefab: {fileID: 6759954219926510446, guid: 68a53b458166c6b42be33cc426b6e0fc, type: 3}
+    poolSize: 80
 --- !u!4 &273966911
 Transform:
   m_ObjectHideFlags: 0
@@ -5128,7 +5131,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 539.752, y: -1805.6616}
+  m_AnchoredPosition: {x: 539.9526, y: -1805.1263}
   m_SizeDelta: {x: 700, y: 300}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &420264994
@@ -5637,7 +5640,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 539.752, y: -260}
+  m_AnchoredPosition: {x: 539.9526, y: -260}
   m_SizeDelta: {x: 500, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &434273356
@@ -8086,7 +8089,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 959.62805, y: -181.53198}
+  m_AnchoredPosition: {x: 959.92883, y: -181.53198}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &687521148
@@ -9079,7 +9082,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 119.87601, y: -181.53198}
+  m_AnchoredPosition: {x: 119.97629, y: -181.53198}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &783757931
@@ -19919,11 +19922,13 @@ MonoBehaviour:
   maxCoinsText: {fileID: 4240618851800898282}
   weaponButtons:
   - weaponData: {fileID: 11400000, guid: 07b7f0800366ef44ca7b035626fe8138, type: 2}
-    button: {fileID: 544115516}
+    button: {fileID: 0}
   - weaponData: {fileID: 11400000, guid: a2106a96ff171d649a2d9ecef4c7eea6, type: 2}
-    button: {fileID: 174550067}
+    button: {fileID: 0}
   - weaponData: {fileID: 11400000, guid: 5f71ca4ff32de954c95adf3694a32740, type: 2}
-    button: {fileID: 10958985}
+    button: {fileID: 0}
+  - weaponData: {fileID: 11400000, guid: 9166ef714fb9b5c4fa41114a5270e163, type: 2}
+    button: {fileID: 0}
   normalUpgradePanels:
   - upgradeType: 0
     levelText: {fileID: 446743275}
@@ -21366,7 +21371,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 539.752, y: -725.2205}
+  m_AnchoredPosition: {x: 539.9526, y: -725.0421}
   m_SizeDelta: {x: 1300, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1952459339
@@ -35049,7 +35054,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 539.752, y: -1240.441}
+  m_AnchoredPosition: {x: 539.9526, y: -1240.0842}
   m_SizeDelta: {x: 1300, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &7607149439194707274

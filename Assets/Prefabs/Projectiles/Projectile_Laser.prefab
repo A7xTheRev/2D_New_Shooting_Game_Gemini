@@ -170,11 +170,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectile
   speed: 11
-  baseDamage: 10
   damageMultiplier: 0.9
   areaDamageRadius: 0
-  weaponType: Laser
-  impactVFXTag: LaserImpact
-  lifeTime: 3
+  pierceCount: 0
+  lifeTime: 0
   bounceFlashColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   flashDuration: 0.1
+  weaponType: Laser
+  impactVFXTag: LaserImpact

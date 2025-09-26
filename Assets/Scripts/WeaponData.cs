@@ -10,15 +10,27 @@ public class WeaponData : ScriptableObject
     [Header("Informazioni UI")]
     [TextArea]
     public string description; 
-    public Sprite weaponIcon; // <-- RIGA AGGIUNTA QUI
+    public Sprite weaponIcon;
 
-    [Header("Statistiche di Base")]
+    [Header("Statistiche di Fuoco")]
+    [Tooltip("Colpi al secondo. La velocità d'attacco del giocatore agirà come moltiplicatore di questo valore.")]
+    public float fireRate = 1.2f;
+    [Tooltip("Numero di proiettili sparati in una singola raffica.")]
+    public int projectileCount = 1;
+    [Tooltip("Angolo di dispersione (in gradi) se si spara più di un proiettile.")]
+    public float spreadAngle = 0f;
+
+    [Header("Statistiche dei Proiettili")]
     [Tooltip("Moltiplicatore del danno base del giocatore (1 = 100%).")]
     public float damageMultiplier = 1f;
     [Tooltip("Moltiplicatore della velocità dei proiettili (1 = 100%).")]
     public float projectileSpeedMultiplier = 1f;
     [Tooltip("Raggio del danno ad area all'impatto (0 = nessun danno ad area).")]
     public float areaDamageRadius = 0f;
-    [Tooltip("Il tag del VFX di impatto da usare per questa arma (deve esistere nel VFXPool).")]
+    [Tooltip("Il tag del VFX di impatto da usare (deve esistere nel VFXPool).")]
     public string impactVFXTag;
+    [Tooltip("Quanti nemici può attraversare un proiettile (0 = si ferma al primo).")]
+    public int pierceCount = 0;
+    [Tooltip("Secondi prima che il proiettile scompaia da solo.")]
+    public float projectileLifetime = 5f;
 }

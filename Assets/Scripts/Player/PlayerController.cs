@@ -7,11 +7,13 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Punto di sparo")]
     public Transform firePoint;
-    public float fireCooldown = 0.5f;
 
-    [Header("Proiettili extra")]
-    public float projectileAngleStep = 15f;
-    
+    // --- NUOVA VARIABILE ---
+    [Header("Impostazioni PowerUp")]
+    [Tooltip("L'angolo di dispersione da usare quando un'arma ottiene proiettili extra da un power-up.")]
+    public float powerupSpreadAngle = 15f;
+    // --- FINE NUOVA VARIABILE ---
+
     [Header("Impostazioni Rallentatore")]
     [Range(0.1f, 1f)]
     public float slowMotionFactor = 0.2f;
@@ -51,7 +53,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Nessuna arma selezionata trovata nel GameDataManager! Assicurati che l'oggetto GameDataManager esista nella scena MainMenu.");
+            Debug.LogError("Nessuna arma selezionata trovata nel GameDataManager!");
         }
     }
 
@@ -113,24 +115,47 @@ public class PlayerController : MonoBehaviour
         if (fireTimer <= 0f)
         {
             Shoot();
-            fireTimer = fireCooldown / stats.attackSpeed;
+            // --- MODIFICA QUI: Calcola il cooldown basandosi sul fireRate dell'arma e sulla statistica del giocatore ---
+            if (currentWeaponData.fireRate > 0)
+            {
+                fireTimer = 1f / (currentWeaponData.fireRate * stats.attackSpeed);
+            }
         }
     }
 
     void Shoot()
     {
-        if (projectilePool == null || firePoint == null) return;
-        if (currentWeaponData == null) 
-        {
-            Debug.LogError("ERRORE: Tento di sparare ma non ho un'arma equipaggiata (currentWeaponData è nullo)!");
-            return;
-        }
+        if (projectilePool == null || firePoint == null || currentWeaponData == null) return;
         
         AudioManager.Instance.PlaySound(AudioManager.Instance.playerShootSound);
 
-        int count = stats.projectileCount;
-        if (count == 1) { SpawnProjectile(Vector2.up, firePoint.position); }
-        else { float startAngle = -projectileAngleStep * (count - 1) / 2f; for (int i = 0; i < count; i++) { float angle = startAngle + i * projectileAngleStep; Vector2 dir = Quaternion.Euler(0, 0, angle) * Vector2.up; SpawnProjectile(dir, firePoint.position); } }
+        // --- MODIFICA QUI: Il numero di proiettili ora parte da quello dell'arma e viene aumentato dai power-up ---
+        int totalProjectiles = currentWeaponData.projectileCount + (stats.projectileCount - 1);
+
+        if (totalProjectiles <= 1) 
+        { 
+            SpawnProjectile(Vector2.up, firePoint.position); 
+        }
+        else 
+        { 
+            // --- LOGICA DI SPREAD AGGIORNATA ---
+            float finalSpreadAngle = currentWeaponData.spreadAngle;
+            // Se l'arma non ha uno spread nativo (es. NON è uno shotgun), ma abbiamo proiettili extra da un power-up...
+            if (finalSpreadAngle == 0 && totalProjectiles > 1)
+            {
+                // ...usiamo l'angolo di dispersione di default per i power-up.
+                finalSpreadAngle = powerupSpreadAngle;
+            }
+            // --- FINE LOGICA AGGIORNATA ---
+
+            float startAngle = -finalSpreadAngle * (totalProjectiles - 1) / 2f; 
+            for (int i = 0; i < totalProjectiles; i++) 
+            { 
+                float angle = startAngle + i * finalSpreadAngle; 
+                Vector2 dir = Quaternion.Euler(0, 0, angle) * Vector2.up; 
+                SpawnProjectile(dir, firePoint.position); 
+            } 
+        }
     }
 
     void SpawnProjectile(Vector2 direction, Vector3 position)
@@ -143,15 +168,22 @@ public class PlayerController : MonoBehaviour
         projGameObject.transform.localScale = Vector3.one * stats.projectileSizeMultiplier;
         
         Projectile p = projGameObject.GetComponent<Projectile>();
-        if (p != null) 
-        { 
-            p.baseDamage = stats.damage; 
-            p.damageMultiplier = currentWeaponData.damageMultiplier; 
-            p.speed *= currentWeaponData.projectileSpeedMultiplier; 
+        if (p != null)
+        {
+            // p.baseDamage = stats.damage; // <-- QUESTA ERA LA RIGA CHE CAUSAVA L'ERRORE. RIMOSSA.
+            p.damageMultiplier = currentWeaponData.damageMultiplier;
+            p.speed *= currentWeaponData.projectileSpeedMultiplier;
             p.areaDamageRadius = currentWeaponData.areaDamageRadius;
-            p.impactVFXTag = currentWeaponData.impactVFXTag; 
-            p.SetOwner(stats); 
+            p.impactVFXTag = currentWeaponData.impactVFXTag;
+            p.lifeTime = currentWeaponData.projectileLifetime;
+            p.pierceCount = currentWeaponData.pierceCount;
+            p.weaponType = currentWeaponData.weaponName; // Aggiunto per coerenza
+
+            p.SetOwner(stats);
             p.Launch(direction); 
+            
+            // 2. SOLO ALLA FINE, attiviamo il timer di distruzione
+            p.Activate(); 
         }
     }
 }

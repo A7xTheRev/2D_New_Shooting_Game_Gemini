@@ -15,7 +15,12 @@ MonoBehaviour:
   weaponName: Standard
   description: Balanced weapon
   weaponIcon: {fileID: -3853900315991760761, guid: 56267ffc5c8fb9841b26d1f968c8686e, type: 3}
+  fireRate: 1.5
+  projectileCount: 1
+  spreadAngle: 15
   damageMultiplier: 1
   projectileSpeedMultiplier: 1
   areaDamageRadius: 0
   impactVFXTag: StandardImpact
+  pierceCount: 0
+  projectileLifetime: 3

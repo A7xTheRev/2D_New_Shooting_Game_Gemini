@@ -170,11 +170,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectile
   speed: 8
-  baseDamage: 20
   damageMultiplier: 1
   areaDamageRadius: 1
-  weaponType: Missile
-  impactVFXTag: MissileImpact
-  lifeTime: 3
+  pierceCount: 0
+  lifeTime: 0
   bounceFlashColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   flashDuration: 0.1
+  weaponType: Missile
+  impactVFXTag: MissileImpact

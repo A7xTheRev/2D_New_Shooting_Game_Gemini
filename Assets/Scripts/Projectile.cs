@@ -3,13 +3,14 @@ using System.Collections;
 
 public class Projectile : MonoBehaviour
 {
-    [Header("Statistiche Proiettile")]
-    public float speed = 10f;
-    public int baseDamage = 10;
-    public float damageMultiplier = 1f;
-    public float areaDamageRadius = 0f;
-    public string weaponType;
-    public string impactVFXTag;
+    // --- MODIFICA: Le statistiche ora sono nascoste dall'inspector ---
+    // Vengono impostate al momento dello sparo dal PlayerController, leggendole dal WeaponData.
+    [HideInInspector] public float speed = 10f;
+    [HideInInspector] public float damageMultiplier = 1f;
+    [HideInInspector] public float areaDamageRadius = 0f;
+    [HideInInspector] public int pierceCount = 0;
+    // La variabile "baseDamage" è stata rimossa perché non era utilizzata.
+    // --- FINE MODIFICA ---
 
     [Header("Gestione Vita")]
     public float lifeTime = 5f;
@@ -18,6 +19,11 @@ public class Projectile : MonoBehaviour
     public Color bounceFlashColor = Color.yellow;
     public float flashDuration = 0.1f;
 
+    // Riferimenti pubblici ancora necessari
+    public string weaponType;
+    public string impactVFXTag;
+
+    private int currentPierceLeft;
     private float baseSpeed;
     private Rigidbody2D rb;
     private int bouncesDoneEnemy = 0;
@@ -51,8 +57,19 @@ public class Projectile : MonoBehaviour
         if (spriteRenderer != null) spriteRenderer.color = originalColor;
         if (rb != null) rb.linearVelocity = Vector2.zero;
         speed = baseSpeed;
+        
+        // Resetta il contatore di perforazione all'attivazione
+        currentPierceLeft = pierceCount;
         UpdateCameraBounds();
         CancelInvoke(nameof(Deactivate));
+    }
+    
+    // Questo metodo viene chiamato dal PlayerController DOPO aver impostato tutte le statistiche.
+    public void Activate()
+    {
+        // --- MODIFICA CHIAVE QUI ---
+        // Ora inizializziamo il contatore e il timer qui, DOPO che le statistiche sono state impostate.
+        currentPierceLeft = pierceCount;
         Invoke(nameof(Deactivate), lifeTime);
     }
 
@@ -107,15 +124,24 @@ public class Projectile : MonoBehaviour
                 }
             }
 
-            if (owner != null && bouncesDoneEnemy < owner.bounceCountEnemy)
+            // --- NUOVA LOGICA DI PRIORITÀ: PERFORAZIONE > RIMBALZO > DISTRUZIONE ---
+            if (currentPierceLeft > 0)
             {
+                // Se il proiettile può ancora perforare, riduce il contatore e continua la sua corsa.
+                currentPierceLeft--;
+            }
+            else if (owner != null && bouncesDoneEnemy < owner.bounceCountEnemy)
+            {
+                // Se non può perforare, controlla se può rimbalzare.
                 bouncesDoneEnemy++;
                 BounceToNextEnemy(enemy.transform);
             }
             else
             {
+                // Se non può né perforare né rimbalzare, si disattiva.
                 Deactivate();
             }
+            // --- FINE NUOVA LOGICA ---
         }
     }
 
@@ -134,7 +160,7 @@ public class Projectile : MonoBehaviour
     private int GetFinalDamageWithCrit(out bool isCrit)
     {
         isCrit = false;
-        if (owner == null) return baseDamage;
+        if (owner == null) return 0; // Modificato per non usare più baseDamage
         
         int finalDamage = Mathf.RoundToInt(owner.damage * damageMultiplier);
         if (Random.value < owner.critChance)
