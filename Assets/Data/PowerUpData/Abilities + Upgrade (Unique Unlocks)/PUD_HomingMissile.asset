@@ -15,8 +15,9 @@ MonoBehaviour:
   type: 13
   displayName: Homing Missiles
   description: Unlocks an auto-firing homing missile system that targets enemies
-  icon: {fileID: 0}
+  icon: {fileID: 1107136496, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
   isUnique: 1
   hasPrerequisite: 0
   prerequisite: {fileID: 0}
+  mutuallyExclusivePowerUps: []
   amount: 0

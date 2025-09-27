@@ -15,8 +15,9 @@ MonoBehaviour:
   type: 6
   displayName: Max Health Up
   description: Increases your maximum health by 20 and heals for the same amount
-  icon: {fileID: 0}
+  icon: {fileID: -1662408535, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
   isUnique: 0
   hasPrerequisite: 0
   prerequisite: {fileID: 0}
+  mutuallyExclusivePowerUps: []
   amount: 20

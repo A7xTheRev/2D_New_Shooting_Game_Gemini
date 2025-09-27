@@ -15,8 +15,9 @@ MonoBehaviour:
   type: 18
   displayName: Drone Rapid Fire
   description: Increases the fire rate of all your active drones
-  icon: {fileID: 0}
+  icon: {fileID: 1176194524, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
   isUnique: 0
   hasPrerequisite: 1
   prerequisite: {fileID: 11400000, guid: e9bf9df2f9a208843a5ac4485b14476a, type: 2}
-  amount: 1.2
+  mutuallyExclusivePowerUps: []
+  amount: 0.8
