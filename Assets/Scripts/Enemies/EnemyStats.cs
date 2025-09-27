@@ -40,6 +40,9 @@ public class EnemyStats : MonoBehaviour
     private Coroutine burnCoroutine;
     private Animator animator;
 
+    private Coroutine slowCoroutine;
+    private float originalMoveSpeed;
+
     void Awake()
     {
         if (enemyData == null)
@@ -70,6 +73,9 @@ public class EnemyStats : MonoBehaviour
 
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+
+        // Salviamo la velocità di movimento originale all'inizio
+        originalMoveSpeed = enemyData.moveSpeed;
     }
 
     void Start()
@@ -119,21 +125,15 @@ public class EnemyStats : MonoBehaviour
         // Qui potremmo anche mostrare un numero verde per indicare la cura
     }
 
-    public void ApplyBurn(float duration)
+    public void ApplyBurn(float duration, int damagePerTick)
     {
+        if (isDying) return;
         if (burnCoroutine != null) StopCoroutine(burnCoroutine);
-        burnCoroutine = StartCoroutine(BurnEffect(duration));
+        burnCoroutine = StartCoroutine(BurnEffect(duration, damagePerTick));
     }
 
-    private IEnumerator BurnEffect(float duration)
+    private IEnumerator BurnEffect(float duration, int damagePerTick)
     {
-        PlayerStats player = FindFirstObjectByType<PlayerStats>();
-        int burnDamage = 5;
-        if (player != null)
-        {
-            burnDamage = Mathf.Max(3, Mathf.RoundToInt(player.abilityPower * 0.25f));
-        }
-
         GameObject vfxInstance = null;
         if (burnVFX != null)
         {
@@ -145,14 +145,15 @@ public class EnemyStats : MonoBehaviour
         {
             yield return new WaitForSeconds(1f);
             timer -= 1f;
+
             if (this != null && currentHealth > 0)
             {
-                int currentBurnDamage = Mathf.Max(1, burnDamage);
-                TakeDamage(currentBurnDamage, false);
+                TakeDamage(damagePerTick, false);
             }
             else
             {
-                break;
+                if (vfxInstance != null) Destroy(vfxInstance);
+                yield break; // Esce dalla coroutine se il nemico è morto
             }
         }
 
@@ -160,6 +161,37 @@ public class EnemyStats : MonoBehaviour
         burnCoroutine = null;
     }
 
+    public void ApplySlow(float slowMultiplier, float duration)
+    {
+        // Se c'è già un rallentamento attivo, lo ferma prima di applicare quello nuovo
+        if (slowCoroutine != null)
+        {
+            StopCoroutine(slowCoroutine);
+        }
+        slowCoroutine = StartCoroutine(SlowEffect(slowMultiplier, duration));
+    }
+
+    private IEnumerator SlowEffect(float multiplier, float duration)
+    {
+        // Salva il colore originale e applica una tinta blu
+        Color initialColor = spriteRenderer.color;
+        spriteRenderer.color = new Color(0.5f, 0.8f, 1f, initialColor.a); // Tinta azzurra
+
+        // Applica il rallentamento
+        moveSpeed = originalMoveSpeed * multiplier;
+
+        // Aspetta per la durata dell'effetto
+        yield return new WaitForSeconds(duration);
+
+        // Ripristina la velocità e il colore originali
+        if(this != null) // Controlla se l'oggetto esiste ancora
+        {
+            moveSpeed = originalMoveSpeed;
+            spriteRenderer.color = initialColor;
+        }
+        slowCoroutine = null;
+    }
+    
     private void ShowDamageNumber(int damageAmount, bool isCrit)
     {
         GameObject numberObject = VFXPool.Instance.GetVFX("DamageNumber");

@@ -4,53 +4,95 @@ using System.Linq;
 
 public class PowerUpManager : MonoBehaviour
 {
-    public List<PowerUp> allPowerUps; // Lista di tutti i powerup disponibili nel gioco
+    // --- NUOVA VARIABILE PER LA CARTELLA ---
+    [Header("Impostazioni Editor")]
+    [Tooltip("IT: La cartella principale che contiene tutti gli asset dei potenziamenti (inclusi quelli nelle sottocartelle).")]
+    public Object powerUpsFolder; // Usiamo Object per poterci trascinare una cartella
+    // --- FINE NUOVA VARIABILE ---
+    
+    public List<PowerUpEffect> allPowerUps;
 
-    // Metodo modificato per essere più intelligente
-    public List<PowerUp> GetRandomPowerUps(int count, PlayerStats player)
+    public List<PowerUpEffect> GetRandomPowerUps(int count, PlayerStats player)
     {
-        // 1. Crea una lista di potenziamenti "eleggibili"
-        List<PowerUp> eligiblePowerUps = new List<PowerUp>();
+        List<PowerUpEffect> eligiblePowerUps = new List<PowerUpEffect>();
 
-        // 2. Controlla ogni potenziamento disponibile nel gioco
-        foreach (PowerUp powerUp in allPowerUps)
+        foreach (PowerUpEffect powerUp in allPowerUps)
         {
+            if (powerUp == null)
+            {
+                Debug.LogWarning("Trovato uno slot vuoto nella lista 'allPowerUps' del PowerUpManager. Controlla l'Inspector!");
+                continue;
+            }
+
             bool isEligible = true;
 
-            // --- Logica dei Prerequisiti ---
-            // Se il potenziamento ha un prerequisito...
+            // 1. Controllo Prerequisiti
             if (powerUp.hasPrerequisite)
             {
-                // ...controlla se il giocatore ha ottenuto quel prerequisito.
-                // Se non ce l'ha, il potenziamento non è eleggibile.
-                if (!player.acquiredPowerUps.Contains(powerUp.prerequisite))
+                if (powerUp.prerequisite == null || !player.acquiredPowerUps.Contains(powerUp.prerequisite.type))
                 {
                     isEligible = false;
                 }
             }
 
-            // --- Logica dei Potenziamenti Unici ---
-            // Se il potenziamento è unico (può essere preso una sola volta)...
-            if (powerUp.isUnique)
+            // 2. Controllo Unicità
+            if (isEligible && powerUp.isUnique)
             {
-                // ...controlla se il giocatore lo ha già.
-                // Se lo ha già, non è più eleggibile.
                 if (player.acquiredPowerUps.Contains(powerUp.type))
                 {
                     isEligible = false;
                 }
             }
 
-            // 3. Se il potenziamento ha superato tutti i controlli, aggiungilo alla lista
+            // 3. NUOVO CONTROLLO: Esclusione Reciproca
+            if (isEligible)
+            {
+            bool isExcluded = false;
+                // Controlla se QUESTO potenziamento è incompatibile con qualcosa che il giocatore ha già
+            if (powerUp.mutuallyExclusivePowerUps != null && powerUp.mutuallyExclusivePowerUps.Count > 0)
+            {
+                // Controlla se il giocatore ha già un potenziamento che è nella lista di esclusione di QUESTO potenziamento.
+                foreach (PowerUpEffect excludedPowerUp in powerUp.mutuallyExclusivePowerUps)
+                {
+                        if (excludedPowerUp != null && player.acquiredPowerUps.Contains(excludedPowerUp.type))
+                        {
+                            isExcluded = true;
+                            break; 
+                        }
+                    }
+                }
+                
+                // Controlla anche il contrario: se il giocatore ha un potenziamento che esclude QUESTO
+                foreach(PowerUpType acquiredType in player.acquiredPowerUps)
+                {
+                    PowerUpEffect acquiredEffect = allPowerUps.Find(p => p.type == acquiredType);
+                    if(acquiredEffect != null && acquiredEffect.mutuallyExclusivePowerUps != null && acquiredEffect.mutuallyExclusivePowerUps.Contains(powerUp))
+                    {
+                        isExcluded = true;
+                        break; 
+                    }
+                }
+
+                if (isExcluded)
+                {
+                    isEligible = false;
+                }
+            }
+
             if (isEligible)
             {
                 eligiblePowerUps.Add(powerUp);
             }
-        }
 
-        // 4. Ora, estrai a caso dalla lista degli eleggibili
-        List<PowerUp> options = new List<PowerUp>();
-        List<PowerUp> tempList = new List<PowerUp>(eligiblePowerUps);
+            // Se ha superato tutti i controlli, è eleggibile
+            eligiblePowerUps.Add(powerUp);
+        }
+        
+        // --- FINE LOGICA AGGIORNATA ---
+
+        // Logica di estrazione casuale (invariata)
+        List<PowerUpEffect> options = new List<PowerUpEffect>();
+        List<PowerUpEffect> tempList = new List<PowerUpEffect>(eligiblePowerUps);
 
         for (int i = 0; i < count && tempList.Count > 0; i++)
         {

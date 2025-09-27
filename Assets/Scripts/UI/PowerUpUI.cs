@@ -10,7 +10,7 @@ public class PowerUpUI : MonoBehaviour
     [Header("UI Panel")]
     public GameObject panel;
     public Transform buttonsContainer;
-    public GameObject buttonPrefab; // Lasciato come GameObject per flessibilità
+    public GameObject buttonPrefab;
     public Button rerollButton;
 
     private PlayerStats currentPlayer;
@@ -26,7 +26,8 @@ public class PowerUpUI : MonoBehaviour
         if(panel != null) panel.SetActive(false);
     }
 
-    public void ShowPowerUpChoices(List<PowerUp> options, PlayerStats player)
+    // Accetta una lista del nuovo tipo PowerUpEffect
+    public void ShowPowerUpChoices(List<PowerUpEffect> options, PlayerStats player)
     {
         if (options == null || options.Count == 0) return;
         currentPlayer = player;
@@ -46,13 +47,13 @@ public class PowerUpUI : MonoBehaviour
         PopulateChoices(options);
     }
 
-    // --- LOGICA DI POPOLAMENTO CORRETTA ---
-    private void PopulateChoices(List<PowerUp> options) 
+    // Accetta una lista del nuovo tipo PowerUpEffect
+    private void PopulateChoices(List<PowerUpEffect> options) 
     {
         foreach (Transform child in buttonsContainer)
             Destroy(child.gameObject);
 
-        foreach (PowerUp pu in options)
+        foreach (PowerUpEffect pu in options)
         {
             GameObject buttonObj = Instantiate(buttonPrefab, buttonsContainer);
             
@@ -73,6 +74,7 @@ public class PowerUpUI : MonoBehaviour
             Button b = buttonObj.GetComponent<Button>();
             if (b != null)
             {
+                // Passa il PowerUpEffect al metodo OnPowerUpSelected
             b.onClick.AddListener(() => OnPowerUpSelected(pu));
             }
         }
@@ -86,16 +88,20 @@ public class PowerUpUI : MonoBehaviour
         PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
         if (manager != null)
         {
-            List<PowerUp> newOptions = manager.GetRandomPowerUps(3, currentPlayer);
+            // GetRandomPowerUps ora restituisce List<PowerUpEffect>
+            List<PowerUpEffect> newOptions = manager.GetRandomPowerUps(3, currentPlayer);
             PopulateChoices(newOptions);
         }
     }
     
-    private void OnPowerUpSelected(PowerUp pu) 
+    // Accetta il nuovo tipo PowerUpEffect
+    private void OnPowerUpSelected(PowerUpEffect pu) 
     {
         if (currentPlayer == null) return;
 
         pu.Apply(currentPlayer);
+        
+        // La logica per aggiungere il tipo di power-up alla lista rimane valida
         currentPlayer.acquiredPowerUps.Add(pu.type);
 
         panel.SetActive(false);

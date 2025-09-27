@@ -15300,7 +15300,7 @@ MonoBehaviour:
     size: 10
   - tag: HealPulse
     prefab: {fileID: 2323327325837443511, guid: 70f312c30abddd245bdda46f1e3686b0, type: 3}
-    size: 3
+    size: 5
 --- !u!4 &1372978382
 Transform:
   m_ObjectHideFlags: 0

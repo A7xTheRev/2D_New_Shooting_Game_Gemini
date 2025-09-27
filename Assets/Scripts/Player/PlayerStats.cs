@@ -65,6 +65,14 @@ public class PlayerStats : MonoBehaviour
     public bool hasChainLightning = false;
     // --- FINE NUOVA SEZIONE ---
 
+    [HideInInspector] public float burnDuration;
+    [HideInInspector] public float burnDamageMultiplier;
+    [HideInInspector] public float cryoSlowDuration;
+    [HideInInspector] public float cryoSlowMultiplier;
+    [HideInInspector] public int chainCount;
+    [HideInInspector] public float initialChainDamageMultiplier;
+    [HideInInspector] public float chainDamageMultiplier;
+
     [HideInInspector] public List<PowerUpType> acquiredPowerUps = new List<PowerUpType>();
 
     public event Action<int, int> OnHealthChanged;
@@ -118,15 +126,17 @@ public class PlayerStats : MonoBehaviour
     {
         ApplyPermanentUpgrades();
         tookDamageThisRun = false;
+        
+        // La logica per lo Starting PowerUp ora userà il nuovo sistema
         if (ProgressionManager.Instance != null && ProgressionManager.Instance.IsSpecialUpgradeUnlocked(AbilityID.StartingPowerUp))
         {
             PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
             if (manager != null)
             {
-                List<PowerUp> options = manager.GetRandomPowerUps(3, this);
+                List<PowerUpEffect> options = manager.GetRandomPowerUps(3, this);
                 if (options.Count > 0)
                 {
-                    PowerUp startingPowerUp = options[0];
+                    PowerUpEffect startingPowerUp = options[0];
                     startingPowerUp.Apply(this);
                     acquiredPowerUps.Add(startingPowerUp.type);
                     UIManager uiManager = FindFirstObjectByType<UIManager>();
@@ -166,6 +176,27 @@ public class PlayerStats : MonoBehaviour
         if (playerLayer != -1 && enemyProjectilesLayer != -1)
             Physics2D.IgnoreLayerCollision(playerLayer, enemyProjectilesLayer, false);
     }
+    
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        Pickup pickup = other.GetComponent<Pickup>();
+        if (pickup != null)
+        {
+            switch (pickup.type)
+            {
+                case Pickup.PickupType.Coin:
+                    CollectCoin(pickup.value);
+                    break;
+                case Pickup.PickupType.Gem:
+                    CollectSpecialCurrency(pickup.value);
+                    break;
+                case Pickup.PickupType.Health:
+                    Heal(pickup.value);
+                    break;
+            }
+            pickup.Collect();
+        }
+    }
 
     public void TakeDamage(int amount)
     {
@@ -200,8 +231,9 @@ public class PlayerStats : MonoBehaviour
             LevelUp();
         }
         OnXPChanged?.Invoke(currentXP, xpToLevelUp);
-        OnLevelUp?.Invoke(level);
     }
+    
+    // Rimosso OnLevelUp?.Invoke(level) da AddXP per evitare chiamate duplicate
 
     public void CollectCoin(int amount)
     {
@@ -245,6 +277,7 @@ public class PlayerStats : MonoBehaviour
         level++;
         xpToLevelUp = Mathf.RoundToInt(xpToLevelUp * 1.2f);
         AudioManager.Instance.PlaySound(AudioManager.Instance.levelUpSound);
+        OnLevelUp?.Invoke(level); // Spostato qui per chiamarlo una sola volta
         StartCoroutine(ShowLevelUpPanelSequence());
     }
 
@@ -255,7 +288,9 @@ public class PlayerStats : MonoBehaviour
         PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
         if (manager != null)
         {
-            List<PowerUp> options = manager.GetRandomPowerUps(3, this); // Passiamo 'this'
+            // --- MODIFICA CHIAVE QUI ---
+            // Ora la variabile "options" è del nuovo tipo List<PowerUpEffect>
+            List<PowerUpEffect> options = manager.GetRandomPowerUps(3, this);
             PowerUpUI.Instance.ShowPowerUpChoices(options, this);
         }
     }
@@ -356,30 +391,5 @@ public class PlayerStats : MonoBehaviour
         }
         playerData = data;
         LoadStatsFromData();
-    }
-    
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        // Controlla se l'oggetto con cui abbiamo colliso ha un componente Pickup
-        Pickup pickup = other.GetComponent<Pickup>();
-        if (pickup != null)
-        {
-            // Controlla il tipo di pickup e agisci di conseguenza
-            switch (pickup.type)
-            {
-                case Pickup.PickupType.Coin:
-                    CollectCoin(pickup.value);
-                    break;
-                case Pickup.PickupType.Gem:
-                    CollectSpecialCurrency(pickup.value);
-                    break;
-                case Pickup.PickupType.Health:
-                    Heal(pickup.value);
-                    break;
-            }
-
-            // "Consuma" l'oggetto
-            pickup.Collect();
-        }
     }
 }

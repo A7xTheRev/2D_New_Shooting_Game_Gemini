@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Projectile : MonoBehaviour
 {
@@ -57,13 +58,13 @@ public class Projectile : MonoBehaviour
         if (spriteRenderer != null) spriteRenderer.color = originalColor;
         if (rb != null) rb.linearVelocity = Vector2.zero;
         speed = baseSpeed;
-        
+
         // Resetta il contatore di perforazione all'attivazione
         currentPierceLeft = pierceCount;
         UpdateCameraBounds();
         CancelInvoke(nameof(Deactivate));
     }
-    
+
     // Questo metodo viene chiamato dal PlayerController DOPO aver impostato tutte le statistiche.
     public void Activate()
     {
@@ -86,16 +87,16 @@ public class Projectile : MonoBehaviour
             return;
         }
 
-    // --- LOGICA SEMPLIFICATA ---
-    // Non ci serve più un controllo speciale per le torrette!
-    // Cerchiamo semplicemente un componente EnemyStats.
+        // --- LOGICA SEMPLIFICATA ---
+        // Non ci serve più un controllo speciale per le torrette!
+        // Cerchiamo semplicemente un componente EnemyStats.
         EnemyStats enemy = other.GetComponentInParent<EnemyStats>();
         if (enemy != null)
         {
-        // Se lo script è disabilitato (es. boss in fase 1), non fare nulla
+            // Se lo script è disabilitato (es. boss in fase 1), non fare nulla
             if (!enemy.enabled) return;
-        
-        bool isCrit;
+
+            bool isCrit;
             int finalDamage = GetFinalDamageWithCrit(out isCrit);
 
             enemy.TakeDamage(finalDamage, isCrit);
@@ -103,15 +104,33 @@ public class Projectile : MonoBehaviour
 
             if (owner != null)
             {
+                // Effetto Incendiario
                 if (owner.hasIncendiaryRounds)
                 {
-                    enemy.ApplyBurn(5f);
+                    int burnDamage = Mathf.RoundToInt(owner.abilityPower * owner.burnDamageMultiplier);
+                    if (burnDamage > 0)
+                    {
+                        enemy.ApplyBurn(owner.burnDuration, burnDamage);
+                    }
                 }
-                // In futuro qui aggiungeremo gli altri effetti
-                // if (owner.hasCryoRounds) { enemy.ApplySlow(...); }
-                // if (owner.hasChainLightning) { enemy.ApplyChainLightning(...); }
+
+                // Effetto Congelante
+                if (owner.hasCryoRounds)
+                {
+                    // Ora legge i valori personalizzati dal PlayerStats
+                    enemy.ApplySlow(owner.cryoSlowMultiplier, owner.cryoSlowDuration); 
+                }
+
+                // Effetto Fulmine a Catena
+                if (owner.hasChainLightning)
+                {
+                    int lightningBaseDamage = Mathf.RoundToInt(owner.abilityPower * owner.initialChainDamageMultiplier);
+                    if (lightningBaseDamage > 0)
+                    {
+                        HandleChainLightning(enemy.transform, lightningBaseDamage);
+                    }
+                }
             }
-            // --- FINE NUOVA LOGICA ---
 
             if (areaDamageRadius > 0f)
             {
@@ -161,7 +180,7 @@ public class Projectile : MonoBehaviour
     {
         isCrit = false;
         if (owner == null) return 0; // Modificato per non usare più baseDamage
-        
+
         int finalDamage = Mathf.RoundToInt(owner.damage * damageMultiplier);
         if (Random.value < owner.critChance)
         {
@@ -173,24 +192,24 @@ public class Projectile : MonoBehaviour
 
     private void BounceToNextEnemy(Transform currentEnemy)
     {
-                Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, 5f);
-                bool bounced = false;
-                foreach (var hit in enemies)
-                {
+        Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, 5f);
+        bool bounced = false;
+        foreach (var hit in enemies)
+        {
             if (hit.transform != currentEnemy)
             {
-                    EnemyStats e = hit.GetComponentInParent<EnemyStats>();
+                EnemyStats e = hit.GetComponentInParent<EnemyStats>();
                 if (e != null)
-                    {
-                        Vector2 dir = (e.transform.position - transform.position).normalized;
-                        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f;
-                        transform.rotation = Quaternion.Euler(0, 0, angle);
-                        Launch(dir);
-                        bounced = true;
-                        if (spriteRenderer != null) StartCoroutine(BounceFlash());
-                        break;
-                    }
+                {
+                    Vector2 dir = (e.transform.position - transform.position).normalized;
+                    float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f;
+                    transform.rotation = Quaternion.Euler(0, 0, angle);
+                    Launch(dir);
+                    bounced = true;
+                    if (spriteRenderer != null) StartCoroutine(BounceFlash());
+                    break;
                 }
+            }
         }
         if (!bounced) Deactivate();
     }
@@ -213,14 +232,14 @@ public class Projectile : MonoBehaviour
             if (spriteRenderer != null) StartCoroutine(BounceFlash());
         }
     }
-    
+
     public void SetOwner(PlayerStats player) { owner = player; }
 
     public void Launch(Vector2 direction)
     {
         rb.linearVelocity = direction.normalized * speed;
     }
-    
+
     void Deactivate()
     {
         CancelInvoke(nameof(Deactivate));
@@ -236,7 +255,7 @@ public class Projectile : MonoBehaviour
             }
         }
     }
-    
+
     private IEnumerator BounceFlash()
     {
         spriteRenderer.color = bounceFlashColor;
@@ -260,5 +279,67 @@ public class Projectile : MonoBehaviour
         camRightEdge = cam.ViewportToWorldPoint(new Vector3(1, 0, 0)).x;
         camBottomEdge = cam.ViewportToWorldPoint(new Vector3(0, 0, 0)).y;
         camTopEdge = cam.ViewportToWorldPoint(new Vector3(0, 1, 0)).y;
+    }
+    
+    // --- METODO CHAIN LIGHTNING COMPLETAMENTE RISCRITTO ---
+    private void HandleChainLightning(Transform initialTarget, int initialDamage)
+    {
+        if (owner == null) return;
+
+        List<Transform> hitTargets = new List<Transform> { initialTarget };
+        Transform currentTarget = initialTarget;
+        int currentDamage = initialDamage;
+
+        // Esegui il ciclo per ogni "rimbalzo" del fulmine
+        for (int i = 0; i < owner.chainCount; i++)
+        {
+            Collider2D[] nearbyEnemies = Physics2D.OverlapCircleAll(currentTarget.position, 7f);
+            Transform nextTarget = null;
+            float minDistance = Mathf.Infinity;
+
+            // Trova il prossimo bersaglio più vicino che non sia già stato colpito
+            foreach (Collider2D col in nearbyEnemies)
+            {
+                if (!hitTargets.Contains(col.transform) && col.CompareTag("Enemy"))
+                {
+                    float distance = Vector2.Distance(currentTarget.position, col.transform.position);
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        nextTarget = col.transform;
+                    }
+                }
+            }
+
+            // Se abbiamo trovato un nuovo bersaglio...
+            if (nextTarget != null)
+            {
+                // Crea il VFX del fulmine
+                GameObject lightningObj = new GameObject("ChainLightningVFX");
+                LineRenderer lr = lightningObj.AddComponent<LineRenderer>();
+                lr.startWidth = 0.1f; lr.endWidth = 0.1f;
+                lr.material = new Material(Shader.Find("Legacy Shaders/Particles/Additive"));
+                lr.startColor = Color.cyan; lr.endColor = Color.white;
+                
+                ChainLightningVFX vfxScript = lightningObj.AddComponent<ChainLightningVFX>();
+                vfxScript.Setup(currentTarget.position, nextTarget.position);
+
+                // Applica il danno ridotto
+                currentDamage = Mathf.RoundToInt(currentDamage * owner.chainDamageMultiplier);
+                if (currentDamage <= 0) break;
+
+                EnemyStats targetStats = nextTarget.GetComponent<EnemyStats>();
+                if(targetStats != null) targetStats.TakeDamage(currentDamage, false);
+
+                // Aggiorna la lista e preparati al prossimo "salto"
+                hitTargets.Add(nextTarget);
+                currentTarget = nextTarget;
+            }
+            else
+            {
+                // Se non ci sono più bersagli, interrompi il ciclo
+                break; 
+            }
+        }
     }
 }

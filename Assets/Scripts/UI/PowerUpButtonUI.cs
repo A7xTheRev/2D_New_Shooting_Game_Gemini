@@ -10,7 +10,7 @@ public class PowerUpButtonUI : MonoBehaviour
     public TextMeshProUGUI powerUpDescriptionText; // Il testo per la descrizione
 
     // Questo metodo popola il pulsante con i dati di un power-up
-    public void Setup(PowerUp powerUp)
+    public void Setup(PowerUpEffect powerUp)
     {
         if (powerUpIcon != null)
         {

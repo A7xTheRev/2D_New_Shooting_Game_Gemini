@@ -3304,175 +3304,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8891ac78daddea646978a3f3e1d56546, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PowerUpManager
+  powerUpsFolder: {fileID: 102900000, guid: 5e171b4d93f50fd4ba93f62b262f9e14, type: 3}
   allPowerUps:
-  - type: 0
-    displayName: Damage
-    description: Increase damage
-    icon: {fileID: 7720062035137820617, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 3
-    prerequisite: 3
-    hasPrerequisite: 0
-    isUnique: 0
-  - type: 1
-    displayName: Attack Speed
-    description: Increase attack speed
-    icon: {fileID: 332618041, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 0.15
-    prerequisite: 3
-    hasPrerequisite: 0
-    isUnique: 0
-  - type: 2
-    displayName: XP
-    description: Increase XP gain
-    icon: {fileID: 1466337736, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 0.2
-    prerequisite: 3
-    hasPrerequisite: 0
-    isUnique: 0
-  - type: 3
-    displayName: Projectile
-    description: Increase number of projectiles
-    icon: {fileID: -966749453, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 1
-    prerequisite: 3
-    hasPrerequisite: 0
-    isUnique: 0
-  - type: 4
-    displayName: Bullet Bounce
-    description: Projectiles bounces off enemies (+1)
-    icon: {fileID: 1169629929, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 1
-    prerequisite: 3
-    hasPrerequisite: 0
-    isUnique: 0
-  - type: 5
-    displayName: Projectiles bounces off wall (+1)
-    description: Increase bounce number of projectiles shot that hit walls
-    icon: {fileID: 1169629929, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 1
-    prerequisite: 3
-    hasPrerequisite: 0
-    isUnique: 0
-  - type: 6
-    displayName: Max HP
-    description: Increase max HP
-    icon: {fileID: -1921472020, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 20
-    prerequisite: 3
-    hasPrerequisite: 0
-    isUnique: 0
-  - type: 7
-    displayName: HP Regen
-    description: Increase HP regen per second
-    icon: {fileID: -1662408535, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 0.5
-    prerequisite: 3
-    hasPrerequisite: 0
-    isUnique: 0
-  - type: 8
-    displayName: Move Speed
-    description: Increase movement speed
-    icon: {fileID: -1004856151, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 0.4
-    prerequisite: 3
-    hasPrerequisite: 0
-    isUnique: 0
-  - type: 9
-    displayName: Crit Chance
-    description: Increase critical chance on projectiles (+100% damage)
-    icon: {fileID: 1835443466, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 0.05
-    prerequisite: 3
-    hasPrerequisite: 0
-    isUnique: 0
-  - type: 10
-    displayName: Bullet Size
-    description: Increase projectile size
-    icon: {fileID: -153081489, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 0.1
-    prerequisite: 3
-    hasPrerequisite: 0
-    isUnique: 0
-  - type: 11
-    displayName: Coins
-    description: Increase coin drop
-    icon: {fileID: 44968120, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 0.2
-    prerequisite: 3
-    hasPrerequisite: 0
-    isUnique: 0
-  - type: 12
-    displayName: Ability Power
-    description: Increase ability power, more damage with abilities
-    icon: {fileID: -42010934, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 5
-    prerequisite: 3
-    hasPrerequisite: 0
-    isUnique: 0
-  - type: 13
-    displayName: Homing Missile
-    description: Unlock homing missile
-    icon: {fileID: 1107136496, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 1
-    prerequisite: 3
-    hasPrerequisite: 0
-    isUnique: 1
-  - type: 14
-    displayName: Homing Missile Barrage
-    description: Increase number of homing missiles shot
-    icon: {fileID: 1107136496, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 1
-    prerequisite: 13
-    hasPrerequisite: 1
-    isUnique: 0
-  - type: 15
-    displayName: Homing Missile Fast Reload
-    description: Increase CDR of homing missile ability
-    icon: {fileID: -915045228, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 0.8
-    prerequisite: 13
-    hasPrerequisite: 1
-    isUnique: 0
-  - type: 16
-    displayName: Combat Drone
-    description: Unlock combat drone
-    icon: {fileID: 1176194524, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 1
-    prerequisite: 16
-    hasPrerequisite: 0
-    isUnique: 1
-  - type: 17
-    displayName: Drone Companion
-    description: Add a second combat drone
-    icon: {fileID: 122843666, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 1
-    prerequisite: 16
-    hasPrerequisite: 1
-    isUnique: 1
-  - type: 18
-    displayName: Drone Fast Reload
-    description: Increase drone's fire rate
-    icon: {fileID: 1054636271, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
-    value: 0.8
-    prerequisite: 16
-    hasPrerequisite: 1
-    isUnique: 0
-  - type: 19
-    displayName: Drone Piercing Shots
-    description: Each bullet pierces 2 other enemies
-    icon: {fileID: 0}
-    value: 1
-    prerequisite: 16
-    hasPrerequisite: 1
-    isUnique: 1
-  - type: 20
-    displayName: Incendiary Rounds
-    description: Apply burn effect for damage over time
-    icon: {fileID: 0}
-    value: 1
-    prerequisite: 20
-    hasPrerequisite: 0
-    isUnique: 1
+  - {fileID: 11400000, guid: e2d20c38db2b3424bba421cbe190239c, type: 2}
+  - {fileID: 11400000, guid: 55776855daf8cc544be1daec89430f50, type: 2}
+  - {fileID: 11400000, guid: fc5b0256a6c3bd84b9b6aadd0ca1cdb5, type: 2}
+  - {fileID: 11400000, guid: e9bf9df2f9a208843a5ac4485b14476a, type: 2}
+  - {fileID: 11400000, guid: c66f5a29ec589ff4dbf4b61808f61275, type: 2}
+  - {fileID: 11400000, guid: 76a1fea2dce2b24418f1a52bcf91ab6d, type: 2}
+  - {fileID: 11400000, guid: a7ecf61dd8a3e7c4c92e6b390e74aa35, type: 2}
+  - {fileID: 11400000, guid: 84d5ae31083194341a8f669429adddd6, type: 2}
+  - {fileID: 11400000, guid: d0bae35e55745c44ab80ea1bb6bd4ffa, type: 2}
+  - {fileID: 11400000, guid: 48b64eafacce4f94f8e21443b3a282b0, type: 2}
+  - {fileID: 11400000, guid: e7777e1cdeff6b140a7a5b8e78aa08a5, type: 2}
+  - {fileID: 11400000, guid: 39c7b867f5b02f34ba844e9ae0c1a2ec, type: 2}
+  - {fileID: 11400000, guid: 820b7643c5dbbae4c87db202ea53c9b8, type: 2}
+  - {fileID: 11400000, guid: 69cfc4b26f0388c49ba7e91c8589b4b5, type: 2}
+  - {fileID: 11400000, guid: a024675dc18393a41829e47e8229f55c, type: 2}
+  - {fileID: 11400000, guid: 708207af17d21c84b81e1fc3b02e0121, type: 2}
+  - {fileID: 11400000, guid: 7b40792cdcb26b141907bcffa908519c, type: 2}
+  - {fileID: 11400000, guid: 2f6a106466b613447b6cddfe2ae7664a, type: 2}
+  - {fileID: 11400000, guid: 54566cfe8d78ea64e8d4a9072b97dce8, type: 2}
+  - {fileID: 11400000, guid: 8a41d554ac547584ab0013dc9ee7077e, type: 2}
+  - {fileID: 11400000, guid: d5d32967485b63944830c6b13999e093, type: 2}
+  - {fileID: 11400000, guid: d38790689bb158947a7ef8d26376abef, type: 2}
+  - {fileID: 11400000, guid: ea1a0e2e478e0904faba495017c4c36d, type: 2}
 --- !u!4 &1589582347
 Transform:
   m_ObjectHideFlags: 0
