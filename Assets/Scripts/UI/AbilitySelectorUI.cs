@@ -21,9 +21,13 @@ public class AbilitySelectorUI : MonoBehaviour
         // Usiamo OnEnable invece di Start per far sì che si aggiorni ogni volta che il pannello Hangar viene aperto
         PopulateScrollView();
 
-        if (snapController != null && abilityPreviewRects.Count > 0)
+        if (snapController != null && unlockedAbilities != null && unlockedAbilities.Count > 0)
         {
-            snapController.Initialize(abilityPreviewRects, OnAbilityChanged);
+            SpecialAbility equippedAbility = ProgressionManager.Instance.GetEquippedAbility();
+            int startingIndex = unlockedAbilities.IndexOf(equippedAbility);
+            if (startingIndex < 0) startingIndex = 0;
+
+            snapController.Initialize(abilityPreviewRects, OnAbilityChanged, startingIndex);
         }
     }
 
@@ -31,11 +35,7 @@ public class AbilitySelectorUI : MonoBehaviour
     {
         if (ProgressionManager.Instance == null) return;
 
-        // Pulisci la lista precedente
-        foreach (Transform child in contentPanel)
-        {
-            Destroy(child.gameObject);
-        }
+        foreach (Transform child in contentPanel) Destroy(child.gameObject);
         abilityPreviews.Clear();
         abilityPreviewRects.Clear();
 
@@ -59,16 +59,8 @@ public class AbilitySelectorUI : MonoBehaviour
     public void OnAbilityChanged(int index)
     {
         if (index < 0 || index >= unlockedAbilities.Count) return;
-
         SpecialAbility selectedAbility = unlockedAbilities[index];
-
-        // Evidenzia l'elemento selezionato
-        for (int i = 0; i < abilityPreviews.Count; i++)
-        {
-            abilityPreviews[i].SetHighlight(i == index);
-        }
-
-        // Salva l'abilità equipaggiata
+        for (int i = 0; i < abilityPreviews.Count; i++) abilityPreviews[i].SetHighlight(i == index);
         ProgressionManager.Instance.SetEquippedAbility(selectedAbility);
     }
 }

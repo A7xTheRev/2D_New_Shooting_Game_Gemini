@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using System; // Aggiunto per poter usare "Action"
+using System;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(ScrollRect))]
 public class SnapController : MonoBehaviour
@@ -11,8 +12,6 @@ public class SnapController : MonoBehaviour
     private ScrollRect scrollRect;
     private RectTransform contentPanel;
     private List<RectTransform> listItems;
-
-    // Callback generica per notificare il cambio di selezione a chiunque lo usi
     private Action<int> onSelectionChangedCallback; 
     
     private bool isSnapping = false;
@@ -25,13 +24,12 @@ public class SnapController : MonoBehaviour
         if(scrollRect != null)
         {
         contentPanel = scrollRect.content;
-            // Aggiunge il listener per l'evento OnEndDrag direttamente da codice
-            var eventTrigger = gameObject.GetComponent<UnityEngine.EventSystems.EventTrigger>();
+            var eventTrigger = gameObject.GetComponent<EventTrigger>();
             if (eventTrigger == null)
-                eventTrigger = gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>();
+                eventTrigger = gameObject.AddComponent<EventTrigger>();
 
-            var entry = new UnityEngine.EventSystems.EventTrigger.Entry();
-            entry.eventID = UnityEngine.EventSystems.EventTriggerType.EndDrag;
+            var entry = new EventTrigger.Entry();
+            entry.eventID = EventTriggerType.EndDrag;
             entry.callback.AddListener((data) => { OnEndDrag(); });
             eventTrigger.triggers.Add(entry);
         }
@@ -41,7 +39,13 @@ public class SnapController : MonoBehaviour
     {
         if (isSnapping && hasBeenInitialized)
         {
-            if (Input.GetMouseButton(0)) // Usa GetMouseButton per un controllo più fluido
+            if (Input.GetMouseButton(0))
+            {
+                isSnapping = false;
+                return;
+            }
+
+            if (listItems == null || nearestItemIndex < 0 || nearestItemIndex >= listItems.Count)
             {
                 isSnapping = false;
                 return;
@@ -86,16 +90,32 @@ public class SnapController : MonoBehaviour
         isSnapping = true;
     }
 
-    // Metodo di inizializzazione aggiornato per accettare la callback
-    public void Initialize(List<RectTransform> items, Action<int> callback)
+    // --- METODO INITIALIZE AGGIORNATO ---
+    // Ora accetta un 'startingIndex' opzionale per partire da un elemento specifico.
+    public void Initialize(List<RectTransform> items, Action<int> callback, int startingIndex = 0)
     {
         listItems = items;
         onSelectionChangedCallback = callback;
         hasBeenInitialized = true;
         
-        // Forza un aggiornamento iniziale per centrare il primo elemento
-        // e notificare il listener
-        nearestItemIndex = -1; // Forza l'aggiornamento
-        OnEndDrag();
+        // Controlla che l'indice sia valido
+        if (startingIndex < 0 || startingIndex >= items.Count)
+        {
+            startingIndex = 0;
+        }
+
+            nearestItemIndex = startingIndex;
+        
+        // **LA CORREZIONE FONDAMENTALE È QUI**
+        // Forziamo il pannello a posizionarsi istantaneamente sull'elemento iniziale.
+        // Questo viene eseguito una sola volta, quindi non c'è bisogno di aspettare il prossimo frame.
+        Canvas.ForceUpdateCanvases();
+        if (listItems != null && startingIndex < listItems.Count)
+        {
+        contentPanel.anchoredPosition = new Vector2(-listItems[startingIndex].anchoredPosition.x, contentPanel.anchoredPosition.y);
+        }
+
+        // Notifica subito il listener per aggiornare la UI (descrizioni, highlight, etc.)
+        onSelectionChangedCallback?.Invoke(nearestItemIndex);
     }
 }

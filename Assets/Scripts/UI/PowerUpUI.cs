@@ -99,10 +99,11 @@ public class PowerUpUI : MonoBehaviour
     {
         if (currentPlayer == null) return;
 
-        pu.Apply(currentPlayer);
-        
-        // La logica per aggiungere il tipo di power-up alla lista rimane valida
-        currentPlayer.acquiredPowerUps.Add(pu.type);
+        // --- MODIFICA CHIAVE QUI ---
+        // Ora la UI si limita a dire al giocatore "acquisisci questo potenziamento".
+        // Tutta la logica di applicazione e conteggio è centralizzata nel PlayerStats.
+        currentPlayer.AcquirePowerUp(pu);
+        // --- FINE MODIFICA ---
 
         panel.SetActive(false);
         Time.timeScale = 1f;

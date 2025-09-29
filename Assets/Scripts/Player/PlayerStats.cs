@@ -25,7 +25,7 @@ public class PlayerStats : MonoBehaviour
     [HideInInspector] public float hitShakeDuration;
     [HideInInspector] public float hitShakeMagnitude;
 
-    // --- NUOVA VARIABILE PER GLI OBIETTIVI ---
+    // --- VARIABILE PER GLI OBIETTIVI ---
     [HideInInspector]
     public bool tookDamageThisRun = false;
 
@@ -74,6 +74,11 @@ public class PlayerStats : MonoBehaviour
     [HideInInspector] public float chainDamageMultiplier;
 
     [HideInInspector] public List<PowerUpType> acquiredPowerUps = new List<PowerUpType>();
+
+    // --- NUOVO REGISTRO PER CONTARE I POTENZIAMENTI ---
+    [HideInInspector]
+    public Dictionary<PowerUpType, int> powerUpTracker = new Dictionary<PowerUpType, int>();
+    // --- FINE NUOVO REGISTRO ---
 
     public event Action<int, int> OnHealthChanged;
     public event Action<int, int> OnXPChanged;
@@ -127,7 +132,6 @@ public class PlayerStats : MonoBehaviour
         ApplyPermanentUpgrades();
         tookDamageThisRun = false;
         
-        // La logica per lo Starting PowerUp ora userà il nuovo sistema
         if (ProgressionManager.Instance != null && ProgressionManager.Instance.IsSpecialUpgradeUnlocked(AbilityID.StartingPowerUp))
         {
             PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
@@ -136,21 +140,16 @@ public class PlayerStats : MonoBehaviour
                 List<PowerUpEffect> options = manager.GetRandomPowerUps(3, this);
                 if (options.Count > 0)
                 {
-                    PowerUpEffect startingPowerUp = options[0];
-                    startingPowerUp.Apply(this);
-                    acquiredPowerUps.Add(startingPowerUp.type);
+                    // Usa il nuovo metodo per acquisire il potenziamento
+                    AcquirePowerUp(options[0]); 
                     UIManager uiManager = FindFirstObjectByType<UIManager>();
-                    if (uiManager != null) { uiManager.ShowNotification($"Starting Power-Up:\n{startingPowerUp.displayName}", 4f); }
+                    if (uiManager != null) { uiManager.ShowNotification($"Starting Power-Up:\n{options[0].displayName}", 4f); }
                 }
             }
         }
         currentHealth = maxHealth;
 
-        // --- MODIFICA APPLICATA QUI ---
-        // Cerca lo SpriteRenderer anche negli oggetti figli.
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        // --- FINE MODIFICA ---
-
         if (spriteRenderer != null) { originalColor = spriteRenderer.color; }
         UpdateAllUI();
     }
@@ -247,6 +246,35 @@ public class PlayerStats : MonoBehaviour
         sessionSpecialCurrency += amount;
         OnSessionSpecialCurrencyChanged?.Invoke(sessionSpecialCurrency);
     }
+    
+    // --- NUOVO METODO PUBBLICO PER ACQUISIRE POTENZIAMENTI ---
+    public void AcquirePowerUp(PowerUpEffect powerUp)
+    {
+        // 1. Applica l'effetto del potenziamento
+        powerUp.Apply(this);
+
+        // 2. Registra che abbiamo acquisito questo tipo di potenziamento
+        if (!acquiredPowerUps.Contains(powerUp.type))
+        {
+            acquiredPowerUps.Add(powerUp.type);
+        }
+
+        // 3. Aggiorna il contatore per questo tipo di potenziamento
+        if (powerUpTracker.ContainsKey(powerUp.type))
+        {
+            powerUpTracker[powerUp.type]++;
+        }
+        else
+        {
+            powerUpTracker[powerUp.type] = 1;
+        }
+
+        // Ora questo log viene mostrato solo se l'interruttore corrispondente è attivo.
+        if (DebugManager.Instance != null && DebugManager.Instance.showPowerUpAcquisitionLogs)
+        {
+            Debug.Log($"Acquisito potenziamento: {powerUp.displayName}. Conteggio attuale: {powerUpTracker[powerUp.type]}");
+        }
+    }
 
     public void ActivateTemporaryInvulnerability(float duration)
     {
@@ -277,7 +305,7 @@ public class PlayerStats : MonoBehaviour
         level++;
         xpToLevelUp = Mathf.RoundToInt(xpToLevelUp * 1.2f);
         AudioManager.Instance.PlaySound(AudioManager.Instance.levelUpSound);
-        OnLevelUp?.Invoke(level); // Spostato qui per chiamarlo una sola volta
+        OnLevelUp?.Invoke(level);
         StartCoroutine(ShowLevelUpPanelSequence());
     }
 
@@ -288,14 +316,12 @@ public class PlayerStats : MonoBehaviour
         PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
         if (manager != null)
         {
-            // --- MODIFICA CHIAVE QUI ---
-            // Ora la variabile "options" è del nuovo tipo List<PowerUpEffect>
             List<PowerUpEffect> options = manager.GetRandomPowerUps(3, this);
             PowerUpUI.Instance.ShowPowerUpChoices(options, this);
         }
     }
 
-    private System.Collections.IEnumerator InvulnerabilityCoroutine()
+    private IEnumerator InvulnerabilityCoroutine()
     {
         isInvulnerable = true;
         Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, true);
@@ -324,7 +350,7 @@ public class PlayerStats : MonoBehaviour
         isInvulnerable = false;
     }
 
-    private System.Collections.IEnumerator ShieldCoroutine(float duration)
+    private IEnumerator ShieldCoroutine(float duration)
     {
         Debug.Log("SCUDO ATTIVATO!");
         isInvulnerable = true;

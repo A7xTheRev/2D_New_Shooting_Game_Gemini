@@ -13,17 +13,11 @@ public class ProgressionManager : MonoBehaviour
         {
             if (isQuitting)
             {
-                Debug.LogWarning("ProgressionManager Instance richiesto durante la chiusura, restituisco null.");
                 return null;
             }
             if (_instance == null)
             {
                 _instance = FindFirstObjectByType<ProgressionManager>();
-                if (_instance == null)
-                {
-                    GameObject singletonObject = new GameObject("ProgressionManager (Auto-Generated)");
-                    _instance = singletonObject.AddComponent<ProgressionManager>();
-                }
             }
             return _instance;
         }
@@ -96,8 +90,18 @@ public class ProgressionManager : MonoBehaviour
         unlockedShipNamesSet = new HashSet<string>(data.unlockedShipNames);
 
         upgradeLevels.Clear();
-        for (int i = 0; i < data.savedUpgradeTypes.Count; i++) { upgradeLevels[data.savedUpgradeTypes[i]] = data.savedUpgradeLevels[i]; }
-        foreach (var upgrade in availableUpgrades) { if (!upgradeLevels.ContainsKey(upgrade.upgradeType)) upgradeLevels[upgrade.upgradeType] = 0; upgrade.currentLevel = upgradeLevels[upgrade.upgradeType]; }
+        for (int i = 0; i < data.savedUpgradeTypes.Count; i++)
+        {
+            upgradeLevels[data.savedUpgradeTypes[i]] = data.savedUpgradeLevels[i];
+        }
+        foreach (var upgrade in availableUpgrades)
+        {
+            if (!upgradeLevels.ContainsKey(upgrade.upgradeType))
+            {
+                upgradeLevels[upgrade.upgradeType] = 0;
+            }
+            upgrade.currentLevel = upgradeLevels[upgrade.upgradeType];
+        }
         
         unlockedAbilitiesSet = new HashSet<AbilityID>(data.unlockedSpecialAbilities);
 
@@ -140,11 +144,8 @@ public class ProgressionManager : MonoBehaviour
         // Salva navicelle
         data.equippedShipName = equippedShipName;
         data.unlockedShipNames = unlockedShipNamesSet.ToList();
-
-        data.savedUpgradeTypes.Clear();
-        data.savedUpgradeLevels.Clear();
-        foreach (var pair in upgradeLevels) { data.savedUpgradeTypes.Add(pair.Key); data.savedUpgradeLevels.Add(pair.Value); }
-        
+        data.savedUpgradeTypes = upgradeLevels.Keys.ToList();
+        data.savedUpgradeLevels = upgradeLevels.Values.ToList();
         data.unlockedSpecialAbilities = unlockedAbilitiesSet.ToList();
         
         // Salvataggio dati missioni
@@ -158,39 +159,167 @@ public class ProgressionManager : MonoBehaviour
         SaveSystem.SaveGame(data);
     }
 
-    // --- NUOVI METODI PUBBLICI PER I RECORD ---
-    public int GetMaxWave() { return maxWaveReached; }
-    public int GetMaxCoins() { return maxCoinsInSession; }
+    public int GetMaxWave()
+    {
+        return maxWaveReached;
+    }
+
+    public int GetMaxCoins()
+    {
+        return maxCoinsInSession;
+    }
 
     // Questo metodo controlla se abbiamo stabilito nuovi record e restituisce true se è così
     public bool CheckForNewHighScores(int currentWave, int currentCoins)
     {
         bool newRecord = false;
-        if (currentWave > maxWaveReached) { maxWaveReached = currentWave; newRecord = true; }
-        if (currentCoins > maxCoinsInSession) { maxCoinsInSession = currentCoins; newRecord = true; }
-        if (newRecord) { SaveData(); }
+        if (currentWave > maxWaveReached)
+        {
+            maxWaveReached = currentWave;
+            newRecord = true;
+        }
+        if (currentCoins > maxCoinsInSession)
+        {
+            maxCoinsInSession = currentCoins;
+            newRecord = true;
+        }
+        if (newRecord)
+        {
+            SaveData();
+        }
         return newRecord;
     }
     // --- FINE NUOVI METODI ---
 
-    public int GetCoins() { return coins; }
-    public int GetSpecialCurrency() { return specialCurrency; }
-    public void AddCoins(int value) { coins += value; SaveData(); OnValuesChanged?.Invoke(); }
-    public void AddSpecialCurrency(int value) { if (value <= 0) return; specialCurrency += value; SaveData(); OnValuesChanged?.Invoke(); }
-    public bool CanAfford(PermanentUpgrade upgrade) { return coins >= upgrade.GetNextLevelCost(); }
-    public void BuyUpgrade(PermanentUpgradeType type) { PermanentUpgrade u = GetUpgrade(type); if (u == null || u.currentLevel >= u.maxLevel) return; int c = u.GetNextLevelCost(); if (coins >= c) { coins -= c; u.currentLevel++; upgradeLevels[type] = u.currentLevel; SaveData(); OnValuesChanged?.Invoke(); } }
-    public PermanentUpgrade GetUpgrade(PermanentUpgradeType type) { return availableUpgrades.Find(u => u.upgradeType == type); }
-    public float GetTotalBonus(PermanentUpgradeType type) { PermanentUpgrade u = GetUpgrade(type); return u != null ? u.currentLevel * u.bonusPerLevel : 0f; }
-    public bool CanAfford(SpecialAbility ability) { return specialCurrency >= ability.cost; }
-    public void BuySpecialUpgrade(AbilityID id) { SpecialAbility a = allSpecialAbilities.Find(ab => ab.abilityID == id); if (a == null || IsSpecialUpgradeUnlocked(id)) return; if (specialCurrency >= a.cost) { specialCurrency -= a.cost; unlockedAbilitiesSet.Add(id); SaveData(); OnValuesChanged?.Invoke(); } }
-    public bool IsSpecialUpgradeUnlocked(AbilityID id) { SpecialAbility a = allSpecialAbilities.Find(ab => ab.abilityID == id); if (a != null && a.isDefaultAbility) return true; return unlockedAbilitiesSet.Contains(id); }
-    public SpecialAbility GetEquippedAbility() { if (equippedAbilityID == AbilityID.None) { return allSpecialAbilities.Find(a => a.isDefaultAbility); } return allSpecialAbilities.Find(a => a.abilityID == equippedAbilityID); }
-    public void SetEquippedAbility(SpecialAbility ability) { if (ability != null) { equippedAbilityID = ability.abilityID; SaveData(); } }
+    public int GetCoins()
+    {
+        return coins;
+    }
 
-    public ShipData GetEquippedShip() { return allShips.Find(s => s.shipName == equippedShipName); }
-    public void SetEquippedShip(ShipData ship) { if (ship != null && unlockedShipNamesSet.Contains(ship.shipName)) { equippedShipName = ship.shipName; SaveData(); } }
-    public bool IsShipUnlocked(string shipName) { return unlockedShipNamesSet.Contains(shipName); }
-    public void UnlockShip(string shipName) { ShipData shipToUnlock = allShips.Find(s => s.shipName == shipName); if (shipToUnlock != null && !IsShipUnlocked(shipName) && specialCurrency >= shipToUnlock.costInGems) { specialCurrency -= shipToUnlock.costInGems; unlockedShipNamesSet.Add(shipName); SaveData(); OnValuesChanged?.Invoke(); } }
+    public int GetSpecialCurrency()
+    {
+        return specialCurrency;
+    }
+
+    public void AddCoins(int value)
+    {
+        coins += value;
+        SaveData();
+        OnValuesChanged?.Invoke();
+    }
+
+    public void AddSpecialCurrency(int value)
+    {
+        if (value <= 0) return;
+        specialCurrency += value;
+        SaveData();
+        OnValuesChanged?.Invoke();
+    }
+
+    public bool CanAfford(PermanentUpgrade upgrade)
+    {
+        return coins >= upgrade.GetNextLevelCost();
+    }
+
+    public void BuyUpgrade(PermanentUpgradeType type)
+    {
+        PermanentUpgrade u = GetUpgrade(type);
+        if (u == null || u.currentLevel >= u.maxLevel) return;
+        int c = u.GetNextLevelCost();
+        if (coins >= c)
+        {
+            coins -= c;
+            u.currentLevel++;
+            upgradeLevels[type] = u.currentLevel;
+            SaveData();
+            OnValuesChanged?.Invoke();
+        }
+    }
+
+    public PermanentUpgrade GetUpgrade(PermanentUpgradeType type)
+    {
+        return availableUpgrades.Find(u => u.upgradeType == type);
+    }
+
+    public float GetTotalBonus(PermanentUpgradeType type)
+    {
+        PermanentUpgrade u = GetUpgrade(type);
+        return u != null ? u.currentLevel * u.bonusPerLevel : 0f;
+    }
+
+    public bool CanAfford(SpecialAbility ability)
+    {
+        return specialCurrency >= ability.cost;
+    }
+
+    public void BuySpecialUpgrade(AbilityID id)
+    {
+        SpecialAbility a = allSpecialAbilities.Find(ab => ab.abilityID == id);
+        if (a == null || IsSpecialUpgradeUnlocked(id)) return;
+        if (specialCurrency >= a.cost)
+        {
+            specialCurrency -= a.cost;
+            unlockedAbilitiesSet.Add(id);
+            SaveData();
+            OnValuesChanged?.Invoke();
+        }
+    }
+
+    public bool IsSpecialUpgradeUnlocked(AbilityID id)
+    {
+        SpecialAbility a = allSpecialAbilities.Find(ab => ab.abilityID == id);
+        if (a != null && a.isDefaultAbility) return true;
+        return unlockedAbilitiesSet.Contains(id);
+    }
+
+    public SpecialAbility GetEquippedAbility()
+    {
+        if (equippedAbilityID == AbilityID.None)
+        {
+            return allSpecialAbilities.Find(a => a.isDefaultAbility);
+        }
+        return allSpecialAbilities.Find(a => a.abilityID == equippedAbilityID);
+    }
+
+    public void SetEquippedAbility(SpecialAbility ability)
+    {
+        if (ability != null)
+        {
+            equippedAbilityID = ability.abilityID;
+            SaveData();
+        }
+    }
+
+    public ShipData GetEquippedShip()
+    {
+        return allShips.Find(s => s.shipName == equippedShipName);
+    }
+
+    public void SetEquippedShip(ShipData ship)
+    {
+        if (ship != null && unlockedShipNamesSet.Contains(ship.shipName))
+        {
+            equippedShipName = ship.shipName;
+            SaveData();
+        }
+    }
+
+    public bool IsShipUnlocked(string shipName)
+    {
+        return unlockedShipNamesSet.Contains(shipName);
+    }
+
+    public void UnlockShip(string shipName)
+    {
+        ShipData shipToUnlock = allShips.Find(s => s.shipName == shipName);
+        if (shipToUnlock != null && !IsShipUnlocked(shipName) && specialCurrency >= shipToUnlock.costInGems)
+        {
+            specialCurrency -= shipToUnlock.costInGems;
+            unlockedShipNamesSet.Add(shipName);
+            SaveData();
+            OnValuesChanged?.Invoke();
+        }
+    }
 
     // --- METODO RESETPROGRESS CORRETTO E RESO PIÙ ROBUSTO ---
     public void ResetProgress() 
@@ -220,16 +349,13 @@ public class ProgressionManager : MonoBehaviour
         }
         else
         {
-            equippedShipName = null; // Nessuna nave equipaggiata se non c'è un default
+            equippedShipName = null;
         }
 
-        // 4. Inizializza i livelli di potenziamento a 0
         foreach (var upgrade in availableUpgrades)
         {
             upgrade.currentLevel = 0;
         }
-
-        // 5. SALVA IMMEDIATAMENTE questo nuovo stato pulito, creando un nuovo file valido
         SaveData(); 
 
         // 6. Notifica la UI per aggiornare la visualizzazione
@@ -276,30 +402,23 @@ public class ProgressionManager : MonoBehaviour
                 }
 
                 int currentProgress = GetMissionProgress(mission.missionID);
-                int newProgress = currentProgress;
-
-                if (type == MissionType.SURVIVE_MINUTES_ENDLESS)
-                {
-                    if (amount > currentProgress)
-                    {
-                        newProgress = amount;
-                    }
-                    else
-                    {
-                        continue; 
-                    }
-                }
-                else
-                {
-                    newProgress = currentProgress + amount;
-                }
+                int newProgress = (type == MissionType.SURVIVE_MINUTES_ENDLESS) ? Mathf.Max(currentProgress, amount) : currentProgress + amount;
                 
                 missionProgress[mission.missionID] = Mathf.Min(newProgress, mission.targetValue);
+
+                // --- MODIFICA APPLICATA QUI ---
+                // Prima di stampare, controlla l'interruttore sul DebugManager.
+                if (DebugManager.Instance != null && DebugManager.Instance.showMissionLogs)
+                {
                 Debug.Log($"Progresso missione '{mission.title}': {missionProgress[mission.missionID]}/{mission.targetValue}");
+                }
                 
                 if(missionProgress[mission.missionID] >= mission.targetValue)
                 {
+                    if (DebugManager.Instance != null && DebugManager.Instance.showMissionLogs)
+                {
                     Debug.Log($"MISSIONE COMPLETATA: '{mission.title}'!");
+                    }
                     OnValuesChanged?.Invoke();
                 }
             }
@@ -350,7 +469,12 @@ public class ProgressionManager : MonoBehaviour
         {
             sectorProgress[sectorID] = newProgress;
             SaveData();
+            
+            // --- MODIFICA APPLICATA QUI ---
+            if (DebugManager.Instance != null && DebugManager.Instance.showSectorProgressLogs)
+            {
             Debug.Log($"Progresso per il settore '{sectorID}' aggiornato a: {newProgress}");
+            }
         }
     }
 
@@ -367,15 +491,24 @@ public class ProgressionManager : MonoBehaviour
 
     public int GetStarCount(string sectorID)
     {
-        if (!sectorProgress.ContainsKey(sectorID)) return 0;
-        
+        if (!sectorProgress.ContainsKey(sectorID))
+        {
+            return 0;
+        }
         int progress = GetSectorProgressValue(sectorID);
         int starCount = 0;
-        
-        if ((progress & (int)SectorObjective.SECTOR_COMPLETED) != 0) starCount++;
-        if ((progress & (int)SectorObjective.HEALTH_OVER_70_PERCENT) != 0) starCount++;
-        if ((progress & (int)SectorObjective.NO_DAMAGE_TAKEN) != 0) starCount++;
-
+        if ((progress & (int)SectorObjective.SECTOR_COMPLETED) != 0)
+        {
+            starCount++;
+        }
+        if ((progress & (int)SectorObjective.HEALTH_OVER_70_PERCENT) != 0)
+        {
+            starCount++;
+        }
+        if ((progress & (int)SectorObjective.NO_DAMAGE_TAKEN) != 0)
+        {
+            starCount++;
+        }
         return starCount;
     }
 }

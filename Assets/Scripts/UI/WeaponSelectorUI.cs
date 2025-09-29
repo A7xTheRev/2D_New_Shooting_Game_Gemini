@@ -34,9 +34,26 @@ public class WeaponSelectorUI : MonoBehaviour
 
         PopulateScrollView();
 
+        // --- NUOVA LOGICA PER CARICARE LA SELEZIONE ---
+        // 1. Leggi il nome dell'arma salvata in precedenza
+        string savedWeaponName = PlayerPrefs.GetString("SelectedWeapon", "Standard");
+
+        // 2. Trova l'indice di quell'arma nella nostra lista
+        int startingIndex = 0;
+        for (int i = 0; i < allWeapons.Count; i++)
+        {
+            if (allWeapons[i].weaponName == savedWeaponName)
+            {
+                startingIndex = i;
+                break;
+            }
+        }
+        // --- FINE NUOVA LOGICA ---
+
         if (snapController != null)
         {
-            snapController.Initialize(weaponButtonRects, this.OnWeaponChanged);
+            // 3. Passa l'indice iniziale corretto allo SnapController
+            snapController.Initialize(weaponButtonRects, this.OnWeaponChanged, startingIndex);
         }
     }
 

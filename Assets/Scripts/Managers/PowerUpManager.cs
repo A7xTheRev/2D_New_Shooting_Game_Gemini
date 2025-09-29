@@ -4,17 +4,26 @@ using System.Linq;
 
 public class PowerUpManager : MonoBehaviour
 {
-    // --- NUOVA VARIABILE PER LA CARTELLA ---
     [Header("Impostazioni Editor")]
     [Tooltip("IT: La cartella principale che contiene tutti gli asset dei potenziamenti (inclusi quelli nelle sottocartelle).")]
-    public Object powerUpsFolder; // Usiamo Object per poterci trascinare una cartella
-    // --- FINE NUOVA VARIABILE ---
+    public Object powerUpsFolder;
     
     public List<PowerUpEffect> allPowerUps;
 
     public List<PowerUpEffect> GetRandomPowerUps(int count, PlayerStats player)
     {
         List<PowerUpEffect> eligiblePowerUps = new List<PowerUpEffect>();
+
+        // Crea una lista dei potenziamenti che il giocatore ha già.
+        List<PowerUpEffect> acquiredEffects = new List<PowerUpEffect>();
+        foreach (PowerUpType type in player.acquiredPowerUps)
+        {
+            PowerUpEffect effect = allPowerUps.Find(p => p != null && p.type == type);
+            if (effect != null)
+            {
+                acquiredEffects.Add(effect);
+            }
+        }
 
         foreach (PowerUpEffect powerUp in allPowerUps)
         {
@@ -44,17 +53,26 @@ public class PowerUpManager : MonoBehaviour
                 }
             }
 
-            // 3. NUOVO CONTROLLO: Esclusione Reciproca
+            // 3. Controllo Esclusione Reciproca
             if (isEligible)
             {
             bool isExcluded = false;
-                // Controlla se QUESTO potenziamento è incompatibile con qualcosa che il giocatore ha già
-            if (powerUp.mutuallyExclusivePowerUps != null && powerUp.mutuallyExclusivePowerUps.Count > 0)
-            {
-                // Controlla se il giocatore ha già un potenziamento che è nella lista di esclusione di QUESTO potenziamento.
-                foreach (PowerUpEffect excludedPowerUp in powerUp.mutuallyExclusivePowerUps)
+                // Controlla se QUESTO potenziamento è escluso da qualcosa che il giocatore HA.
+                foreach (PowerUpEffect acquired in acquiredEffects)
                 {
-                        if (excludedPowerUp != null && player.acquiredPowerUps.Contains(excludedPowerUp.type))
+                    if (acquired.mutuallyExclusivePowerUps != null && acquired.mutuallyExclusivePowerUps.Contains(powerUp))
+            {
+                        isExcluded = true;
+                        break;
+                    }
+                }
+                
+                // Controlla anche il contrario: se qualcosa che il giocatore HA è escluso da QUESTO potenziamento.
+                 if (!isExcluded && powerUp.mutuallyExclusivePowerUps != null)
+                 {
+                    foreach(PowerUpEffect excluded in powerUp.mutuallyExclusivePowerUps)
+                {
+                        if(player.acquiredPowerUps.Contains(excluded.type))
                         {
                             isExcluded = true;
                             break; 
@@ -62,17 +80,6 @@ public class PowerUpManager : MonoBehaviour
                     }
                 }
                 
-                // Controlla anche il contrario: se il giocatore ha un potenziamento che esclude QUESTO
-                foreach(PowerUpType acquiredType in player.acquiredPowerUps)
-                {
-                    PowerUpEffect acquiredEffect = allPowerUps.Find(p => p.type == acquiredType);
-                    if(acquiredEffect != null && acquiredEffect.mutuallyExclusivePowerUps != null && acquiredEffect.mutuallyExclusivePowerUps.Contains(powerUp))
-                    {
-                        isExcluded = true;
-                        break; 
-                    }
-                }
-
                 if (isExcluded)
                 {
                     isEligible = false;
@@ -83,14 +90,8 @@ public class PowerUpManager : MonoBehaviour
             {
                 eligiblePowerUps.Add(powerUp);
             }
-
-            // Se ha superato tutti i controlli, è eleggibile
-            eligiblePowerUps.Add(powerUp);
         }
         
-        // --- FINE LOGICA AGGIORNATA ---
-
-        // Logica di estrazione casuale (invariata)
         List<PowerUpEffect> options = new List<PowerUpEffect>();
         List<PowerUpEffect> tempList = new List<PowerUpEffect>(eligiblePowerUps);
 

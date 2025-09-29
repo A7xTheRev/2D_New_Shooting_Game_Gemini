@@ -21,6 +21,12 @@ public class PlayerSpawner : MonoBehaviour
                     stats.InitializeFromData(selectedShip.baseStats);
                 }
 
+                if (DebugManager.Instance != null && DebugManager.Instance.enablePowerUpTracker)
+                {
+                    // Se sì, aggiunge il componente di debug al giocatore appena creato.
+                    playerInstance.AddComponent<PowerUpDebugger>();
+                    Debug.Log("PowerUpDebugger aggiunto al giocatore. Premi 'P' per vedere i potenziamenti.");
+                }
                 Debug.Log("Spawning ship: " + selectedShip.shipName);
             }
             else

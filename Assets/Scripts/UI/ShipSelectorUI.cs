@@ -27,7 +27,8 @@ public class ShipSelectorUI : MonoBehaviour
     private List<ShipData> allShips;
     private List<RectTransform> shipPreviewItems = new List<RectTransform>();
 
-    void Start()
+    // --- LOGICA SPOSTATA IN OnEnable ---
+    void OnEnable()
     {
         if (ProgressionManager.Instance != null)
         {
@@ -37,16 +38,19 @@ public class ShipSelectorUI : MonoBehaviour
         // Popola l'area di scorrimento con le anteprime delle navicelle
         PopulateScrollView();
 
-        // Collega il metodo al pulsante di azione
+        // Rimuove i listener precedenti per sicurezza e poi aggiunge quello nuovo
+        actionButton.onClick.RemoveAllListeners();
         actionButton.onClick.AddListener(ActionButtonClicked);
         
         // Inizializza lo snap controller, passandogli le anteprime create
         if (snapController != null)
         {
-            // --- MODIFICA CHIAVE QUI ---
-            // Ora passiamo al controller sia la lista di oggetti, sia il metodo da richiamare.
-            snapController.Initialize(shipPreviewItems, UpdateUIForShipIndex);
-            // --- FINE MODIFICA ---
+            ShipData equippedShip = ProgressionManager.Instance.GetEquippedShip();
+            int startingIndex = allShips.IndexOf(equippedShip);
+            if (startingIndex < 0) startingIndex = 0; // Sicurezza nel caso non trovi la nave
+            // --- FINE LOGICA ---
+            
+            snapController.Initialize(shipPreviewItems, UpdateUIForShipIndex, startingIndex);
         }
     }
     
