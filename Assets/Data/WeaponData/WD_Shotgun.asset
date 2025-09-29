@@ -22,6 +22,7 @@ MonoBehaviour:
     -
     Damage multiplier'
   weaponIcon: {fileID: 2622840406040596756, guid: 21fba35c9e7ddbd448f44ec5ac69bb80, type: 3}
+  projectilePrefab: {fileID: 6759954219926510446, guid: 68a53b458166c6b42be33cc426b6e0fc, type: 3}
   fireRate: 1
   projectileCount: 6
   spreadAngle: 10

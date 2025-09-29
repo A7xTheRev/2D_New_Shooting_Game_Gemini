@@ -12,6 +12,10 @@ public class WeaponData : ScriptableObject
     public string description; 
     public Sprite weaponIcon;
 
+    [Header("IT: Riferimenti di Gioco")]
+    [Tooltip("IT: Il prefab del proiettile che questa arma spara.")]
+    public GameObject projectilePrefab; // <-- NUOVO CAMPO FONDAMENTALE
+
     [Header("Statistiche di Fuoco")]
     [Tooltip("Colpi al secondo. La velocità d'attacco del giocatore agirà come moltiplicatore di questo valore.")]
     public float fireRate = 1.2f;

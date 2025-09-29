@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 public class ProjectilePool : MonoBehaviour
 {
-    // --- LOGICA SINGLETON AGGIUNTA ---
     private static ProjectilePool _instance;
     public static ProjectilePool Instance
     {
@@ -23,6 +22,7 @@ public class ProjectilePool : MonoBehaviour
     }
 
     [Header("Pools per Tipo di Arma")]
+    [Tooltip("IT: Puoi pre-caricare le pool per le armi iniziali qui per ottimizzare il primo sparo. Le altre verranno create al volo.")]
     public List<WeaponProjectilePool> weaponPools = new List<WeaponProjectilePool>();
 
     private Dictionary<string, WeaponProjectilePool> poolDictionary = new Dictionary<string, WeaponProjectilePool>();
@@ -44,20 +44,55 @@ public class ProjectilePool : MonoBehaviour
         // Inizializza tutte le pool definite nell'editor
         foreach (var pool in weaponPools)
         {
-            pool.SetParentTransform(transform);
+            // Il tuo metodo SetParentTransform non è necessario se passi il transform in Initialize
             pool.Initialize(transform);
             poolDictionary.Add(pool.weaponName, pool);
         }
     }
 
-    public GameObject GetProjectileForWeapon(string weaponName)
+    // --- METODO GETPROJECTILE AGGIORNATO PER ESSERE DINAMICO ---
+    public GameObject GetProjectileForWeapon(WeaponData weaponData)
     {
-        if (poolDictionary.TryGetValue(weaponName, out WeaponProjectilePool pool))
+        // Se non abbiamo una pool per quest'arma, la creiamo al volo!
+        if (!poolDictionary.ContainsKey(weaponData.weaponName))
+    {
+            CreateNewPoolForWeapon(weaponData);
+        }
+
+        // Ora che siamo sicuri che la pool esista, la usiamo
+        if (poolDictionary.TryGetValue(weaponData.weaponName, out WeaponProjectilePool pool))
         {
             return pool.GetProjectile();
         }
-        Debug.LogError($"Nessun pool di proiettili trovato per l'arma: {weaponName}");
+
+        // Questo errore apparirà solo se la creazione della pool fallisce (es. prefab mancante)
+        Debug.LogError($"Non è stato possibile trovare o creare una pool per l'arma: {weaponData.weaponName}");
         return null;
+    }
+
+    // --- NUOVO METODO PRIVATO PER LA CREAZIONE DINAMICA ---
+    private void CreateNewPoolForWeapon(WeaponData weaponData)
+    {
+        // Controlla se l'arma ha un proiettile da poter usare per creare la pool
+        if (weaponData.projectilePrefab == null)
+        {
+            Debug.LogError($"L'arma '{weaponData.weaponName}' non ha un prefab di proiettile assegnato nel suo WeaponData!");
+            return;
+        }
+
+        Debug.Log($"Pool per l'arma '{weaponData.weaponName}' non trovata. Creazione dinamica in corso...");
+
+        // Crea una nuova definizione di pool in memoria
+        WeaponProjectilePool newPool = new WeaponProjectilePool
+        {
+            weaponName = weaponData.weaponName,
+            projectilePrefab = weaponData.projectilePrefab,
+            poolSize = 20 // Usiamo una dimensione di default per le pool create al volo
+        };
+        
+        // Inizializza la nuova pool e aggiungila al nostro dizionario
+        newPool.Initialize(transform);
+        poolDictionary.Add(weaponData.weaponName, newPool);
     }
 
     public void ReturnProjectile(string weaponName, GameObject projectile)
@@ -68,6 +103,7 @@ public class ProjectilePool : MonoBehaviour
         }
         else
         {
+            // Se per qualche motivo la pool non esiste più, distruggiamo il proiettile
             Destroy(projectile); 
         }
     }
@@ -114,10 +150,5 @@ public class WeaponProjectilePool
         projectile.SetActive(false);
         projectile.transform.SetParent(parentTransform);
         projectileQueue.Enqueue(projectile);
-    }
-
-    public void SetParentTransform(Transform parent)
-    {
-        parentTransform = parent;
     }
 }

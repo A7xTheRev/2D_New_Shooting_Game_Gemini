@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviour
     private bool ignoreInputThisFrame = false;
     // --- NUOVA VARIABILE DI CONTROLLO ---
     public bool controlsEnabled = false;
+    public WeaponData GetCurrentWeaponData() { return currentWeaponData; }
 
     void Awake()
     {
@@ -160,7 +161,9 @@ public class PlayerController : MonoBehaviour
 
     void SpawnProjectile(Vector2 direction, Vector3 position)
     {
-        GameObject projGameObject = projectilePool.GetProjectileForWeapon(currentWeaponData.weaponName);
+        // Ora passiamo l'intero ScriptableObject dell'arma, non solo il suo nome.
+        GameObject projGameObject = projectilePool.GetProjectileForWeapon(currentWeaponData);
+
         if (projGameObject == null) return;
         
         projGameObject.transform.position = position;
@@ -177,7 +180,7 @@ public class PlayerController : MonoBehaviour
             p.impactVFXTag = currentWeaponData.impactVFXTag;
             p.lifeTime = currentWeaponData.projectileLifetime;
             p.pierceCount = currentWeaponData.pierceCount;
-            p.weaponType = currentWeaponData.weaponName; // Aggiunto per coerenza
+            p.weaponType = currentWeaponData.weaponName;
 
             p.SetOwner(stats);
             p.Launch(direction); 

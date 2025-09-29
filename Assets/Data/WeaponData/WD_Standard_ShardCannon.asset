@@ -10,18 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4f5599531b4d584d9c0683cf217858d, type: 3}
-  m_Name: WD_Standard
+  m_Name: WD_Standard_ShardCannon
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
-  weaponName: Standard
-  description: Balanced weapon
+  weaponName: Shard Cannon
+  description: 'EVOLUTION
+
+    Fires a devastating spread of heavy shards that pierce
+    the first enemy hit'
   weaponIcon: {fileID: -3853900315991760761, guid: 56267ffc5c8fb9841b26d1f968c8686e, type: 3}
-  projectilePrefab: {fileID: 6873114612449049683, guid: 53694857502658540bc977cdb1570d4d, type: 3}
-  fireRate: 1.5
-  projectileCount: 1
-  spreadAngle: 15
-  damageMultiplier: 1
-  projectileSpeedMultiplier: 1
+  projectilePrefab: {fileID: 6873114612449049683, guid: 8a1e44b34d8184e46bac0011e1e59e50, type: 3}
+  fireRate: 1.2
+  projectileCount: 8
+  spreadAngle: 8
+  damageMultiplier: 0.5
+  projectileSpeedMultiplier: 1.4
   areaDamageRadius: 0
   impactVFXTag: StandardImpact
-  pierceCount: 0
-  projectileLifetime: 3
+  pierceCount: 1
+  projectileLifetime: 0.6

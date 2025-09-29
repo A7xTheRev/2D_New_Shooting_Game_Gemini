@@ -2851,16 +2851,16 @@ MonoBehaviour:
   weaponPools:
   - weaponName: Standard
     projectilePrefab: {fileID: 6873114612449049683, guid: 53694857502658540bc977cdb1570d4d, type: 3}
-    poolSize: 50
+    poolSize: 20
   - weaponName: Laser
     projectilePrefab: {fileID: 6873114612449049683, guid: 6fabdd806c1a7a6448909714317830ba, type: 3}
-    poolSize: 50
+    poolSize: 40
   - weaponName: Missile
     projectilePrefab: {fileID: 6705111437116058308, guid: 65e1560848115794c8d22279145e39c0, type: 3}
-    poolSize: 50
+    poolSize: 20
   - weaponName: Shotgun
     projectilePrefab: {fileID: 6759954219926510446, guid: 68a53b458166c6b42be33cc426b6e0fc, type: 3}
-    poolSize: 80
+    poolSize: 30
 --- !u!4 &273966911
 Transform:
   m_ObjectHideFlags: 0
@@ -14658,6 +14658,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1331738538}
   m_CullTransparentMesh: 1
+--- !u!1 &1333836490
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1333836492}
+  - component: {fileID: 1333836491}
+  m_Layer: 0
+  m_Name: EvolutionManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1333836491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1333836490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 235b8b532c0a68d4ebf4e3e9d35d8ddd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EvolutionManager
+  allEvolutions:
+  - {fileID: 11400000, guid: bb4dde471cdd7a84e9fd0dc1c9afeed9, type: 2}
+  - {fileID: 11400000, guid: 3cf6cc402a274e54984f1611fa86e258, type: 2}
+  - {fileID: 11400000, guid: 3e0833f1cabba3a4ea942cef6c929c2c, type: 2}
+--- !u!4 &1333836492
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1333836490}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 293.01215, y: 215.24275, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1334292496
 GameObject:
   m_ObjectHideFlags: 0
@@ -37770,6 +37818,7 @@ SceneRoots:
   - {fileID: 973597991}
   - {fileID: 597784376}
   - {fileID: 2033826943}
+  - {fileID: 1333836492}
   - {fileID: 1321867215}
   - {fileID: 1860510563}
   - {fileID: 167747713}

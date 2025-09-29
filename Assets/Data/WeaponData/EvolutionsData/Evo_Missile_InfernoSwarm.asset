@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ff242a6665cb6542a220b30720863a5, type: 3}
+  m_Name: Evo_Missile_InfernoSwarm
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponEvolutionData
+  baseWeapon: {fileID: 11400000, guid: 5f71ca4ff32de954c95adf3694a32740, type: 2}
+  powerUpRequirements:
+  - requiredPowerUp: {fileID: 11400000, guid: 39c7b867f5b02f34ba844e9ae0c1a2ec, type: 2}
+    requiredCount: 1
+  - requiredPowerUp: {fileID: 11400000, guid: a024675dc18393a41829e47e8229f55c, type: 2}
+    requiredCount: 1
+  evolvedWeapon: {fileID: 11400000, guid: 7b73a295dd47ef04cb030131c6c542f6, type: 2}
+  evolutionButtonPrefab: {fileID: 6558849122599661650, guid: 181d0fdb14e6ed741aa2cd09051b303e, type: 3}

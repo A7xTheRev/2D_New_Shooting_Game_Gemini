@@ -10,25 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4f5599531b4d584d9c0683cf217858d, type: 3}
-  m_Name: WD_Laser
+  m_Name: WD_Laser_PrismRay
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
-  weaponName: Laser
-  description: '+ Attack speed
+  weaponName: Prism Ray
+  description: 'EVOLUTION
 
-    + Pierces 2 enemies
-
-    + Projectile speed
-
-    -
-    Damage'
+    An enhanced energy beam that pierces through all enemies
+    and bounces off walls'
   weaponIcon: {fileID: -7803065417098437583, guid: 56267ffc5c8fb9841b26d1f968c8686e, type: 3}
-  projectilePrefab: {fileID: 6873114612449049683, guid: 6fabdd806c1a7a6448909714317830ba, type: 3}
-  fireRate: 5
+  projectilePrefab: {fileID: 6873114612449049683, guid: d9aedc7ad0dd5a5488f7bca3fb873c2e, type: 3}
+  fireRate: 10
   projectileCount: 1
-  spreadAngle: 15
-  damageMultiplier: 0.4
+  spreadAngle: 0
+  damageMultiplier: 0.3
   projectileSpeedMultiplier: 1.5
   areaDamageRadius: 0
   impactVFXTag: LaserImpact
-  pierceCount: 2
-  projectileLifetime: 3
+  pierceCount: 999
+  projectileLifetime: 4

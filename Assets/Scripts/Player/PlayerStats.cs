@@ -313,11 +313,24 @@ public class PlayerStats : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(levelUpPanelDelay);
 
-        PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
-        if (manager != null)
+        // --- NUOVO FLUSSO DI CONTROLLO ---
+        PlayerController playerController = GetComponent<PlayerController>();
+        WeaponEvolutionData availableEvolution = EvolutionManager.Instance.CheckForAvailableEvolutions(this, playerController.GetCurrentWeaponData());
+
+        // Se c'è un'evoluzione disponibile...
+        if (availableEvolution != null)
         {
-            List<PowerUpEffect> options = manager.GetRandomPowerUps(3, this);
-            PowerUpUI.Instance.ShowPowerUpChoices(options, this);
+            // ...mostra la scelta speciale per l'evoluzione!
+            PowerUpUI.Instance.ShowEvolutionChoice(availableEvolution, this, playerController);
+        }
+        else // Altrimenti, procedi con i normali potenziamenti
+        {
+            PowerUpManager manager = FindFirstObjectByType<PowerUpManager>();
+            if (manager != null)
+            {
+                List<PowerUpEffect> options = manager.GetRandomPowerUps(3, this);
+                PowerUpUI.Instance.ShowPowerUpChoices(options, this);
+            }
         }
     }
 

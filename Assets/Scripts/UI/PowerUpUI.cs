@@ -22,8 +22,8 @@ public class PowerUpUI : MonoBehaviour
             Instance = this;
         else
             Destroy(gameObject);
-        
-        if(panel != null) panel.SetActive(false);
+
+        if (panel != null) panel.SetActive(false);
     }
 
     // Accetta una lista del nuovo tipo PowerUpEffect
@@ -48,7 +48,7 @@ public class PowerUpUI : MonoBehaviour
     }
 
     // Accetta una lista del nuovo tipo PowerUpEffect
-    private void PopulateChoices(List<PowerUpEffect> options) 
+    private void PopulateChoices(List<PowerUpEffect> options)
     {
         foreach (Transform child in buttonsContainer)
             Destroy(child.gameObject);
@@ -56,7 +56,7 @@ public class PowerUpUI : MonoBehaviour
         foreach (PowerUpEffect pu in options)
         {
             // --- LOGICA DI CREAZIONE DINAMICA AGGIORNATA ---
-            
+
             // 1. Controlla se il potenziamento ha un prefab di pulsante assegnato.
             if (pu.buttonPrefab == null)
             {
@@ -67,7 +67,7 @@ public class PowerUpUI : MonoBehaviour
             // 2. Crea un'istanza del prefab specifico del potenziamento.
             GameObject buttonObj = Instantiate(pu.buttonPrefab, buttonsContainer);
             // --- FINE LOGICA AGGIORNATA ---
-            
+
             PowerUpButtonUI buttonUI = buttonObj.GetComponent<PowerUpButtonUI>();
             if (buttonUI != null)
             {
@@ -84,12 +84,12 @@ public class PowerUpUI : MonoBehaviour
             if (b != null)
             {
                 // Passa il PowerUpEffect al metodo OnPowerUpSelected
-            b.onClick.AddListener(() => OnPowerUpSelected(pu));
+                b.onClick.AddListener(() => OnPowerUpSelected(pu));
             }
         }
     }
-    
-    public void OnRerollButtonPressed() 
+
+    public void OnRerollButtonPressed()
     {
         if (rerollUsedThisLevel || currentPlayer == null) return;
         rerollUsedThisLevel = true;
@@ -102,9 +102,9 @@ public class PowerUpUI : MonoBehaviour
             PopulateChoices(newOptions);
         }
     }
-    
+
     // Accetta il nuovo tipo PowerUpEffect
-    private void OnPowerUpSelected(PowerUpEffect pu) 
+    private void OnPowerUpSelected(PowerUpEffect pu)
     {
         if (currentPlayer == null) return;
 
@@ -114,6 +114,44 @@ public class PowerUpUI : MonoBehaviour
         currentPlayer.AcquirePowerUp(pu);
         // --- FINE MODIFICA ---
 
+        panel.SetActive(false);
+        Time.timeScale = 1f;
+    }
+    public void ShowEvolutionChoice(WeaponEvolutionData evolution, PlayerStats player, PlayerController controller)
+    {
+        currentPlayer = player;
+        panel.SetActive(true);
+        Time.timeScale = 0f;
+
+        if (rerollButton != null) rerollButton.gameObject.SetActive(false);
+
+        foreach (Transform child in buttonsContainer)
+            Destroy(child.gameObject);
+
+        GameObject buttonObj = Instantiate(evolution.evolutionButtonPrefab, buttonsContainer);
+        
+        PowerUpButtonUI buttonUI = buttonObj.GetComponent<PowerUpButtonUI>();
+        if (buttonUI != null)
+        {
+            // Usiamo il Setup del pulsante per mostrare i dati dell'arma EVOLUTA
+            buttonUI.powerUpNameText.text = evolution.evolvedWeapon.weaponName;
+            buttonUI.powerUpDescriptionText.text = evolution.evolvedWeapon.description;
+            buttonUI.powerUpIcon.sprite = evolution.evolvedWeapon.weaponIcon;
+        }
+
+        Button b = buttonObj.GetComponent<Button>();
+        if (b != null)
+        {
+            b.onClick.AddListener(() => OnEvolutionSelected(evolution, controller));
+        }
+    }
+
+    private void OnEvolutionSelected(WeaponEvolutionData evolution, PlayerController controller)
+    {
+        if (currentPlayer == null) return;
+        
+        EvolutionManager.Instance.EvolveWeapon(currentPlayer, controller, evolution);
+        
         panel.SetActive(false);
         Time.timeScale = 1f;
     }
