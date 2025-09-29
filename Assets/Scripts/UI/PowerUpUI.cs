@@ -10,7 +10,7 @@ public class PowerUpUI : MonoBehaviour
     [Header("UI Panel")]
     public GameObject panel;
     public Transform buttonsContainer;
-    public GameObject buttonPrefab;
+    // La variabile 'buttonPrefab' è stata rimossa da qui.
     public Button rerollButton;
 
     private PlayerStats currentPlayer;
@@ -55,9 +55,19 @@ public class PowerUpUI : MonoBehaviour
 
         foreach (PowerUpEffect pu in options)
         {
-            GameObject buttonObj = Instantiate(buttonPrefab, buttonsContainer);
+            // --- LOGICA DI CREAZIONE DINAMICA AGGIORNATA ---
             
-            // 1. Troviamo lo script PowerUpButtonUI sul nostro prefab
+            // 1. Controlla se il potenziamento ha un prefab di pulsante assegnato.
+            if (pu.buttonPrefab == null)
+            {
+                Debug.LogError($"Il potenziamento '{pu.displayName}' non ha un prefab di pulsante assegnato nel suo ScriptableObject!");
+                continue; // Salta questo potenziamento per evitare errori.
+            }
+
+            // 2. Crea un'istanza del prefab specifico del potenziamento.
+            GameObject buttonObj = Instantiate(pu.buttonPrefab, buttonsContainer);
+            // --- FINE LOGICA AGGIORNATA ---
+            
             PowerUpButtonUI buttonUI = buttonObj.GetComponent<PowerUpButtonUI>();
             if (buttonUI != null)
             {
@@ -66,8 +76,7 @@ public class PowerUpUI : MonoBehaviour
             }
             else
             {
-                // Fallback di sicurezza se lo script manca, per evitare errori
-                Debug.LogError("Il prefab del pulsante non ha lo script PowerUpButtonUI!");
+                Debug.LogError($"Il prefab del pulsante per '{pu.displayName}' non ha lo script PowerUpButtonUI!");
             }
 
             // 3. Aggiungiamo l'azione al click del pulsante

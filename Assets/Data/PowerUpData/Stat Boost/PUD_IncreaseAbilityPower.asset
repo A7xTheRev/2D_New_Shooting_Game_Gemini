@@ -17,6 +17,7 @@ MonoBehaviour:
   description: Increases the power of your special abilities and elemental effects
     by 5 points
   icon: {fileID: -42010934, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
+  buttonPrefab: {fileID: 6558849122599661650, guid: 81bafe0759b88e749b259f28a85d23ac, type: 3}
   isUnique: 0
   hasPrerequisite: 0
   prerequisite: {fileID: 0}

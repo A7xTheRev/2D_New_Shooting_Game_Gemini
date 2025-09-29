@@ -17,6 +17,7 @@ MonoBehaviour:
   description: Your projectiles have a chance to unleash a lightning bolt that arcs
     to a nearby enemy
   icon: {fileID: 0}
+  buttonPrefab: {fileID: 6558849122599661650, guid: 81bafe0759b88e749b259f28a85d23ac, type: 3}
   isUnique: 1
   hasPrerequisite: 0
   prerequisite: {fileID: 0}

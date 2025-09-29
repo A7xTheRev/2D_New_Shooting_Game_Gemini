@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Combar Drone
   description: Deploys an autonomous combat drone that fires at enemies
   icon: {fileID: 1176194524, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
+  buttonPrefab: {fileID: 6558849122599661650, guid: 81bafe0759b88e749b259f28a85d23ac, type: 3}
   isUnique: 1
   hasPrerequisite: 0
   prerequisite: {fileID: 0}

@@ -11,13 +11,19 @@ public abstract class PowerUpEffect : ScriptableObject
     [TextArea] public string description;
     public Sprite icon;
     
-    [Tooltip("Se spuntato, questo potenziamento può essere ottenuto una sola volta per partita.")]
+    // --- NUOVO CAMPO AGGIUNTO ---
+    [Header("IT: Impostazioni UI")]
+    [Tooltip("IT: Il prefab del pulsante da usare per questo potenziamento nella schermata di level up.")]
+    public GameObject buttonPrefab;
+    // --- FINE NUOVO CAMPO ---
+    
+    [Tooltip("IT: Se spuntato, questo potenziamento può essere ottenuto una sola volta per partita.")]
     public bool isUnique = false;
 
     [Header("Prerequisiti")]
-    [Tooltip("Se spuntato, questo potenziamento apparirà solo dopo aver ottenuto il prerequisito.")]
+    [Tooltip("IT: Se spuntato, questo potenziamento apparirà solo dopo aver ottenuto il prerequisito.")]
     public bool hasPrerequisite = false;
-    public PowerUpEffect prerequisite; // Ora il prerequisito è un altro PowerUpEffect
+    public PowerUpEffect prerequisite;
 
     [Header("Regole di Esclusione")]
     [Tooltip("IT: Se il giocatore prende questo potenziamento, non potrà più trovare quelli in questa lista.")]

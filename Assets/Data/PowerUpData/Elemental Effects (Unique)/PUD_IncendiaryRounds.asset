@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Incendiary Rounds
   description: Your projectiles apply a burn effect, dealing damage over time
   icon: {fileID: 0}
+  buttonPrefab: {fileID: 6558849122599661650, guid: 81bafe0759b88e749b259f28a85d23ac, type: 3}
   isUnique: 1
   hasPrerequisite: 0
   prerequisite: {fileID: 0}

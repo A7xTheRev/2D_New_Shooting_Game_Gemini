@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Drone Companion
   description: Adds another combat drone to fight alongside you
   icon: {fileID: 1176194524, guid: cf2eeb6f0da25b547bf348b2c53d79b8, type: 3}
+  buttonPrefab: {fileID: 6558849122599661650, guid: 81bafe0759b88e749b259f28a85d23ac, type: 3}
   isUnique: 1
   hasPrerequisite: 1
   prerequisite: {fileID: 11400000, guid: e9bf9df2f9a208843a5ac4485b14476a, type: 2}
