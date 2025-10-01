@@ -18,9 +18,12 @@ GameObject:
   - component: {fileID: 7023528551087882939}
   - component: {fileID: 1482964031173365671}
   - component: {fileID: 4731107963238001332}
-  m_Layer: 0
-  m_Name: Enemy_FREE_3
-  m_TagString: Untagged
+  - component: {fileID: 5079797208706739925}
+  - component: {fileID: 2647735662837094136}
+  - component: {fileID: 4901611184306909623}
+  m_Layer: 9
+  m_Name: Enemy_RocketLauncher
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -494,6 +497,67 @@ CompositeCollider2D:
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
   m_CompositeGameObject: {fileID: 428195181630711029}
+--- !u!114 &5079797208706739925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 428195181630711029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdde63428ebb42c4a8a3fe4ca0bc0375, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
+  enemyData: {fileID: 11400000, guid: f2fa62e45aecf124193511a43c6f0705, type: 2}
+  maxHealth: 0
+  moveSpeed: 0
+  contactDamage: 0
+  projectileDamage: 0
+  fireRate: 0
+  coinReward: 0
+  xpReward: 0
+  specialCurrencyReward: 0
+  hasDeathAnimation: 0
+  deathVFXTag: 
+  deathShakeDuration: 0
+  deathShakeMagnitude: 0
+  burnVFX: {fileID: 0}
+  allowStatScaling: 0
+  flashColor: {r: 0, g: 0, b: 0, a: 0}
+  flashDuration: 0
+  gemDropChance: 0
+  healthDropChance: 0
+  currentHealth: 0
+--- !u!114 &2647735662837094136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 428195181630711029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2673f0880d8813b4e969a2b93768068d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StationaryAI
+  targetYPosition: 4
+--- !u!114 &4901611184306909623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 428195181630711029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5263cc394c1aa343a18bf195a3f123d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyShooter
+  projectilePrefab: {fileID: 6492640980295851497, guid: 41e0ddeddca8f1142b186a3bbc68d72e, type: 3}
+  firePoint: {fileID: 602818614730763929}
+  projectileCount: 1
+  spreadAngle: 0
 --- !u!1 &3589110008015533640
 GameObject:
   m_ObjectHideFlags: 0
@@ -503,7 +567,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 602818614730763929}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}

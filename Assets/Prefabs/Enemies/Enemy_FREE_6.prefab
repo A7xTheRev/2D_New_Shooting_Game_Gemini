@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6409756993021342334}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49,9 +49,9 @@ GameObject:
   - component: {fileID: 2148237886626595695}
   - component: {fileID: 7402519433198003686}
   - component: {fileID: 6299394118990160234}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Enemy_FREE_6
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
