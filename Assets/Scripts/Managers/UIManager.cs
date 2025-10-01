@@ -26,6 +26,10 @@ public class UIManager : MonoBehaviour
     [Header("UI del Giocatore (collegata dinamicamente)")]
     public Slider abilitySlider;
     public Image abilityIconImage;
+    // --- NUOVO RIFERIMENTO UI ---
+    [Tooltip("Un'immagine (es. una X rossa) da mostrare sopra l'icona dell'abilità quando l'arma è disabilitata.")]
+    public Image weaponDisabledIcon;
+    // --- FINE NUOVO RIFERIMENTO ---
 
     private PlayerStats player;
     private StageManager stageManager;
@@ -89,6 +93,7 @@ public class UIManager : MonoBehaviour
         bool hasAbility = (abilityController != null && abilityController.equippedAbility != null);
         if (abilitySlider != null) abilitySlider.gameObject.SetActive(hasAbility);
         if (abilityIconImage != null) abilityIconImage.gameObject.SetActive(hasAbility);
+        if (weaponDisabledIcon != null) weaponDisabledIcon.gameObject.SetActive(false); // Nascondi all'inizio
 
         if (hasAbility)
         {
@@ -177,6 +182,8 @@ public class UIManager : MonoBehaviour
             player.OnHealthChanged += UpdateHealthUI;
             player.OnSessionCoinsChanged += UpdateSessionCoinsUI;
             player.OnSessionSpecialCurrencyChanged += UpdateSpecialCurrencyUI;
+            // --- ISCRIZIONE AL NUOVO EVENTO ---
+            player.OnWeaponDisabledStateChanged += UpdateWeaponDisabledUI;
         }
         if (abilityController != null)
         {
@@ -193,6 +200,8 @@ public class UIManager : MonoBehaviour
             player.OnHealthChanged -= UpdateHealthUI;
             player.OnSessionCoinsChanged -= UpdateSessionCoinsUI;
             player.OnSessionSpecialCurrencyChanged -= UpdateSpecialCurrencyUI;
+            // --- CANCELLAZIONE ISCRIZIONE ---
+            player.OnWeaponDisabledStateChanged -= UpdateWeaponDisabledUI;
         }
         if (abilityController != null)
         {
@@ -276,4 +285,14 @@ public class UIManager : MonoBehaviour
             abilityIconImage.sprite = icon;
         }
     }
+
+    // --- NUOVO METODO PER GESTIRE LA UI DEL DEBUFF ---
+    private void UpdateWeaponDisabledUI(bool isDisabled)
+    {
+        if (weaponDisabledIcon != null)
+        {
+            weaponDisabledIcon.gameObject.SetActive(isDisabled);
+        }
+    }
+    // --- FINE NUOVO METODO ---
 }

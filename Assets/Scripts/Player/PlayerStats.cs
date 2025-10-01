@@ -38,6 +38,11 @@ public class PlayerStats : MonoBehaviour
     public int sessionCoins = 0;
     public int sessionSpecialCurrency = 0;
 
+    // --- NUOVA VARIABILE DI STATO ---
+    [HideInInspector]
+    public bool isWeaponDisabled = false;
+    // --- FINE NUOVA VARIABILE ---
+
     [Header("PowerUp Accumulati")]
     public float xpMultiplier = 1f;
     public int projectileCount = 1;
@@ -85,6 +90,9 @@ public class PlayerStats : MonoBehaviour
     public event Action<int> OnLevelUp;
     public event Action<int> OnSessionCoinsChanged;
     public event Action<int> OnSessionSpecialCurrencyChanged;
+    // --- NUOVO EVENTO PER LA UI ---
+    public event Action<bool> OnWeaponDisabledStateChanged;
+    // --- FINE NUOVO EVENTO ---
 
     private bool isInvulnerable = false;
     private SpriteRenderer spriteRenderer;
@@ -94,6 +102,7 @@ public class PlayerStats : MonoBehaviour
     private int enemyLayer;
     private int enemyProjectilesLayer;
     private bool secondChanceAvailable = true;
+    private Coroutine weaponDisableCoroutine;
 
     void Awake()
     {
@@ -275,6 +284,19 @@ public class PlayerStats : MonoBehaviour
             Debug.Log($"Acquisito potenziamento: {powerUp.displayName}. Conteggio attuale: {powerUpTracker[powerUp.type]}");
         }
     }
+    
+    // --- NUOVO METODO PUBBLICO PER IL DEBUFF ---
+    public void ApplyWeaponDisable(float duration)
+    {
+        // Se c'è già un debuff attivo, lo "rinfreschiamo" riavviando la coroutine
+        // con la nuova durata, per evitare sovrapposizioni.
+        if (weaponDisableCoroutine != null)
+        {
+            StopCoroutine(weaponDisableCoroutine);
+        }
+        weaponDisableCoroutine = StartCoroutine(WeaponDisableCoroutine(duration));
+    }
+    // --- FINE NUOVO METODO ---
 
     public void ActivateTemporaryInvulnerability(float duration)
     {
@@ -389,6 +411,26 @@ public class PlayerStats : MonoBehaviour
             }
         }
     }
+    
+    // --- NUOVA COROUTINE PER IL DEBUFF ---
+    private IEnumerator WeaponDisableCoroutine(float duration)
+    {
+        isWeaponDisabled = true;
+        OnWeaponDisabledStateChanged?.Invoke(true); // Notifica la UI
+        Debug.Log("Arma disabilitata!");
+
+        yield return new WaitForSeconds(duration);
+        
+        // Controlla che il componente esista ancora (il giocatore potrebbe essere morto)
+        if(this != null)
+        {
+            isWeaponDisabled = false;
+            OnWeaponDisabledStateChanged?.Invoke(false); // Notifica la UI
+            Debug.Log("Arma riabilitata!");
+        }
+        weaponDisableCoroutine = null;
+    }
+    // --- FINE NUOVA COROUTINE ---
 
     private void Die()
     {

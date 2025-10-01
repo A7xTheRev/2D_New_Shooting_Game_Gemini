@@ -109,7 +109,14 @@ public class PlayerController : MonoBehaviour
 
     void HandleShooting()
     {
-        // Aggiungiamo un controllo per assicurarci di avere un'arma equipaggiata
+        // --- NUOVO CONTROLLO AGGIUNTO QUI ---
+        // Se l'arma è disabilitata dal debuff, interrompi la funzione e non sparare.
+        if (stats.isWeaponDisabled)
+        {
+            return;
+        }
+        // --- FINE NUOVO CONTROLLO ---
+
         if (currentWeaponData == null) return;
 
         fireTimer -= Time.deltaTime;

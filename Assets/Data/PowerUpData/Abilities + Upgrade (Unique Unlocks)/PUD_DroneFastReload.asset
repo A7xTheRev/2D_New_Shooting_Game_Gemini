@@ -21,4 +21,4 @@ MonoBehaviour:
   hasPrerequisite: 1
   prerequisite: {fileID: 11400000, guid: e9bf9df2f9a208843a5ac4485b14476a, type: 2}
   mutuallyExclusivePowerUps: []
-  amount: 0.2
+  amount: 0.85
