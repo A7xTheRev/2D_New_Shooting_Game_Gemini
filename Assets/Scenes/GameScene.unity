@@ -2319,6 +2319,7 @@ MonoBehaviour:
   - {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}
   - {fileID: 1902516105903420111, guid: fa0042bb3244dfb4c8bffe022592cc3b, type: 3}
   - {fileID: 3249201618266270041, guid: ed23aa86683143147832039ae5afc41d, type: 3}
+  - {fileID: 7590638160553505239, guid: 390f335d872880e439fc4a8f0cc6abda, type: 3}
   endlessElitePrefabs:
   - {fileID: 8996595999977987206, guid: 2da046ba7c5949c4db7650b4a4faffd1, type: 3}
   - {fileID: 2839590834492000749, guid: 8215937439e53974ea76ec0ec464cffc, type: 3}

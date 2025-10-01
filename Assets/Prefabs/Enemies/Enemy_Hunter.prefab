@@ -51,6 +51,9 @@ GameObject:
   - component: {fileID: 1990635127290646630}
   - component: {fileID: 2554357667666763770}
   - component: {fileID: 8676329068613365210}
+  - component: {fileID: -5590887435623447148}
+  - component: {fileID: 8045095767860685265}
+  - component: {fileID: -1611677658845857159}
   m_Layer: 0
   m_Name: Enemy_Hunter
   m_TagString: Untagged
@@ -647,6 +650,68 @@ CompositeCollider2D:
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
   m_CompositeGameObject: {fileID: 7590638160553505239}
+--- !u!114 &-5590887435623447148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7590638160553505239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdde63428ebb42c4a8a3fe4ca0bc0375, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
+  enemyData: {fileID: 11400000, guid: 70350cc491dc83f47a1a910969529545, type: 2}
+  maxHealth: 0
+  moveSpeed: 0
+  contactDamage: 0
+  projectileDamage: 0
+  fireRate: 0
+  coinReward: 0
+  xpReward: 0
+  specialCurrencyReward: 0
+  hasDeathAnimation: 0
+  deathVFXTag: 
+  deathShakeDuration: 0
+  deathShakeMagnitude: 0
+  burnVFX: {fileID: 0}
+  allowStatScaling: 0
+  flashColor: {r: 0, g: 0, b: 0, a: 0}
+  flashDuration: 0
+  gemDropChance: 0
+  healthDropChance: 0
+  currentHealth: 0
+--- !u!114 &8045095767860685265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7590638160553505239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5263cc394c1aa343a18bf195a3f123d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyShooter
+  projectilePrefab: {fileID: 6705111437116058308, guid: 2161f725d633b5a4eb42a18adf4092a0, type: 3}
+  firePoint: {fileID: 1870796264192630513}
+  projectileCount: 2
+  spreadAngle: 10
+--- !u!114 &-1611677658845857159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7590638160553505239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 360bb03225e5daa46b2239700ad61060, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChasingShooterAI
+  shootingRange: 7
+  stoppingDistance: 5
 --- !u!1001 &2046907023499342977
 PrefabInstance:
   m_ObjectHideFlags: 0

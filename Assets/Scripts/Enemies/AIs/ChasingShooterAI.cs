@@ -14,6 +14,12 @@ public class ChasingShooterAI : MonoBehaviour
     private EnemyShooter shooter;
     private float cleanupYThreshold;
 
+    // --- NUOVE VARIABILI PER I CONFINI ---
+    private Camera mainCamera;
+    private float minX, maxX, minY, maxY;
+    private Vector2 spriteExtents;
+    // --- FINE NUOVE VARIABILI ---
+
     void Awake()
     {
         stats = GetComponent<EnemyStats>();
@@ -26,6 +32,24 @@ public class ChasingShooterAI : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         cleanupYThreshold = Camera.main.ViewportToWorldPoint(new Vector3(0, 0, 0)).y - 2f;
+
+        // --- NUOVA LOGICA: CALCOLO DINAMICO DEI CONFINI ---
+        mainCamera = Camera.main;
+        
+        // Calcoliamo la dimensione mezza larghezza e mezza altezza dello sprite
+        // per assicurarci che l'intero sprite rimanga visibile.
+        spriteExtents = GetComponent<SpriteRenderer>().bounds.extents;
+
+        // Troviamo i punti del mondo corrispondenti agli angoli dello schermo
+        Vector2 bottomLeft = mainCamera.ViewportToWorldPoint(new Vector3(0, 0, 0));
+        Vector2 topRight = mainCamera.ViewportToWorldPoint(new Vector3(1, 1, 0));
+
+        // Impostiamo i confini tenendo conto della dimensione dello sprite
+        minX = bottomLeft.x + spriteExtents.x;
+        maxX = topRight.x - spriteExtents.x;
+        minY = bottomLeft.y + spriteExtents.y;
+        maxY = topRight.y - spriteExtents.y;
+        // --- FINE NUOVA LOGICA ---
     }
 
     void Update()
@@ -46,6 +70,19 @@ public class ChasingShooterAI : MonoBehaviour
 
         HandleMovementAndShooting();
     }
+
+    // --- NUOVO METODO: LATEUPDATE PER IL CLAMPING ---
+    // LateUpdate viene eseguito dopo tutti gli Update, quindi è il posto perfetto
+    // per applicare correzioni finali alla posizione.
+    void LateUpdate()
+    {
+        // "Blocca" la posizione del nemico all'interno dei confini calcolati
+        Vector3 clampedPosition = transform.position;
+        clampedPosition.x = Mathf.Clamp(clampedPosition.x, minX, maxX);
+        clampedPosition.y = Mathf.Clamp(clampedPosition.y, minY, maxY);
+        transform.position = clampedPosition;
+    }
+    // --- FINE NUOVO METODO ---
 
     private void HandleMovementAndShooting()
     {
