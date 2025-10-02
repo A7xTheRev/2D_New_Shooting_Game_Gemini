@@ -210,7 +210,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 4.40075, y: 4.5}
+  m_AnchoredPosition: {x: 4.40075, y: 6.69}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!61 &27301182
@@ -2326,6 +2326,7 @@ MonoBehaviour:
   endlessBossPrefabs:
   - {fileID: 5860843275857830134, guid: 73c2fa898dcc5b74c9ebb6fbcb6ceba9, type: 3}
   - {fileID: 1147663369917697346, guid: 9a4afc9c52d0d4b4b8c8f283027fd63d, type: 3}
+  - {fileID: 6203975899621543097, guid: 4e89ff1fb7c5332479da56a93c21416c, type: 3}
   endlessSuperBossPrefab: {fileID: 2360865920486709351, guid: 9cd1657c2c9750f4ab79e9b95ab815f2, type: 3}
   endlessSuperBossStage: 20
   storyGrowthRate: 0.045

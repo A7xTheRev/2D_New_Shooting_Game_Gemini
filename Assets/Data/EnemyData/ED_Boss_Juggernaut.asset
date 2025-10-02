@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eda69b738cbace449a098635be1d68e9, type: 3}
-  m_Name: ED_Hunter
+  m_Name: ED_Boss_Juggernaut
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   allowStatScaling: 1
-  maxHealth: 80
-  moveSpeed: 2
-  contactDamage: 15
-  projectileDamage: 10
-  fireRate: 1.5
-  coinReward: 8
-  xpReward: 25
-  specialCurrencyReward: 1
-  gemDropChance: 0.03
-  healthDropChance: 0.05
+  maxHealth: 4000
+  moveSpeed: 1.5
+  contactDamage: 50
+  projectileDamage: 0
+  fireRate: 0
+  coinReward: 300
+  xpReward: 1000
+  specialCurrencyReward: 15
+  gemDropChance: 1
+  healthDropChance: 0.5
   hasDeathAnimation: 0
   flashColor: {r: 1, g: 0.30980393, b: 0.3372549, a: 0.8627451}
   flashDuration: 0.1
   deathVFXTag: EnemyExplosion
-  deathShakeDuration: 0
-  deathShakeMagnitude: 0
+  deathShakeDuration: 0.4
+  deathShakeMagnitude: 0.1
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}

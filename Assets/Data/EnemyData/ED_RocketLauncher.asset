@@ -15,11 +15,11 @@ MonoBehaviour:
   allowStatScaling: 1
   maxHealth: 150
   moveSpeed: 1.5
-  contactDamage: 15
+  contactDamage: 10
   projectileDamage: 0
   fireRate: 5
-  coinReward: 8
-  xpReward: 25
+  coinReward: 15
+  xpReward: 40
   specialCurrencyReward: 1
   gemDropChance: 0.03
   healthDropChance: 0.05

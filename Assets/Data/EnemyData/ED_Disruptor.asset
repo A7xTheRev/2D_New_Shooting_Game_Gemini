@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: ED_Disruptor
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   allowStatScaling: 1
-  maxHealth: 80
+  maxHealth: 120
   moveSpeed: 1.5
   contactDamage: 10
-  projectileDamage: 5
-  fireRate: 4
-  coinReward: 8
-  xpReward: 25
+  projectileDamage: 1
+  fireRate: 3.5
+  coinReward: 10
+  xpReward: 35
   specialCurrencyReward: 1
   gemDropChance: 0.03
   healthDropChance: 0.05

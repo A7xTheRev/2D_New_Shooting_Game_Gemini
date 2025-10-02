@@ -711,7 +711,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChasingShooterAI
   shootingRange: 7
-  stoppingDistance: 5
+  stoppingDistance: 6
 --- !u!1001 &2046907023499342977
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -174,4 +174,4 @@ MonoBehaviour:
   type: 2
   value: 25
   magnetSpeed: 8
-  timeBeforeMagnet: 0.5
+  timeBeforeMagnet: 1

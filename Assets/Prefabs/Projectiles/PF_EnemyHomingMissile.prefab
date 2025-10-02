@@ -201,8 +201,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 912930a67887f2d4a99ccfbd51f6b969, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHomingMissile
-  speed: 6
-  rotateSpeed: 250
+  speed: 5
+  rotateSpeed: 180
   damage: 25
   impactVFXTag: MissileExplosion
   homingDuration: 4
