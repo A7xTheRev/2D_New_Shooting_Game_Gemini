@@ -547,12 +547,12 @@ MonoBehaviour:
   buffDuration: 5
   buffColor: {r: 1, g: 0, b: 0, a: 1}
   buffVFXTag: HealPulse
-  shieldWallEnemyPrefab: {fileID: 2839590834492000749, guid: 8215937439e53974ea76ec0ec464cffc, type: 3}
-  shieldWallCount: 2
+  shieldWallEnemyPrefab: {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}
+  shieldWallCount: 4
   pincerAttackEnemyPrefab: {fileID: 2389486308191132201, guid: 0b255ee10f82e7143b40fc1a5f92d042, type: 3}
   pincerPairCount: 8
   overwhelmSwarmEnemyPrefab: {fileID: 8730231952669543138, guid: f031ba6778bf7af488af8497f76102ca, type: 3}
-  overwhelmSwarmCount: 50
+  overwhelmSwarmCount: 35
 --- !u!1001 &8798447387992845544
 PrefabInstance:
   m_ObjectHideFlags: 0

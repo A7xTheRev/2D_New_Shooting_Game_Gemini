@@ -57,6 +57,11 @@ public class DroneProjectile : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        if (other.CompareTag("Obstacle"))
+        {
+            Destroy(gameObject);
+            return;
+        }
         if (other.CompareTag("DeathZone"))
         {
             Destroy(gameObject);

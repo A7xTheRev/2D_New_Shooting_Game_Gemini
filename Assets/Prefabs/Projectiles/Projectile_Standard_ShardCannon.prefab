@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3088598570233527795}
   m_Layer: 10
   m_Name: Projectile_Standard_ShardCannon
-  m_TagString: Projectile
+  m_TagString: 'PlayerProjectile '
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

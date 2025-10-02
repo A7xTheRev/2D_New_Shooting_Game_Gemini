@@ -2321,15 +2321,22 @@ MonoBehaviour:
   - {fileID: 7499889512634669778, guid: 3a462d3c8b7648043b5f06dbfc01a853, type: 3}
   - {fileID: 8730231952669543138, guid: 675f5495df022e14f8dd04230b458cd0, type: 3}
   - {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}
-  endlessElitePrefabs:
-  - {fileID: 8996595999977987206, guid: 2da046ba7c5949c4db7650b4a4faffd1, type: 3}
-  - {fileID: 2839590834492000749, guid: 8215937439e53974ea76ec0ec464cffc, type: 3}
   endlessBossPrefabs:
   - {fileID: 6203975899621543097, guid: 4e89ff1fb7c5332479da56a93c21416c, type: 3}
   - {fileID: 5860843275857830134, guid: 73c2fa898dcc5b74c9ebb6fbcb6ceba9, type: 3}
   - {fileID: 1147663369917697346, guid: 9a4afc9c52d0d4b4b8c8f283027fd63d, type: 3}
   endlessSuperBossPrefab: {fileID: 2360865920486709351, guid: 9cd1657c2c9750f4ab79e9b95ab815f2, type: 3}
   endlessSuperBossStage: 20
+  eliteModifierPrefabs:
+  - {fileID: 4182542984646248472, guid: db94f8e207ef2664eb9067e03d2c5f9e, type: 3}
+  - {fileID: 2593946038037031173, guid: 90c284a6213b142469e304813e5558c0, type: 3}
+  eliteHealthMultiplier: 3
+  eliteDamageMultiplier: 2
+  eliteSpeedMultiplier: 1.2
+  eliteAttackSpeedMultiplier: 1.5
+  eliteCoinMultiplier: 5
+  eliteXpMultiplier: 4
+  eliteColorTint: {r: 0.88, g: 0.52, b: 1, a: 1}
   storyGrowthRate: 0.045
   endlessGrowthRate: 0.13
   enemiesPerStage: 8

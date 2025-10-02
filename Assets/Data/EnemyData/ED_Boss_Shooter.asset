@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ED_Boss_Shooter
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   allowStatScaling: 1
-  maxHealth: 4000
+  maxHealth: 2500
   moveSpeed: 1.5
   contactDamage: 50
   projectileDamage: 25

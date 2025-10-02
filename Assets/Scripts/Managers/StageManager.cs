@@ -2,16 +2,34 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class StageManager : MonoBehaviour
 {
     [Header("Configurazione Modalità Endless")]
     [Tooltip("Liste di prefab usate solo se si avvia la modalità Endless.")]
     public List<GameObject> endlessEnemyPrefabs;
-    public List<GameObject> endlessElitePrefabs;
+    // La lista degli elite prefab ora non è più necessaria, la lasciamo per retrocompatibilità ma non la useremo più
+    // public List<GameObject> endlessElitePrefabs; 
     public List<GameObject> endlessBossPrefabs;
     public GameObject endlessSuperBossPrefab;
     public int endlessSuperBossStage = 20;
+
+    // --- NUOVA SEZIONE PER GLI ELITE DINAMICI ---
+    [Header("Configurazione Elite Dinamici")]
+    [Tooltip("Trascina qui i 'Prefab dei Modificatori' che hai creato. Uno di questi verrà scelto casualmente per ogni Elite.")]
+    public List<GameObject> eliteModifierPrefabs;
+
+    // --- NUOVA SEZIONE DI CONFIGURAZIONE ---
+    [Header("Configurazione Statistiche Elite")]
+    public float eliteHealthMultiplier = 4f;
+    public float eliteDamageMultiplier = 2f;
+    public float eliteSpeedMultiplier = 1.2f;
+    public float eliteAttackSpeedMultiplier = 1.5f;
+    public float eliteCoinMultiplier = 5f;
+    public float eliteXpMultiplier = 4f;
+    public Color eliteColorTint = new Color(0.88f, 0.52f, 1f); // Viola
+    // --- FINE NUOVA SEZIONE ---
 
     [Header("Gestione Stage Globale")]
     // --- MODIFICA: Variabili di crescita separate ---
@@ -19,9 +37,8 @@ public class StageManager : MonoBehaviour
     public float storyGrowthRate = 0.05f;
     [Tooltip("Il tasso di crescita per la modalità Endless. Può essere più alto per una sfida crescente.")]
     public float endlessGrowthRate = 0.15f;
-    // --- FINE MODIFICA ---
     public int enemiesPerStage = 8;
-    public int stageToStartElites = 3; // Abbassato per vederli prima
+    public int stageToStartElites = 3;
     public float spawnY = 6f;
     public float spawnXMin = -8f;
     public float spawnXMax = 8f;
@@ -32,18 +49,16 @@ public class StageManager : MonoBehaviour
     [Range(0f, 1f)]
     public float eliteSpawnChance = 0.1f;
 
-    private int globalDifficultyLevel = 0;
     
-    [HideInInspector]
-    public int stageNumber = 1; // Rimosso dall'header, gestito internamente
-
-    private bool isSpawningWave = false;
-    private bool isBossWave = false;
-    private bool gameHasStarted = false;
-    private GameMode currentMode;
     private SectorData currentSector;
+    private GameMode currentMode;
+    private bool isSpawningWave;
+    private bool gameHasStarted; // = false
+    private float survivalTimer; // = 0f;
+    private int globalDifficultyLevel; //  = 0;
+    public int stageNumber = 1;
+    private bool isBossWave;
 
-    private float survivalTimer = 0f;
     
     void Start()
     {
@@ -153,7 +168,7 @@ public class StageManager : MonoBehaviour
                     
                     // 3. Carica la scena di vittoria
                     Time.timeScale = 1f;
-                    SceneManager.LoadScene("VictoryScene"); // <-- Carica la nuova scena
+                    SceneManager.LoadScene("VictoryScene");
                     return;
                     // --- FINE MODIFICA ---
                 }
@@ -222,40 +237,57 @@ public class StageManager : MonoBehaviour
     {
         yield return new WaitForSeconds(1.5f);
 
-        List<GameObject> enemiesToUse;
-        List<GameObject> elitesToUse;
+        List<GameObject> enemiesToUse = (currentMode == GameMode.Story && currentSector != null) ? currentSector.availableEnemies : endlessEnemyPrefabs;
 
-        if (currentMode == GameMode.Story)
-        {
-            // Ora usiamo direttamente le liste di prefab dal SectorData
-            enemiesToUse = currentSector.availableEnemies;
-            elitesToUse = currentSector.availableElites;
-        }
-        else
-        {
-            enemiesToUse = endlessEnemyPrefabs;
-            elitesToUse = endlessElitePrefabs;
-        }
-
-        // Per ora, questa logica rimane semplice come richiesto (archetipo "Mixed")
         for (int i = 0; i < enemiesPerStage; i++)
         {
-            GameObject prefabToSpawn;
-            // La probabilità di elite può dipendere anche dalla difficoltà globale!
-            float currentEliteChance = eliteSpawnChance + (globalDifficultyLevel * 0.01f);
+            // Scegli un prefab di nemico base
+            GameObject prefabToSpawn = enemiesToUse[UnityEngine.Random.Range(0, enemiesToUse.Count)];
             
-            if (stageNumber >= stageToStartElites && elitesToUse != null && elitesToUse.Count > 0 && Random.value < currentEliteChance)
-            {
-                prefabToSpawn = elitesToUse[Random.Range(0, elitesToUse.Count)];
-            }
-            else
-            {
-                prefabToSpawn = enemiesToUse[Random.Range(0, enemiesToUse.Count)];
-            }
-            float xPos = Random.Range(spawnXMin, spawnXMax);
+            float xPos = UnityEngine.Random.Range(spawnXMin, spawnXMax);
             Vector3 pos = new Vector3(xPos, spawnY, 0f);
-            SpawnEnemy(pos, prefabToSpawn);
-            float delay = Random.Range(spawnDelayMin, spawnDelayMax);
+
+            GameObject enemyInstance = Instantiate(prefabToSpawn, pos, prefabToSpawn.transform.rotation);
+
+            // Decidi se promuoverlo a Elite
+            float currentEliteChance = eliteSpawnChance + (globalDifficultyLevel * 0.01f);
+            if (stageNumber >= stageToStartElites && UnityEngine.Random.value < currentEliteChance)
+            {
+                // 1. Aggiungi il componente EliteStats
+                EliteStats eliteComponent = enemyInstance.AddComponent<EliteStats>();
+
+                // 2. Inizializzalo con i valori presi dallo StageManager
+                eliteComponent.Initialize(
+                    eliteHealthMultiplier, 
+                    eliteDamageMultiplier, 
+                    eliteSpeedMultiplier, 
+                    eliteAttackSpeedMultiplier, 
+                    eliteCoinMultiplier, 
+                    eliteXpMultiplier, 
+                    eliteColorTint
+                );
+                // --- FINE MODIFICA ---
+
+                // 3. Scegli e aggiungi un modificatore casuale
+                if (eliteModifierPrefabs != null && eliteModifierPrefabs.Count > 0)
+                {
+                    // Scegli un prefab di modificatore a caso dalla lista
+                    GameObject modifierPrefab = eliteModifierPrefabs[UnityEngine.Random.Range(0, eliteModifierPrefabs.Count)];
+                    EliteModifier sourceModifier = modifierPrefab.GetComponent<EliteModifier>();
+
+                    if (sourceModifier != null)
+                    {
+                        // Aggiungi un componente dello stesso TIPO del modificatore sorgente
+                        EliteModifier newModifier = enemyInstance.AddComponent(sourceModifier.GetType()) as EliteModifier;
+                        // Copia le proprietà configurate nel prefab sul nuovo componente
+                        newModifier.CopyProperties(sourceModifier);
+                        // Attiva il modificatore
+                        newModifier.Activate(enemyInstance.GetComponent<EnemyStats>());
+                    }
+                }
+            }
+
+            float delay = UnityEngine.Random.Range(spawnDelayMin, spawnDelayMax);
             yield return new WaitForSeconds(delay);
         }
         isSpawningWave = false;
@@ -266,7 +298,7 @@ public class StageManager : MonoBehaviour
         isBossWave = true;
         AudioManager.Instance.PlayMusic(AudioManager.Instance.bossMusic);
         yield return new WaitForSeconds(2.5f);
-        GameObject randomBossPrefab = endlessBossPrefabs[Random.Range(0, endlessBossPrefabs.Count)];
+        GameObject randomBossPrefab = endlessBossPrefabs[UnityEngine.Random.Range(0, endlessBossPrefabs.Count)];
         SpawnEnemy(new Vector3(0, spawnY, 0), randomBossPrefab);
         isSpawningWave = false;
     }

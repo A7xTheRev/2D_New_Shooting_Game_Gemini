@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: 5832953095027659781}
   m_Layer: 10
   m_Name: PF_HomingMissile
-  m_TagString: Untagged
+  m_TagString: 'PlayerProjectile '
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

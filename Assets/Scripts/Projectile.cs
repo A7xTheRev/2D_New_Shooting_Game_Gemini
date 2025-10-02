@@ -59,7 +59,6 @@ public class Projectile : MonoBehaviour
         if (rb != null) rb.linearVelocity = Vector2.zero;
         speed = baseSpeed;
 
-        // Resetta il contatore di perforazione all'attivazione
         currentPierceLeft = pierceCount;
         UpdateCameraBounds();
         CancelInvoke(nameof(Deactivate));
@@ -81,6 +80,13 @@ public class Projectile : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        // Controlla se colpisce un ostacolo (come lo scudo Falange)
+        if (other.CompareTag("Obstacle"))
+        {
+            Deactivate();
+            return;
+        }
+
         if (other.CompareTag("DeathZone"))
         {
             Deactivate();
@@ -182,7 +188,7 @@ public class Projectile : MonoBehaviour
         if (owner == null) return 0; // Modificato per non usare più baseDamage
 
         int finalDamage = Mathf.RoundToInt(owner.damage * damageMultiplier);
-        if (Random.value < owner.critChance)
+        if (UnityEngine.Random.value < owner.critChance)
         {
             isCrit = true;
             finalDamage = Mathf.RoundToInt(finalDamage * owner.critDamageMultiplier);
@@ -240,7 +246,7 @@ public class Projectile : MonoBehaviour
         rb.linearVelocity = direction.normalized * speed;
     }
 
-    void Deactivate()
+    public void Deactivate()
     {
         CancelInvoke(nameof(Deactivate));
         if (ProjectilePool.Instance != null && !string.IsNullOrEmpty(weaponType))
@@ -260,7 +266,10 @@ public class Projectile : MonoBehaviour
     {
         spriteRenderer.color = bounceFlashColor;
         yield return new WaitForSeconds(flashDuration);
+        if(spriteRenderer != null)
+        {
         spriteRenderer.color = originalColor;
+        }
     }
 
     void OnDrawGizmosSelected()

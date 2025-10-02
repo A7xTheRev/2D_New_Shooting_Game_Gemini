@@ -3,32 +3,36 @@ using UnityEngine;
 [RequireComponent(typeof(EnemyStats))]
 public class EliteStats : MonoBehaviour
 {
-    [Header("Moltiplicatori Statistiche Elite")]
-    public float healthMultiplier = 3f;
-    public float damageMultiplier = 2f;
-    public float speedMultiplier = 1.1f;
-    public float attackSpeedMultiplier = 1.5f;
+    // Queste variabili ora non hanno più bisogno di essere pubbliche,
+    // perché verranno impostate tramite il metodo Initialize.
+    private float healthMultiplier = 3f;
+    private float damageMultiplier = 2f;
+    private float speedMultiplier = 1.1f;
+    private float attackSpeedMultiplier = 1.5f;
+    private float coinMultiplier = 5f;
+    private float xpMultiplier = 4f;
+    private Color eliteColorTint = Color.red;
 
-    [Header("Moltiplicatori Ricompense Elite")]
-    public float coinMultiplier = 5f;
-    public float xpMultiplier = 4f;
+    // NUOVO METODO PUBBLICO
+    // Questo metodo viene chiamato dallo StageManager per configurare l'Elite
+    public void Initialize(float hpMult, float dmgMult, float spdMult, float atkSpdMult, float coinMult, float xpMult, Color color)
+    {
+        healthMultiplier = hpMult;
+        damageMultiplier = dmgMult;
+        speedMultiplier = spdMult;
+        attackSpeedMultiplier = atkSpdMult;
+        coinMultiplier = coinMult;
+        xpMultiplier = xpMult;
+        eliteColorTint = color;
+    }
 
-    // --- NUOVA SEZIONE ---
-    [Header("Aspetto Visivo Elite")]
-    [Tooltip("Il colore che assumerà lo sprite di questo nemico Elite.")]
-    public Color eliteColorTint = Color.red;
-    // --- FINE NUOVA SEZIONE ---
-
-    // --- METODO RINOMINATO DA Awake A Start ---
-    // In questo modo, siamo sicuri che venga eseguito DOPO l'Awake di EnemyStats,
-    // che ha già caricato i dati base dall'EnemyData.
     void Start()
     {
         EnemyStats stats = GetComponent<EnemyStats>();
 
         // Applica i moltiplicatori alle statistiche
         stats.maxHealth = Mathf.RoundToInt(stats.maxHealth * healthMultiplier);
-        stats.currentHealth = stats.maxHealth; // Assicurati di aggiornare anche la vita corrente
+        stats.currentHealth = stats.maxHealth;
         stats.contactDamage = Mathf.RoundToInt(stats.contactDamage * damageMultiplier);
         stats.projectileDamage = Mathf.RoundToInt(stats.projectileDamage * damageMultiplier);
         stats.moveSpeed *= speedMultiplier;
@@ -46,14 +50,12 @@ public class EliteStats : MonoBehaviour
         // Aumenta la scala
         transform.localScale *= 1.3f;
 
-        // --- NUOVA LOGICA PER IL COLORE ---
-        // Cerca lo SpriteRenderer e applica la tinta di colore
+        // Applica la tinta di colore
         SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
         {
             // Salva il colore originale modificato, per il flash
             stats.SetOriginalColorAfterEliteTint(eliteColorTint);
         }
-        // --- FINE NUOVA LOGICA ---
     }
 }

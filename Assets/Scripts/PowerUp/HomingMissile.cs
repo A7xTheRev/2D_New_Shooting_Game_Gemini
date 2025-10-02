@@ -99,6 +99,11 @@ public class HomingMissile : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        if (other.CompareTag("Obstacle"))
+        {
+            Explode(); // Usiamo Explode() per coerenza visiva
+            return;
+        }
         if (other.CompareTag("DeathZone"))
         {
             Destroy(gameObject);
@@ -111,20 +116,35 @@ public class HomingMissile : MonoBehaviour
             if (enemy != null && owner != null)
             {
                 int finalDamage = baseDamage + Mathf.RoundToInt(owner.abilityPower * abilityPowerScaling);
-                enemy.TakeDamage(finalDamage, true);
+                // Ho cambiato il secondo parametro in false, dato che i missili non dovrebbero fare critici di base
+                enemy.TakeDamage(finalDamage, false); 
             }
-
-            if (!string.IsNullOrEmpty(impactVFXTag))
-            {
-                GameObject vfx = VFXPool.Instance.GetVFX(impactVFXTag);
-                if (vfx != null)
-                {
-                    vfx.transform.position = transform.position;
-                }
-            }
-            
-            StopAllCoroutines();
-            Destroy(gameObject);
+            Explode();
         }
     }
+
+    // --- METODO MANCANTE AGGIUNTO QUI ---
+    void Explode()
+    {
+        if(rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0;
+        }
+        
+        if (VFXPool.Instance != null && !string.IsNullOrEmpty(impactVFXTag))
+        {
+            GameObject vfx = VFXPool.Instance.GetVFX(impactVFXTag);
+            if (vfx != null)
+            {
+                vfx.transform.position = transform.position;
+            }
+        }
+        
+        // Ferma la coroutine di ricerca bersaglio per evitare errori
+        StopAllCoroutines();
+        // Distrugge l'oggetto missile
+        Destroy(gameObject);
+    }
+    // --- FINE METODO AGGIUNTO ---
 }

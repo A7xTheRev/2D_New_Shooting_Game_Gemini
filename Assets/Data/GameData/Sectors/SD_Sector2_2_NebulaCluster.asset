@@ -20,8 +20,6 @@ MonoBehaviour:
   - {fileID: 2389486308191132201, guid: 0b255ee10f82e7143b40fc1a5f92d042, type: 3}
   - {fileID: 7590638160553505239, guid: 390f335d872880e439fc4a8f0cc6abda, type: 3}
   - {fileID: 3249201618266270041, guid: ed23aa86683143147832039ae5afc41d, type: 3}
-  availableElites:
-  - {fileID: 8996595999977987206, guid: 2da046ba7c5949c4db7650b4a4faffd1, type: 3}
-  - {fileID: 2839590834492000749, guid: 8215937439e53974ea76ec0ec464cffc, type: 3}
+  availableElites: []
   guardianBossPrefab: {fileID: 5860843275857830134, guid: 73c2fa898dcc5b74c9ebb6fbcb6ceba9, type: 3}
   backgroundTexture: {fileID: 2800000, guid: 5fb91ed0ef1b49244981da57ac09b456, type: 3}

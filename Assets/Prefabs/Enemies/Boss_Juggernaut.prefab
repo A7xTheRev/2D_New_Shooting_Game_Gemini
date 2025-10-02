@@ -955,7 +955,7 @@ MonoBehaviour:
   missileCountPerVolley: 2
   missileFireRate: 1.5
   missileBarrageDuration: 5
-  dashTelegraphDuration: 0.5
+  dashTelegraphDuration: 1.2
   dashSpeed: 20
   retreatSpeed: 6
   dashEndPauseDuration: 1

@@ -343,6 +343,12 @@ public class EnemyStats : MonoBehaviour
         if (isDying) return;
         isDying = true;
 
+        // Prima di tutto, controlla se c'è un modificatore e attiva il suo effetto di morte
+        EliteModifier modifier = GetComponent<EliteModifier>();
+        if (modifier != null)
+        {
+            modifier.OnDeath();
+        }
         // Effetti comuni a tutte le morti (disattiva collider, shake, suono)
         GetComponent<Collider2D>().enabled = false;
         if (GetComponent<Rigidbody2D>() != null) GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;

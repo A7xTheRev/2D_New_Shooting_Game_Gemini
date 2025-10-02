@@ -25,11 +25,16 @@ public class EnemyHomingMissile : MonoBehaviour
 
     // --- NUOVO STATO ---
     private bool isHoming = true;
-    // --- FINE NUOVO STATO ---
+
+    // --- NUOVE VARIABILI PER IL CONTROLLO DELLA VISIBILITÀ ---
+    private Renderer objectRenderer;
+    private bool hasBeenVisible = false;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        // Troviamo il componente Renderer nei figli dell'oggetto
+        objectRenderer = GetComponentInChildren<Renderer>();
     }
 
     void Start()
@@ -44,9 +49,26 @@ public class EnemyHomingMissile : MonoBehaviour
         // --- LOGICA MODIFICATA ---
         // Avvia il timer per smettere di inseguire
         Invoke(nameof(StopHoming), homingDuration);
-        // Imposta un timer di sicurezza per la distruzione totale
-        Destroy(gameObject, maxLifeTime);
-        // --- FINE MODIFICA ---
+    }
+
+    // Abbiamo rimosso OnBecameVisible e OnBecameInvisible
+    // e spostato la logica qui in Update.
+    void Update()
+    {
+        // Se non abbiamo ancora rilevato lo sprite, non facciamo nulla.
+        if (objectRenderer == null) return;
+
+        // Se l'oggetto diventa visibile per la prima volta, lo registriamo.
+        if (!hasBeenVisible && objectRenderer.isVisible)
+    {
+        hasBeenVisible = true;
+    }
+
+        // Se l'oggetto è già stato visibile e ORA non lo è più, lo distruggiamo.
+        if (hasBeenVisible && !objectRenderer.isVisible)
+        {
+            Destroy(gameObject); // Si distrugge silenziosamente fuori schermo
+        }
     }
 
     void FixedUpdate()
@@ -126,7 +148,8 @@ public class EnemyHomingMissile : MonoBehaviour
 
     void Explode()
     {
-        // Ferma il movimento per evitare che l'esplosione si sposti
+        if (this == null || gameObject == null) return;
+
         if(rb != null)
         {
             rb.linearVelocity = Vector2.zero;
