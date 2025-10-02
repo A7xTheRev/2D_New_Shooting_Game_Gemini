@@ -36,12 +36,13 @@ public class EnemyStats : MonoBehaviour
     private bool isDying = false;
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
+    private Animator animator;
+    private float originalMoveSpeed;
+
     private Coroutine flashCoroutine;
     private Coroutine burnCoroutine;
-    private Animator animator;
-
     private Coroutine slowCoroutine;
-    private float originalMoveSpeed;
+    private Coroutine buffCoroutine; // NUOVA COROUTINE PER I BUFF
 
     void Awake()
     {
@@ -87,6 +88,32 @@ public class EnemyStats : MonoBehaviour
         currentHealth = maxHealth;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
+
+    // --- NUOVA SEZIONE PER I BUFF ---
+    public void ApplySpeedBuff(float speedMultiplier, float duration, Color buffColor)
+    {
+        if (isDying) return;
+        if (buffCoroutine != null) StopCoroutine(buffCoroutine);
+        buffCoroutine = StartCoroutine(SpeedBuffCoroutine(speedMultiplier, duration, buffColor));
+    }
+
+    private IEnumerator SpeedBuffCoroutine(float multiplier, float duration, Color buffColor)
+    {
+        // Applica l'aumento di velocità e cambia colore
+        moveSpeed = originalMoveSpeed * multiplier;
+        if(spriteRenderer != null) spriteRenderer.color = buffColor;
+
+        yield return new WaitForSeconds(duration);
+
+        // Ripristina la velocità e il colore originali (se l'oggetto esiste ancora)
+        if(this != null) 
+        {
+            moveSpeed = originalMoveSpeed;
+            if (spriteRenderer != null) spriteRenderer.color = originalColor;
+        }
+        buffCoroutine = null;
+    }
+    // --- FINE NUOVA SEZIONE ---
 
     public void TakeDamage(int damageAmount, bool isCrit)
     {
@@ -212,7 +239,7 @@ public class EnemyStats : MonoBehaviour
     {
         spriteRenderer.color = flashColor;
         yield return new WaitForSeconds(flashDuration);
-        if (this != null)
+        if (this != null && spriteRenderer.color == flashColor)
         {
             spriteRenderer.color = originalColor;
         }

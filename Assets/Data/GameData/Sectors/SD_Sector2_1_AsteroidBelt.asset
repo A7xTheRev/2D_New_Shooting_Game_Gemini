@@ -15,12 +15,12 @@ MonoBehaviour:
   sectorName: Crystal Garden
   numberOfWaves: 15
   availableEnemies:
-  - {fileID: 7499889512634669778, guid: 3a462d3c8b7648043b5f06dbfc01a853, type: 3}
-  - {fileID: 8730231952669543138, guid: 675f5495df022e14f8dd04230b458cd0, type: 3}
   - {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}
   - {fileID: 1902516105903420111, guid: fa0042bb3244dfb4c8bffe022592cc3b, type: 3}
+  - {fileID: 428195181630711029, guid: a0694fa79e8c41247be2d6b812f4fb77, type: 3}
+  - {fileID: 7590638160553505239, guid: 390f335d872880e439fc4a8f0cc6abda, type: 3}
   availableElites:
   - {fileID: 8996595999977987206, guid: 2da046ba7c5949c4db7650b4a4faffd1, type: 3}
   - {fileID: 2839590834492000749, guid: 8215937439e53974ea76ec0ec464cffc, type: 3}
-  guardianBossPrefab: {fileID: 5860843275857830134, guid: 73c2fa898dcc5b74c9ebb6fbcb6ceba9, type: 3}
+  guardianBossPrefab: {fileID: 6203975899621543097, guid: 4e89ff1fb7c5332479da56a93c21416c, type: 3}
   backgroundTexture: {fileID: 2800000, guid: 21aebdaa5cc81ee40bf8c8379fdc0d2e, type: 3}

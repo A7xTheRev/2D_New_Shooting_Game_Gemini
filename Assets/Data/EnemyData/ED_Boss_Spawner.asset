@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: ED_Boss_Spawner
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   allowStatScaling: 1
-  maxHealth: 2500
+  maxHealth: 4000
   moveSpeed: 1.5
   contactDamage: 50
   projectileDamage: 0
   fireRate: 0
-  coinReward: 100
-  xpReward: 500
-  specialCurrencyReward: 5
+  coinReward: 300
+  xpReward: 1000
+  specialCurrencyReward: 15
   gemDropChance: 1
   healthDropChance: 0.5
   hasDeathAnimation: 0

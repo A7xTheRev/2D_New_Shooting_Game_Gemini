@@ -15,10 +15,10 @@ MonoBehaviour:
   sectorName: The Core Fleet
   numberOfWaves: 10
   availableEnemies:
-  - {fileID: 2389486308191132201, guid: 0b255ee10f82e7143b40fc1a5f92d042, type: 3}
-  - {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}
   - {fileID: 7186771976571656329, guid: e805cf1c1bde70541923f72a0104ffb1, type: 3}
   - {fileID: 1902516105903420111, guid: fa0042bb3244dfb4c8bffe022592cc3b, type: 3}
+  - {fileID: 2389486308191132201, guid: 0b255ee10f82e7143b40fc1a5f92d042, type: 3}
+  - {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}
   availableElites:
   - {fileID: 8996595999977987206, guid: 2da046ba7c5949c4db7650b4a4faffd1, type: 3}
   - {fileID: 2839590834492000749, guid: 8215937439e53974ea76ec0ec464cffc, type: 3}

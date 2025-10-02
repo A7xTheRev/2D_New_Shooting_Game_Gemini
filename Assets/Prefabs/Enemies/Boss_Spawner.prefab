@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 2239053182245447918}
   - component: {fileID: 4161406192713807998}
   - component: {fileID: 5832485439000891826}
-  - component: {fileID: 1419081386251119670}
+  - component: {fileID: 1910471798579813912}
   m_Layer: 9
   m_Name: Boss_Spawner
   m_TagString: Enemy
@@ -527,7 +527,7 @@ MonoBehaviour:
   gemDropChance: 0
   healthDropChance: 0
   currentHealth: 0
---- !u!114 &1419081386251119670
+--- !u!114 &1910471798579813912
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -536,17 +536,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 1147663369917697346}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c961376ea066a9499036443a1a0457c, type: 3}
+  m_Script: {fileID: 11500000, guid: 541229b4101e1824385b777731ae013a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BossRandomPatrolAI
-  waypointReachedThreshold: 0.1
-  patrolAreaPadding: 1
-  minionPrefabs:
-  - {fileID: 7499889512634669778, guid: 3a462d3c8b7648043b5f06dbfc01a853, type: 3}
-  - {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}
-  - {fileID: 2389486308191132201, guid: 0b255ee10f82e7143b40fc1a5f92d042, type: 3}
-  spawnInterval: 2
-  spawnPoint: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::BossFleetCommanderAI
+  patrolSpeed: 2
+  repositionDuration: 4
+  buffInterval: 12
+  buffRadius: 8
+  buffSpeedMultiplier: 1.5
+  buffDuration: 5
+  buffColor: {r: 1, g: 0, b: 0, a: 1}
+  buffVFXTag: HealPulse
+  shieldWallEnemyPrefab: {fileID: 2839590834492000749, guid: 8215937439e53974ea76ec0ec464cffc, type: 3}
+  shieldWallCount: 2
+  pincerAttackEnemyPrefab: {fileID: 2389486308191132201, guid: 0b255ee10f82e7143b40fc1a5f92d042, type: 3}
+  pincerPairCount: 8
+  overwhelmSwarmEnemyPrefab: {fileID: 8730231952669543138, guid: f031ba6778bf7af488af8497f76102ca, type: 3}
+  overwhelmSwarmCount: 50
 --- !u!1001 &8798447387992845544
 PrefabInstance:
   m_ObjectHideFlags: 0
