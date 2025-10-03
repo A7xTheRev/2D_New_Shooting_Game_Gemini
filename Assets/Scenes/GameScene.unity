@@ -2319,7 +2319,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ddf3bd5fbfcce048a0839bdac269ed2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StageManager
-  endlessEnemyPrefabs:
+  storyGrowthRate: 0.045
+  endlessModeType: 1
+  endlessGrowthRate: 0.13
+  endlessBossPrefabs:
+  - {fileID: 6203975899621543097, guid: 4e89ff1fb7c5332479da56a93c21416c, type: 3}
+  - {fileID: 5860843275857830134, guid: 73c2fa898dcc5b74c9ebb6fbcb6ceba9, type: 3}
+  - {fileID: 1147663369917697346, guid: 9a4afc9c52d0d4b4b8c8f283027fd63d, type: 3}
+  endlessSuperBossPrefab: {fileID: 2360865920486709351, guid: 9cd1657c2c9750f4ab79e9b95ab815f2, type: 3}
+  endlessFullEnemyPool:
   - {fileID: 3249201618266270041, guid: ed23aa86683143147832039ae5afc41d, type: 3}
   - {fileID: 1902516105903420111, guid: fa0042bb3244dfb4c8bffe022592cc3b, type: 3}
   - {fileID: 7590638160553505239, guid: 390f335d872880e439fc4a8f0cc6abda, type: 3}
@@ -2329,15 +2337,20 @@ MonoBehaviour:
   - {fileID: 7499889512634669778, guid: 3a462d3c8b7648043b5f06dbfc01a853, type: 3}
   - {fileID: 8730231952669543138, guid: 675f5495df022e14f8dd04230b458cd0, type: 3}
   - {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}
-  endlessBossPrefabs:
-  - {fileID: 6203975899621543097, guid: 4e89ff1fb7c5332479da56a93c21416c, type: 3}
-  - {fileID: 5860843275857830134, guid: 73c2fa898dcc5b74c9ebb6fbcb6ceba9, type: 3}
-  - {fileID: 1147663369917697346, guid: 9a4afc9c52d0d4b4b8c8f283027fd63d, type: 3}
-  endlessSuperBossPrefab: {fileID: 2360865920486709351, guid: 9cd1657c2c9750f4ab79e9b95ab815f2, type: 3}
   endlessSuperBossStage: 20
+  initialSpawnInterval: 1.5
+  minSpawnInterval: 0.5
+  timeToReachMinIntervalInMinutes: 15
+  initialEnemyCap: 5
+  maxEnemyCap: 20
+  timeToReachMaxCapInMinutes: 15
+  startingEnemyTypeCount: 3
+  newEnemyIntroductionInterval: 45
+  bossIntervalInMinutes: 5
   eliteModifierPrefabs:
   - {fileID: 4182542984646248472, guid: db94f8e207ef2664eb9067e03d2c5f9e, type: 3}
   - {fileID: 2593946038037031173, guid: 90c284a6213b142469e304813e5558c0, type: 3}
+  eliteSpawnChance: 0.1
   eliteHealthMultiplier: 3
   eliteDamageMultiplier: 2
   eliteSpeedMultiplier: 1.2
@@ -2345,16 +2358,10 @@ MonoBehaviour:
   eliteCoinMultiplier: 5
   eliteXpMultiplier: 4
   eliteColorTint: {r: 0.88, g: 0.52, b: 1, a: 1}
-  storyGrowthRate: 0.045
-  endlessGrowthRate: 0.13
   enemiesPerStage: 8
   stageToStartElites: 5
-  spawnY: 5.5
-  spawnXMin: -1.6
-  spawnXMax: 1.6
   spawnDelayMin: 0.5
   spawnDelayMax: 2
-  eliteSpawnChance: 0.1
   stageNumber: 1
 --- !u!4 &949205807
 Transform:
@@ -3444,6 +3451,7 @@ MonoBehaviour:
   panel: {fileID: 806822009}
   buttonsContainer: {fileID: 806822008}
   rerollButton: {fileID: 806822007}
+  hasMadeChoice: 0
 --- !u!1 &1725078738
 GameObject:
   m_ObjectHideFlags: 0

@@ -57,18 +57,15 @@ public class DroneProjectile : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Obstacle"))
-        {
-            Destroy(gameObject);
-            return;
-        }
-        if (other.CompareTag("DeathZone"))
+        if (other.CompareTag("Obstacle") || other.CompareTag("DeathZone"))
         {
             Destroy(gameObject);
             return;
         }
 
-        if (other.CompareTag("Enemy"))
+        // --- CORREZIONE APPLICATA QUI ---
+        // Ora il proiettile reagisce sia ai nemici normali che ai boss.
+        if (other.CompareTag("Enemy") || other.CompareTag("Boss"))
         {
             EnemyStats enemy = other.GetComponent<EnemyStats>();
             if (enemy != null)

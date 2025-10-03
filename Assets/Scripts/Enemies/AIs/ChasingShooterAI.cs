@@ -8,11 +8,14 @@ public class ChasingShooterAI : MonoBehaviour
     public float shootingRange = 7f;
     [Tooltip("La distanza minima che cercherà di mantenere dal giocatore. Utile per evitare che si avvicini troppo.")]
     public float stoppingDistance = 5f;
+    [Tooltip("La posizione Y a cui questo nemico si attiverà e inizierà a combattere.")]
+    public float engagementYPosition = 4.5f; // NUOVA VARIABILE
 
     private EnemyStats stats;
     private Transform player;
     private EnemyShooter shooter;
     private float cleanupYThreshold;
+    private bool isActivated = false; // NUOVA VARIABILE DI STATO
 
     // --- NUOVE VARIABILI PER I CONFINI ---
     private Camera mainCamera;
@@ -61,14 +64,22 @@ public class ChasingShooterAI : MonoBehaviour
             return;
         }
 
-        if (player == null)
+        // --- NUOVA LOGICA DI ATTIVAZIONE ---
+        if (!isActivated)
         {
-            // Se non c'è un giocatore, si comporta come un nemico base che scende lentamente
-            transform.position += Vector3.down * (stats.moveSpeed / 2) * Time.deltaTime;
-            return;
+            // Scende fino a raggiungere la posizione di ingaggio
+            transform.position += Vector3.down * stats.moveSpeed * Time.deltaTime;
+            if (transform.position.y <= engagementYPosition)
+            {
+                isActivated = true;
+            }
         }
-
+        else // Se è attivo, esegue la logica di combattimento
+        {
+            if (player == null) return;
         HandleMovementAndShooting();
+        }
+        // --- FINE NUOVA LOGICA ---
     }
 
     // --- NUOVO METODO: LATEUPDATE PER IL CLAMPING ---

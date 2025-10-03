@@ -357,7 +357,7 @@ GameObject:
   - component: {fileID: 4750538705721695385}
   m_Layer: 9
   m_Name: Boss_Juggernaut
-  m_TagString: Enemy
+  m_TagString: Boss
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

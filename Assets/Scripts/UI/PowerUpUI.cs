@@ -10,11 +10,14 @@ public class PowerUpUI : MonoBehaviour
     [Header("UI Panel")]
     public GameObject panel;
     public Transform buttonsContainer;
-    // La variabile 'buttonPrefab' è stata rimossa da qui.
     public Button rerollButton;
 
     private PlayerStats currentPlayer;
     private bool rerollUsedThisLevel;
+
+    // --- NUOVA VARIABILE PUBBLICA PER LA COMUNICAZIONE ---
+    [HideInInspector]
+    public bool hasMadeChoice = false;
 
     void Awake()
     {
@@ -29,10 +32,16 @@ public class PowerUpUI : MonoBehaviour
     // Accetta una lista del nuovo tipo PowerUpEffect
     public void ShowPowerUpChoices(List<PowerUpEffect> options, PlayerStats player)
     {
-        if (options == null || options.Count == 0) return;
+        if (options == null || options.Count == 0) 
+        {
+            // Se non ci sono opzioni, segnala subito di aver "scelto" per non bloccare il gioco.
+            hasMadeChoice = true;
+            return;
+        }
+
+        hasMadeChoice = false; // Resetta il flag all'inizio
         currentPlayer = player;
         panel.SetActive(true);
-        Time.timeScale = 0f;
 
         if (rerollButton != null)
         {
@@ -60,8 +69,8 @@ public class PowerUpUI : MonoBehaviour
             // 1. Controlla se il potenziamento ha un prefab di pulsante assegnato.
             if (pu.buttonPrefab == null)
             {
-                Debug.LogError($"Il potenziamento '{pu.displayName}' non ha un prefab di pulsante assegnato nel suo ScriptableObject!");
-                continue; // Salta questo potenziamento per evitare errori.
+                Debug.LogError($"Il potenziamento '{pu.displayName}' non ha un prefab di pulsante assegnato!");
+                continue;
             }
 
             // 2. Crea un'istanza del prefab specifico del potenziamento.
@@ -112,16 +121,17 @@ public class PowerUpUI : MonoBehaviour
         // Ora la UI si limita a dire al giocatore "acquisisci questo potenziamento".
         // Tutta la logica di applicazione e conteggio è centralizzata nel PlayerStats.
         currentPlayer.AcquirePowerUp(pu);
-        // --- FINE MODIFICA ---
+        AudioManager.Instance.PlaySound(AudioManager.Instance.powerUpSelectSound);
 
-        panel.SetActive(false);
-        Time.timeScale = 1f;
+        // --- MODIFICA CHIAVE: NON RIPRENDERE IL GIOCO, SEGNALA SOLO LA SCELTA ---
+        hasMadeChoice = true;
     }
+
     public void ShowEvolutionChoice(WeaponEvolutionData evolution, PlayerStats player, PlayerController controller)
     {
+        hasMadeChoice = false; // Resetta il flag
         currentPlayer = player;
         panel.SetActive(true);
-        Time.timeScale = 0f;
 
         if (rerollButton != null) rerollButton.gameObject.SetActive(false);
 
@@ -151,8 +161,18 @@ public class PowerUpUI : MonoBehaviour
         if (currentPlayer == null) return;
         
         EvolutionManager.Instance.EvolveWeapon(currentPlayer, controller, evolution);
+        AudioManager.Instance.PlaySound(AudioManager.Instance.powerUpSelectSound);
+
+        // --- MODIFICA CHIAVE: NON RIPRENDERE IL GIOCO, SEGNALA SOLO LA SCELTA ---
+        hasMadeChoice = true;
+    }
         
+    // --- NUOVO METODO PER NASCONDERE IL PANNELLO ---
+    public void HidePanel()
+    {
+        if(panel != null)
+        {
         panel.SetActive(false);
-        Time.timeScale = 1f;
+        }
     }
 }

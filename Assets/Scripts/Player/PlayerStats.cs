@@ -41,7 +41,10 @@ public class PlayerStats : MonoBehaviour
     // --- NUOVA VARIABILE DI STATO ---
     [HideInInspector]
     public bool isWeaponDisabled = false;
-    // --- FINE NUOVA VARIABILE ---
+
+    // --- NUOVE VARIABILI PER LA GESTIONE DEI LEVEL UP ---
+    private int pendingLevelUps = 0;
+    private bool isShowingPowerUpPanel = false;
 
     [Header("PowerUp Accumulati")]
     public float xpMultiplier = 1f;
@@ -234,6 +237,8 @@ public class PlayerStats : MonoBehaviour
     {
         int finalXP = Mathf.RoundToInt(amount * xpMultiplier);
         currentXP += finalXP;
+
+        // Continua a salire di livello finché c'è abbastanza XP
         while (currentXP >= xpToLevelUp)
         {
             currentXP -= xpToLevelUp;
@@ -326,17 +331,28 @@ public class PlayerStats : MonoBehaviour
     private void LevelUp()
     {
         level++;
+        pendingLevelUps++; // Aggiungi un level up alla coda
         xpToLevelUp = Mathf.RoundToInt(xpToLevelUp * 1.2f);
         AudioManager.Instance.PlaySound(AudioManager.Instance.levelUpSound);
         OnLevelUp?.Invoke(level);
+
+        // Se un processo di level up non è GIA' in corso, avvialo.
+        if (!isShowingPowerUpPanel)
+        {
         StartCoroutine(ShowLevelUpPanelSequence());
+        }
     }
 
     private IEnumerator ShowLevelUpPanelSequence()
     {
+        isShowingPowerUpPanel = true;
         yield return new WaitForSecondsRealtime(levelUpPanelDelay);
 
-        // --- NUOVO FLUSSO DI CONTROLLO ---
+        // Cicla finché ci sono level up in sospeso
+        while (pendingLevelUps > 0)
+        {
+            Time.timeScale = 0f; // Pausa all'inizio di ogni scelta
+
         PlayerController playerController = GetComponent<PlayerController>();
         WeaponEvolutionData availableEvolution = EvolutionManager.Instance.CheckForAvailableEvolutions(this, playerController.GetCurrentWeaponData());
 
@@ -355,6 +371,18 @@ public class PlayerStats : MonoBehaviour
                 PowerUpUI.Instance.ShowPowerUpChoices(options, this);
             }
         }
+
+            // Attendi finché la UI non ci dice che il giocatore ha scelto
+            yield return new WaitUntil(() => PowerUpUI.Instance.hasMadeChoice);
+
+            // Rimuovi un level up dalla coda dopo che la scelta è stata fatta
+            pendingLevelUps--;
+        }
+
+        // Una volta finiti tutti i level up, nascondi il pannello e riprendi il gioco
+        PowerUpUI.Instance.HidePanel();
+        Time.timeScale = 1f;
+        isShowingPowerUpPanel = false;
     }
 
     private IEnumerator InvulnerabilityCoroutine()
@@ -371,9 +399,9 @@ public class PlayerStats : MonoBehaviour
             if (spriteRenderer != null)
             {
                 spriteRenderer.color = new Color(1f, 0f, 0f, 0.5f);
-                yield return new WaitForSeconds(currentBlinkInterval);
+                yield return new WaitForSecondsRealtime(currentBlinkInterval);
                 spriteRenderer.color = originalColor;
-                yield return new WaitForSeconds(currentBlinkInterval);
+                yield return new WaitForSecondsRealtime(currentBlinkInterval);
             }
             totalElapsed += (currentBlinkInterval * 2);
         }
