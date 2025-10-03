@@ -27,6 +27,7 @@ public class MenuManager : MonoBehaviour
     public GameObject sectorSelectionPanel;
     public GameObject missionsPanel;
     public GameObject gameModeSelectionPanel;
+    public GameObject bestiaryPanel; // --- 1. NUOVO RIFERIMENTO ---
 
     [Header("Selezione Modalità di Gioco")]
     public List<WorldData> allWorlds;
@@ -143,6 +144,7 @@ public class MenuManager : MonoBehaviour
         if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
         if (missionsPanel != null) missionsPanel.SetActive(false);
         if (gameModeSelectionPanel != null) gameModeSelectionPanel.SetActive(false);
+        if (bestiaryPanel != null) bestiaryPanel.SetActive(false);
     }
 
     public void ShowMainPanel() { DeactivateAllPanels(); mainPanel.SetActive(true); }
@@ -151,6 +153,7 @@ public class MenuManager : MonoBehaviour
     public void ShowBackgroundPanel() { DeactivateAllPanels(); backgroundPanel.SetActive(true); }
     public void ShowShipPanel() { DeactivateAllPanels(); shipPanel.SetActive(true); }
     public void ShowMissionsPanel() { DeactivateAllPanels(); missionsPanel.SetActive(true); }
+    public void ShowBestiaryPanel() { DeactivateAllPanels(); bestiaryPanel.SetActive(true); }
     
     public void ShowWorldSelectionPanel()
     {

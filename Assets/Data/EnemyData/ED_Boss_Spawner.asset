@@ -30,3 +30,11 @@ MonoBehaviour:
   deathShakeDuration: 0.4
   deathShakeMagnitude: 0.1
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
+  enemySprite: {fileID: -419091381, guid: cef0f4e62a65e224888681d14b1b73d0, type: 3}
+  hasBestiaryEntry: 1
+  bestiaryKillRequirement: 10
+  bestiaryDescription: A command unit that orchestrates the battlefield by executing
+    tactical maneuvers, summoning specific formations of ships, and issuing battle
+    cries to empower its fleet
+  bestiaryCoinReward: 1000
+  bestiaryGemReward: 50

@@ -30,3 +30,10 @@ MonoBehaviour:
   deathShakeDuration: 0
   deathShakeMagnitude: 0
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
+  enemySprite: {fileID: -1945868233, guid: 0fbebffa307ba9349bb5aff00c9ce393, type: 3}
+  hasBestiaryEntry: 1
+  bestiaryKillRequirement: 40
+  bestiaryDescription: Fires a specialized energy projectile that does no physical
+    damage, but temporarily disables primary weapon systems upon impact
+  bestiaryCoinReward: 450
+  bestiaryGemReward: 15

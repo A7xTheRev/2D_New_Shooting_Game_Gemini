@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: 82fd923f8cc4aeb439a5b18d24734a38
+guid: b8b1b38f4ac353f40940039c5a8b2d0a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6691868436723663329
-    second: Superboss Sprite 2x2 v2_0
-  - first:
-      213: 6809301160179028938
-    second: Superboss Sprite 2x2 v2_1
-  - first:
-      213: 3581957468250738952
-    second: Superboss Sprite 2x2 v2_2
-  - first:
-      213: 6292660161825736587
-    second: Superboss Sprite 2x2 v2_3
+      213: -7738280208609323902
+    second: Mission Icon_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -148,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Superboss Sprite 2x2 v2_0
+      name: Mission Icon_0
       rect:
         serializedVersion: 2
-        x: 28
-        y: 591
-        width: 443
-        height: 387
+        x: 17
+        y: 3
+        width: 94
+        height: 123
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -163,74 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f1eff61ac15b123a0800000000000000
-      internalID: -6691868436723663329
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Superboss Sprite 2x2 v2_1
-      rect:
-        serializedVersion: 2
-        x: 528
-        y: 591
-        width: 443
-        height: 386
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: ac35025f35f7f7e50800000000000000
-      internalID: 6809301160179028938
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Superboss Sprite 2x2 v2_2
-      rect:
-        serializedVersion: 2
-        x: 28
-        y: 93
-        width: 443
-        height: 384
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 80194afd65ba5b130800000000000000
-      internalID: 3581957468250738952
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Superboss Sprite 2x2 v2_3
-      rect:
-        serializedVersion: 2
-        x: 528
-        y: 93
-        width: 443
-        height: 384
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b8700e5c315045750800000000000000
-      internalID: 6292660161825736587
+      spriteID: 284d761462b1c9490800000000000000
+      internalID: -7738280208609323902
       vertices: []
       indices: 
       edges: []
@@ -249,10 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Superboss Sprite 2x2 v2_0: -6691868436723663329
-      Superboss Sprite 2x2 v2_1: 6809301160179028938
-      Superboss Sprite 2x2 v2_2: 3581957468250738952
-      Superboss Sprite 2x2 v2_3: 6292660161825736587
+      Mission Icon_0: -7738280208609323902
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -17,19 +17,18 @@ public class SaveData
 
     public string equippedShipName;
     public List<string> unlockedShipNames = new List<string>();
-    
-    // --- NUOVI CAMPI PER LE MISSIONI ---
+
     // Salviamo i progressi attuali (es. "kill_kamikaze", 45)
     public List<string> missionProgressID = new List<string>();
     public List<int> missionProgressValue = new List<int>();
-    
+
     // Salviamo la lista delle missioni già completate e riscosse
     public List<string> claimedMissionsID = new List<string>();
 
     // --- NUOVI CAMPI PER LA PROGRESSIONE DEI SETTORI ---
     public List<string> sectorProgressID = new List<string>();
     public List<int> sectorProgressValue = new List<int>(); // Salverà il "numero magico"
-    // --- FINE NUOVI CAMPI ---
+    public List<string> claimedBestiaryRewardsID = new List<string>();
 }
 
 public static class SaveSystem

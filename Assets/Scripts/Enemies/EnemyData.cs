@@ -18,8 +18,7 @@ public class EnemyData : ScriptableObject
     public int coinReward = 5;
     public int xpReward = 20;
     public int specialCurrencyReward = 0; // Gemme garantite (es. per i boss)
-    
-    // --- NUOVI CAMPI PER I DROP CASUALI ---
+
     [Range(0f, 1f)]
     [Tooltip("La probabilità (da 0 a 1) che questo nemico rilasci una gemma alla morte.")]
     public float gemDropChance = 0.05f; // 5% di probabilità
@@ -27,7 +26,6 @@ public class EnemyData : ScriptableObject
     [Range(0f, 1f)]
     [Tooltip("La probabilità (da 0 a 1) che questo nemico rilasci un medikit.")]
     public float healthDropChance = 0.02f; // 2% di probabilità
-    // --- FINE NUOVI CAMPI ---
 
     [Header("Animazione")]
     public bool hasDeathAnimation = false;
@@ -43,4 +41,21 @@ public class EnemyData : ScriptableObject
 
     [Header("Effetti di Stato")]
     public GameObject burnVFX;
+
+    // --- NUOVA SEZIONE BESTIARIO ---
+    [Header("Bestiario")]
+    [Tooltip("L'icona/sprite di questo nemico che apparirà nel bestiario.")]
+    public Sprite enemySprite;
+    [Tooltip("Se spuntato, questo nemico avrà una voce nel bestiario.")]
+    public bool hasBestiaryEntry = true;
+    [Tooltip("Il numero di uccisioni richieste per sbloccare la voce completa.")]
+    public int bestiaryKillRequirement = 50;
+    [TextArea]
+    [Tooltip("La descrizione che apparirà nel bestiario una volta sbloccato.")]
+    public string bestiaryDescription;
+    [Tooltip("La ricompensa in monete (una tantum) per il completamento.")]
+    public int bestiaryCoinReward = 100;
+    [Tooltip("La ricompensa in gemme (una tantum) per il completamento.")]
+    public int bestiaryGemReward = 5;
+    // --- FINE NUOVA SEZIONE ---
 }

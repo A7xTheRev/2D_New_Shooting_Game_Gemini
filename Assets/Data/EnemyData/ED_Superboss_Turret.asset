@@ -30,3 +30,10 @@ MonoBehaviour:
   deathShakeDuration: 0.4
   deathShakeMagnitude: 0.1
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
+  enemySprite: {fileID: -2843817758614428538, guid: 7419a0ac4f908e146977a04d4fde7f3e, type: 3}
+  hasBestiaryEntry: 1
+  bestiaryKillRequirement: 25
+  bestiaryDescription: One of the automated defense turrets of the Void Core. A formidable
+    threat on its own, designed to protect the central command unit
+  bestiaryCoinReward: 750
+  bestiaryGemReward: 25

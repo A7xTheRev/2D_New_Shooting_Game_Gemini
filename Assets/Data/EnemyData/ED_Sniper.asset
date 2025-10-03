@@ -30,3 +30,10 @@ MonoBehaviour:
   deathShakeDuration: 0
   deathShakeMagnitude: 0
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
+  enemySprite: {fileID: 296169839, guid: d967cccf1642aa1419174612b92c3feb, type: 3}
+  hasBestiaryEntry: 1
+  bestiaryKillRequirement: 50
+  bestiaryDescription: This unit will cease its advance to deploy a high-caliber
+    energy cannon. Its powerful, long-range shots can cripple an unprepared pilot
+  bestiaryCoinReward: 400
+  bestiaryGemReward: 15

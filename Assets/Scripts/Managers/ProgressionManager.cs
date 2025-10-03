@@ -11,10 +11,7 @@ public class ProgressionManager : MonoBehaviour
     {
         get
         {
-            if (isQuitting)
-            {
-                return null;
-            }
+            if (isQuitting) return null;
             if (_instance == null)
             {
                 _instance = FindFirstObjectByType<ProgressionManager>();
@@ -58,6 +55,7 @@ public class ProgressionManager : MonoBehaviour
 
     // Dati progressione settori
     private Dictionary<string, int> sectorProgress = new Dictionary<string, int>();
+    private HashSet<string> claimedBestiaryRewards = new HashSet<string>();
 
     public static event System.Action OnValuesChanged;
 
@@ -129,6 +127,8 @@ public class ProgressionManager : MonoBehaviour
         {
             sectorProgress[data.sectorProgressID[i]] = data.sectorProgressValue[i];
         }
+
+        claimedBestiaryRewards = new HashSet<string>(data.claimedBestiaryRewardsID);
     }
 
     void SaveData()
@@ -152,24 +152,16 @@ public class ProgressionManager : MonoBehaviour
         data.missionProgressID = missionProgress.Keys.ToList();
         data.missionProgressValue = missionProgress.Values.ToList();
         data.claimedMissionsID = claimedMissions.ToList();
-        
         data.sectorProgressID = sectorProgress.Keys.ToList();
         data.sectorProgressValue = sectorProgress.Values.ToList();
+        data.claimedBestiaryRewardsID = claimedBestiaryRewards.ToList();
 
         SaveSystem.SaveGame(data);
     }
 
-    public int GetMaxWave()
-    {
-        return maxWaveReached;
-    }
+    public int GetMaxWave() => maxWaveReached;
+    public int GetMaxCoins() => maxCoinsInSession;
 
-    public int GetMaxCoins()
-    {
-        return maxCoinsInSession;
-    }
-
-    // Questo metodo controlla se abbiamo stabilito nuovi record e restituisce true se è così
     public bool CheckForNewHighScores(int currentWave, int currentCoins)
     {
         bool newRecord = false;
@@ -191,15 +183,8 @@ public class ProgressionManager : MonoBehaviour
     }
     // --- FINE NUOVI METODI ---
 
-    public int GetCoins()
-    {
-        return coins;
-    }
-
-    public int GetSpecialCurrency()
-    {
-        return specialCurrency;
-    }
+    public int GetCoins() => coins;
+    public int GetSpecialCurrency() => specialCurrency;
 
     public void AddCoins(int value)
     {
@@ -216,10 +201,7 @@ public class ProgressionManager : MonoBehaviour
         OnValuesChanged?.Invoke();
     }
 
-    public bool CanAfford(PermanentUpgrade upgrade)
-    {
-        return coins >= upgrade.GetNextLevelCost();
-    }
+    public bool CanAfford(PermanentUpgrade upgrade) => coins >= upgrade.GetNextLevelCost();
 
     public void BuyUpgrade(PermanentUpgradeType type)
     {
@@ -236,21 +218,14 @@ public class ProgressionManager : MonoBehaviour
         }
     }
 
-    public PermanentUpgrade GetUpgrade(PermanentUpgradeType type)
-    {
-        return availableUpgrades.Find(u => u.upgradeType == type);
-    }
-
+    public PermanentUpgrade GetUpgrade(PermanentUpgradeType type) => availableUpgrades.Find(u => u.upgradeType == type);
     public float GetTotalBonus(PermanentUpgradeType type)
     {
         PermanentUpgrade u = GetUpgrade(type);
         return u != null ? u.currentLevel * u.bonusPerLevel : 0f;
     }
 
-    public bool CanAfford(SpecialAbility ability)
-    {
-        return specialCurrency >= ability.cost;
-    }
+    public bool CanAfford(SpecialAbility ability) => specialCurrency >= ability.cost;
 
     public void BuySpecialUpgrade(AbilityID id)
     {
@@ -290,10 +265,7 @@ public class ProgressionManager : MonoBehaviour
         }
     }
 
-    public ShipData GetEquippedShip()
-    {
-        return allShips.Find(s => s.shipName == equippedShipName);
-    }
+    public ShipData GetEquippedShip() => allShips.Find(s => s.shipName == equippedShipName);
 
     public void SetEquippedShip(ShipData ship)
     {
@@ -304,10 +276,7 @@ public class ProgressionManager : MonoBehaviour
         }
     }
 
-    public bool IsShipUnlocked(string shipName)
-    {
-        return unlockedShipNamesSet.Contains(shipName);
-    }
+    public bool IsShipUnlocked(string shipName) => unlockedShipNamesSet.Contains(shipName);
 
     public void UnlockShip(string shipName)
     {
@@ -339,6 +308,7 @@ public class ProgressionManager : MonoBehaviour
         missionProgress.Clear(); 
         claimedMissions.Clear(); 
         sectorProgress.Clear();
+        claimedBestiaryRewards.Clear();
         
         // 3. Imposta esplicitamente lo stato della navicella di default
         ShipData defaultShip = allShips.Find(s => s.isDefaultShip);
@@ -363,12 +333,21 @@ public class ProgressionManager : MonoBehaviour
         Debug.Log("Progresso resettato e nuovo stato iniziale salvato correttamente.");
     }
     
-    // --- METODI PER LE MISSIONI ---
-
+    // --- METODI MISSIONI ---
     public void AddEnemyKill(string enemyPrefabName)
     {
         UpdateMissionProgress(MissionType.KILL_ENEMIES_TOTAL, 1);
         UpdateMissionProgress(MissionType.KILL_ENEMIES_OF_TYPE, 1, enemyPrefabName);
+        
+        // Aggiorna anche il conteggio per il bestiario, usando il nome del prefab come ID
+        if (missionProgress.ContainsKey(enemyPrefabName))
+        {
+            missionProgress[enemyPrefabName]++;
+        }
+        else
+        {
+            missionProgress[enemyPrefabName] = 1;
+        }
     }
 
     public void AddCoinsCollected(int amount)
@@ -425,22 +404,14 @@ public class ProgressionManager : MonoBehaviour
         }
     }
     
-    public int GetMissionProgress(string missionID)
-    {
-        return missionProgress.ContainsKey(missionID) ? missionProgress[missionID] : 0;
-    }
-
+    public int GetMissionProgress(string missionID) => missionProgress.ContainsKey(missionID) ? missionProgress[missionID] : 0;
     public bool IsMissionComplete(string missionID)
     {
         MissionData mission = allMissions.Find(m => m.missionID == missionID);
         if (mission == null) return false;
         return GetMissionProgress(missionID) >= mission.targetValue;
     }
-
-    public bool IsMissionClaimed(string missionID)
-    {
-        return claimedMissions.Contains(missionID);
-    }
+    public bool IsMissionClaimed(string missionID) => claimedMissions.Contains(missionID);
 
     public void ClaimMissionReward(string missionID)
     {
@@ -458,8 +429,7 @@ public class ProgressionManager : MonoBehaviour
         }
     }
 
-    // --- NUOVI METODI PER LA PROGRESSIONE DEI SETTORI ---
-    
+    // --- METODI PROGRESSIONE SETTORI ---
     public void SetSectorProgress(string sectorID, SectorObjective objectivesAchieved)
     {
         int oldProgress = GetSectorProgressValue(sectorID);
@@ -469,46 +439,47 @@ public class ProgressionManager : MonoBehaviour
         {
             sectorProgress[sectorID] = newProgress;
             SaveData();
-            
+
             // --- MODIFICA APPLICATA QUI ---
             if (DebugManager.Instance != null && DebugManager.Instance.showSectorProgressLogs)
             {
-            Debug.Log($"Progresso per il settore '{sectorID}' aggiornato a: {newProgress}");
+                Debug.Log($"Progresso per il settore '{sectorID}' aggiornato a: {newProgress}");
             }
         }
     }
-
-    private int GetSectorProgressValue(string sectorID)
-    {
-        return sectorProgress.ContainsKey(sectorID) ? sectorProgress[sectorID] : 0;
-    }
-
+    private int GetSectorProgressValue(string sectorID) => sectorProgress.ContainsKey(sectorID) ? sectorProgress[sectorID] : 0;
     public bool IsObjectiveComplete(string sectorID, SectorObjective objective)
     {
         int progress = GetSectorProgressValue(sectorID);
         return (progress & (int)objective) == (int)objective;
     }
-
     public int GetStarCount(string sectorID)
     {
-        if (!sectorProgress.ContainsKey(sectorID))
-        {
-            return 0;
-        }
+        if (!sectorProgress.ContainsKey(sectorID)) return 0;
+        
         int progress = GetSectorProgressValue(sectorID);
         int starCount = 0;
-        if ((progress & (int)SectorObjective.SECTOR_COMPLETED) != 0)
-        {
-            starCount++;
-        }
-        if ((progress & (int)SectorObjective.HEALTH_OVER_70_PERCENT) != 0)
-        {
-            starCount++;
-        }
-        if ((progress & (int)SectorObjective.NO_DAMAGE_TAKEN) != 0)
-        {
-            starCount++;
-        }
+        if ((progress & (int)SectorObjective.SECTOR_COMPLETED) != 0) starCount++;
+        if ((progress & (int)SectorObjective.HEALTH_OVER_70_PERCENT) != 0) starCount++;
+        if ((progress & (int)SectorObjective.NO_DAMAGE_TAKEN) != 0) starCount++;
         return starCount;
     }
+
+    // --- NUOVI METODI BESTIARIO ---
+    public void ClaimBestiaryReward(EnemyData enemyData)
+    {
+        if (enemyData == null || IsBestiaryRewardClaimed(enemyData.name)) return;
+        
+        int killCount = GetMissionProgress(enemyData.name);
+        if (killCount >= enemyData.bestiaryKillRequirement)
+        {
+            AddCoins(enemyData.bestiaryCoinReward);
+            AddSpecialCurrency(enemyData.bestiaryGemReward);
+            claimedBestiaryRewards.Add(enemyData.name);
+            SaveData();
+            OnValuesChanged?.Invoke();
+            Debug.Log($"Ricompensa del bestiario per '{enemyData.name}' riscattata!");
+        }
+    }
+    public bool IsBestiaryRewardClaimed(string enemyID) => claimedBestiaryRewards.Contains(enemyID);
 }

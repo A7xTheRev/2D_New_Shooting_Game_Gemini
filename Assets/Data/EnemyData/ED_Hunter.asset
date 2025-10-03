@@ -30,3 +30,11 @@ MonoBehaviour:
   deathShakeDuration: 0
   deathShakeMagnitude: 0
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
+  enemySprite: {fileID: -359354681, guid: 179ab00f9217fff40829bbd1acd705fe, type: 3}
+  hasBestiaryEntry: 1
+  bestiaryKillRequirement: 60
+  bestiaryDescription: An aggressive assault drone that actively pursues its target
+    while firing. It attempts to maintain an optimal combat distance, making it a
+    constant threat
+  bestiaryCoinReward: 400
+  bestiaryGemReward: 15

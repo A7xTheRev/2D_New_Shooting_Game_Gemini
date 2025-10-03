@@ -30,3 +30,11 @@ MonoBehaviour:
   deathShakeDuration: 0.4
   deathShakeMagnitude: 0.1
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
+  enemySprite: {fileID: 981002807, guid: 70c69d39597b91c448bf3e45fffec7b5, type: 3}
+  hasBestiaryEntry: 1
+  bestiaryKillRequirement: 10
+  bestiaryDescription: A heavily armed dreadnought that cycles through multiple weapon
+    systems at random, from bullet spreads to homing missiles and devastating physical
+    charges
+  bestiaryCoinReward: 1000
+  bestiaryGemReward: 50

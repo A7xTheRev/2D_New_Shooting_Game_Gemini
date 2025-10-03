@@ -27,6 +27,14 @@ MonoBehaviour:
   flashColor: {r: 1, g: 0.30980393, b: 0.3372549, a: 0.8627451}
   flashDuration: 0.1
   deathVFXTag: EnemyExplosion
-  deathShakeDuration: 1
-  deathShakeMagnitude: 0.2
+  deathShakeDuration: 0.5
+  deathShakeMagnitude: 0.15
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
+  enemySprite: {fileID: 5093935317972156845, guid: 0b9388eb20b4970498ed92ff2c27be57, type: 3}
+  hasBestiaryEntry: 1
+  bestiaryKillRequirement: 5
+  bestiaryDescription: The heart of the Void fleet's command ship. Exposed only after
+    its primary defenses are destroyed, it can unleash devastating energy attacks
+    at close range
+  bestiaryCoinReward: 2500
+  bestiaryGemReward: 100

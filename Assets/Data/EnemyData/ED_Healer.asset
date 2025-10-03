@@ -30,3 +30,10 @@ MonoBehaviour:
   deathShakeDuration: 0
   deathShakeMagnitude: 0
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
+  enemySprite: {fileID: 1435521033, guid: c6e0acd00825c8a448afe76365e5662b, type: 3}
+  hasBestiaryEntry: 1
+  bestiaryKillRequirement: 30
+  bestiaryDescription: An unarmed support unit that emits periodic energy pulses
+    to repair nearby allied ships. A high-priority target in any engagement
+  bestiaryCoinReward: 500
+  bestiaryGemReward: 20
