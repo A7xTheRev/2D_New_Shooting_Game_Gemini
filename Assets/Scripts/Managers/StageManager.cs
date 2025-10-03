@@ -189,7 +189,7 @@ public class StageManager : MonoBehaviour
     public void BeginSpawning()
     {
         gameHasStarted = true;
-        if(currentMode == GameMode.Story || (currentMode == GameMode.Endless && endlessModeType == EndlessModeType.Waves))
+        if (currentMode == GameMode.Story || (currentMode == GameMode.Endless && endlessModeType == EndlessModeType.Waves))
         {
             isSpawningWave = true;
             StartCoroutine(SpawnStageCoroutine());
@@ -239,19 +239,36 @@ public class StageManager : MonoBehaviour
 
     void UpdateEndlessContinuousMode()
     {
-        if (endlessState == EndlessContinuousState.Spawning)
+        switch (endlessState)
         {
-            // Logica di spawn normale
+            case EndlessContinuousState.Spawning:
+                HandleContinuousSpawning();
+                break;
+            case EndlessContinuousState.BossTransition:
+                break;
+            case EndlessContinuousState.BossFight:
+                if (GameObject.FindGameObjectWithTag("Boss") == null)
+        {
+                    EndBossFight();
+                }
+                break;
+        }
+    }
+
+    void HandleContinuousSpawning()
+    {
             float timeInSeconds = survivalTimer;
             float capLerpFactor = Mathf.Clamp01(timeInSeconds / (timeToReachMaxCapInMinutes * 60f));
             currentEnemyCap = Mathf.RoundToInt(Mathf.Lerp(initialEnemyCap, maxEnemyCap, capLerpFactor));
             float intervalLerpFactor = Mathf.Clamp01(timeInSeconds / (timeToReachMinIntervalInMinutes * 60f));
             currentSpawnInterval = Mathf.Lerp(initialSpawnInterval, minSpawnInterval, intervalLerpFactor);
+        
             if (newEnemyTimer <= 0)
             {
                 AddNewEnemyToPool();
                 newEnemyTimer = newEnemyIntroductionInterval;
             }
+        
             spawnTimer -= Time.deltaTime;
             if (spawnTimer <= 0)
             {
@@ -261,25 +278,17 @@ public class StageManager : MonoBehaviour
                 }
                 spawnTimer = currentSpawnInterval;
             }
+        
             if (bossTimer <= 0)
             {
                 StartBossFight();
-            }
-        }
-        else if (endlessState == EndlessContinuousState.BossFight)
-        {
-            // Controlla se il boss è stato sconfitto
-            if (GameObject.FindGameObjectWithTag("Boss") == null)
-            {
-                EndBossFight();
-            }
         }   
     }
     
     void StartBossFight()
     {
         Debug.Log("INIZIO COMBATTIMENTO BOSS!");
-        endlessState = EndlessContinuousState.BossTransition; // Stato di attesa
+        endlessState = EndlessContinuousState.BossTransition;
         StartCoroutine(SpawnBossCoroutine());
     }
 
@@ -317,7 +326,96 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    void PromoteToElite(GameObject enemyInstance)
+    public void SpawnEnemy(Vector3 position, GameObject enemyToSpawn)
+    {
+        if (enemyToSpawn == null) return;
+        GameObject e = Instantiate(enemyToSpawn, position, enemyToSpawn.transform.rotation);
+        EnemyStats es = e.GetComponent<EnemyStats>();
+        if (es != null) // Sempre vero se il prefab è corretto
+        {
+            if (es.allowStatScaling)
+            {
+                // Applica lo scaling chiamando il nuovo metodo centralizzato in EnemyStats
+                es.ApplyStatScaling(GetCurrentStatMultiplier());
+            }
+
+            SuperBossAI superBoss = e.GetComponent<SuperBossAI>();
+            if (superBoss != null) 
+            {
+                superBoss.InitializeBoss(GetCurrentStatMultiplier());
+            }
+        }
+
+        if (e.CompareTag("Untagged"))
+        {
+            e.tag = "Enemy";
+        }
+    }
+
+    private IEnumerator SpawnStageCoroutine()
+    {
+        yield return new WaitForSeconds(1.5f);
+        List<GameObject> enemiesToUse = (currentMode == GameMode.Story && currentSector != null) ? currentSector.availableEnemies : endlessFullEnemyPool;
+
+        if (enemiesToUse == null || enemiesToUse.Count == 0)
+        {
+            isSpawningWave = false;
+            yield break;
+        }
+
+        for (int i = 0; i < enemiesPerStage; i++)
+        {
+            GameObject prefabToSpawn = enemiesToUse[UnityEngine.Random.Range(0, enemiesToUse.Count)];
+            float enemyWidth = prefabToSpawn.GetComponent<SpriteRenderer>().bounds.extents.x;
+            float safeSpawnXMin = spawnXMin + enemyWidth;
+            float safeSpawnXMax = spawnXMax - enemyWidth;
+            float xPos = UnityEngine.Random.Range(safeSpawnXMin, safeSpawnXMax);
+            Vector3 pos = new Vector3(xPos, spawnY, 0f);
+            
+            // Usiamo il metodo SpawnEnemy per creare e scalare il nemico
+            SpawnEnemy(pos, prefabToSpawn);
+            
+            // La logica per gli Elite è gestita qui, DOPO lo spawn base
+            GameObject[] currentEnemies = GameObject.FindGameObjectsWithTag("Enemy");
+            if(currentEnemies.Length > 0)
+            {
+                GameObject lastSpawned = currentEnemies[currentEnemies.Length-1];
+                float currentEliteChance = eliteSpawnChance + (globalDifficultyLevel * 0.01f);
+                if (stageNumber >= stageToStartElites && UnityEngine.Random.value < currentEliteChance)
+                {
+                    PromoteToElite(lastSpawned);
+                }
+            }
+
+            float delay = UnityEngine.Random.Range(spawnDelayMin, spawnDelayMax);
+            yield return new WaitForSeconds(delay);
+        }
+        isSpawningWave = false;
+    }
+
+    void SpawnRandomEndlessEnemy()
+    {
+        if (activeSpawnPool.Count == 0) return;
+        GameObject prefabToSpawn = activeSpawnPool[UnityEngine.Random.Range(0, activeSpawnPool.Count)];
+        
+        float enemyWidth = prefabToSpawn.GetComponent<SpriteRenderer>().bounds.extents.x;
+        float safeSpawnXMin = spawnXMin + enemyWidth;
+        float safeSpawnXMax = spawnXMax - enemyWidth;
+        float xPos = UnityEngine.Random.Range(safeSpawnXMin, safeSpawnXMax);
+        Vector3 pos = new Vector3(xPos, spawnY, 0f);
+
+        // Usiamo il metodo SpawnEnemy per creare e scalare il nemico
+        GameObject enemyInstance = Instantiate(prefabToSpawn, pos, prefabToSpawn.transform.rotation);
+        enemyInstance.GetComponent<EnemyStats>()?.ApplyStatScaling(GetCurrentStatMultiplier());
+
+        float eliteIntroTimeInMinutes = 1f;
+        if (survivalTimer / 60f > eliteIntroTimeInMinutes && UnityEngine.Random.value < eliteSpawnChance)
+        {
+            PromoteToElite(enemyInstance);
+        }
+    }
+
+    private void PromoteToElite(GameObject enemyInstance)
     {
         EliteStats eliteComponent = enemyInstance.AddComponent<EliteStats>();
         eliteComponent.Initialize(eliteHealthMultiplier, eliteDamageMultiplier, eliteSpeedMultiplier, eliteAttackSpeedMultiplier, eliteCoinMultiplier, eliteXpMultiplier, eliteColorTint);
@@ -353,92 +451,6 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    public void SpawnEnemy(Vector3 position, GameObject enemyToSpawn)
-    {
-        if (enemyToSpawn == null) return;
-        GameObject e = Instantiate(enemyToSpawn, position, enemyToSpawn.transform.rotation);
-        EnemyStats es = e.GetComponent<EnemyStats>();
-        if (es != null && es.allowStatScaling)
-        {
-            float multiplier = GetCurrentStatMultiplier();
-            es.maxHealth = Mathf.RoundToInt(es.maxHealth * multiplier);
-            es.currentHealth = es.maxHealth;
-            SuperBossAI superBoss = e.GetComponent<SuperBossAI>();
-            if (superBoss != null) superBoss.InitializeBoss(multiplier);
-        }
-        // --- CORREZIONE BUG TAG ---
-        // Se il prefab non ha un tag, gli diamo "Enemy". Altrimenti, rispettiamo il suo tag (es. "Boss").
-        if (e.CompareTag("Untagged"))
-        {
-            e.tag = "Enemy";
-        }
-        // --- FINE CORREZIONE ---
-    }
-
-    private IEnumerator SpawnStageCoroutine()
-    {
-        yield return new WaitForSeconds(1.5f);
-
-        // --- MODIFICA CHIAVE QUI ---
-        // Ora entrambe le modalità (Storia e Endless a Ondate) sanno da dove pescare i nemici.
-        List<GameObject> enemiesToUse;
-        if (currentMode == GameMode.Story && currentSector != null)
-        {
-            enemiesToUse = currentSector.availableEnemies;
-        }
-        else // Se è Endless (a ondate) usa la nuova lista unificata
-        {
-            enemiesToUse = endlessFullEnemyPool;
-        }
-        // --- FINE MODIFICA ---
-
-        if (enemiesToUse == null || enemiesToUse.Count == 0)
-        {
-            Debug.LogError("La lista dei nemici per la modalità corrente è vuota! Interrompo lo spawn.");
-            isSpawningWave = false;
-            yield break;
-        }
-        for (int i = 0; i < enemiesPerStage; i++)
-        {
-            GameObject prefabToSpawn = enemiesToUse[UnityEngine.Random.Range(0, enemiesToUse.Count)];
-        float enemyWidth = prefabToSpawn.GetComponent<SpriteRenderer>().bounds.extents.x;
-        float safeSpawnXMin = spawnXMin + enemyWidth;
-        float safeSpawnXMax = spawnXMax - enemyWidth;
-        float xPos = UnityEngine.Random.Range(safeSpawnXMin, safeSpawnXMax);
-            Vector3 pos = new Vector3(xPos, spawnY, 0f);
-            GameObject enemyInstance = Instantiate(prefabToSpawn, pos, prefabToSpawn.transform.rotation);
-            float currentEliteChance = eliteSpawnChance + (globalDifficultyLevel * 0.01f);
-            if (stageNumber >= stageToStartElites && UnityEngine.Random.value < currentEliteChance)
-            {
-                PromoteToElite(enemyInstance);
-            }
-            float delay = UnityEngine.Random.Range(spawnDelayMin, spawnDelayMax);
-            yield return new WaitForSeconds(delay);
-        }
-        isSpawningWave = false;
-    }
-
-    void SpawnRandomEndlessEnemy()
-    {
-        if (activeSpawnPool.Count == 0) return;
-        GameObject prefabToSpawn = activeSpawnPool[UnityEngine.Random.Range(0, activeSpawnPool.Count)];
-        
-    // --- CORREZIONE SPAWN LATERALE ---
-    float enemyWidth = prefabToSpawn.GetComponent<SpriteRenderer>().bounds.extents.x;
-    float safeSpawnXMin = spawnXMin + enemyWidth;
-    float safeSpawnXMax = spawnXMax - enemyWidth;
-    float xPos = UnityEngine.Random.Range(safeSpawnXMin, safeSpawnXMax);
-    // --- FINE CORREZIONE ---
-
-        Vector3 pos = new Vector3(xPos, spawnY, 0f);
-        GameObject enemyInstance = Instantiate(prefabToSpawn, pos, prefabToSpawn.transform.rotation);
-        float eliteIntroTimeInMinutes = 1f;
-        if (survivalTimer / 60f > eliteIntroTimeInMinutes && UnityEngine.Random.value < eliteSpawnChance)
-        {
-            PromoteToElite(enemyInstance);
-        }
-    }
-
     private IEnumerator SpawnBossCoroutine()
     {
         // --- CORREZIONE LOGICA BOSS ---
@@ -468,13 +480,9 @@ public class StageManager : MonoBehaviour
         AudioManager.Instance.PlayMusic(AudioManager.Instance.bossMusic);
         yield return new WaitForSeconds(2.5f);
         GameObject bossToSpawn = (currentMode == GameMode.Story) ? currentSector.guardianBossPrefab : endlessSuperBossPrefab;
-        Vector3 bossSpawnPosition = new Vector3(0, spawnY + 2f, 0); 
+        SpawnEnemy(new Vector3(0, spawnY + 2f, 0), bossToSpawn);
         
-        GameObject bossInstance = Instantiate(bossToSpawn, bossSpawnPosition, bossToSpawn.transform.rotation);
-        bossInstance.tag = "Boss";
-        SpawnEnemy(bossInstance.transform.position, null);
-        
-        if(endlessModeType == EndlessModeType.Waves)
+        if(endlessModeType == EndlessModeType.Waves || currentMode == GameMode.Story)
         {
         isSpawningWave = false;
         }

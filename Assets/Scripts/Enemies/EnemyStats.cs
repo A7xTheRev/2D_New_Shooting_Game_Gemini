@@ -42,7 +42,7 @@ public class EnemyStats : MonoBehaviour
     private Coroutine flashCoroutine;
     private Coroutine burnCoroutine;
     private Coroutine slowCoroutine;
-    private Coroutine buffCoroutine; // NUOVA COROUTINE PER I BUFF
+    private Coroutine buffCoroutine;
 
     void Awake()
     {
@@ -52,7 +52,7 @@ public class EnemyStats : MonoBehaviour
             return;
         }
 
-        // Carica tutti i dati dalla "scheda"
+        // Carica tutti i dati base dalla "scheda"
         allowStatScaling = enemyData.allowStatScaling;
         maxHealth = enemyData.maxHealth;
         moveSpeed = enemyData.moveSpeed;
@@ -75,8 +75,8 @@ public class EnemyStats : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
 
-        // Salviamo la velocità di movimento originale all'inizio
-        originalMoveSpeed = enemyData.moveSpeed;
+        // Salviamo la velocità di movimento originale QUI, prima di ogni scaling
+        originalMoveSpeed = moveSpeed; 
     }
 
     void Start()
@@ -89,7 +89,31 @@ public class EnemyStats : MonoBehaviour
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
-    // --- NUOVA SEZIONE PER I BUFF ---
+    // --- NUOVO METODO CENTRALE PER LO SCALING ---
+    public void ApplyStatScaling(float multiplier)
+    {
+        if (!allowStatScaling || multiplier <= 1f) return;
+
+        // Applica il moltiplicatore a tutte le statistiche rilevanti
+        maxHealth = Mathf.RoundToInt(maxHealth * multiplier);
+        contactDamage = Mathf.RoundToInt(contactDamage * multiplier);
+        projectileDamage = Mathf.RoundToInt(projectileDamage * multiplier);
+        coinReward = Mathf.RoundToInt(coinReward * multiplier);
+        xpReward = Mathf.RoundToInt(xpReward * multiplier);
+        
+        // Aggiorna la vita corrente per riflettere la nuova vita massima
+        currentHealth = maxHealth;
+
+        // IMPORTANTE: Aggiorna la velocità originale DOPO lo scaling,
+        // così i buff/debuff futuri si baseranno sul valore corretto.
+        moveSpeed *= multiplier;
+        originalMoveSpeed = moveSpeed;
+        
+        // Notifica la UI che la vita è cambiata
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+    }
+    // --- FINE NUOVO METODO ---
+
     public void ApplySpeedBuff(float speedMultiplier, float duration, Color buffColor)
     {
         if (isDying) return;
