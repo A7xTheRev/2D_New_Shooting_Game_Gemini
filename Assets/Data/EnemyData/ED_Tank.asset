@@ -31,9 +31,9 @@ MonoBehaviour:
   deathShakeMagnitude: 0
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
   enemySprite: {fileID: 2145440094, guid: 8c1f41ea49e262e4785cd51c44db339f, type: 3}
-  hasBestiaryEntry: 1
-  bestiaryKillRequirement: 50
-  bestiaryDescription: A heavily armored gun platform. Its slow advance is deceptive;
+  hasCodexEntry: 1
+  codexKillRequirement: 50
+  codexDescription: A heavily armored gun platform. Its slow advance is deceptive;
     its thick plating can absorb an enormous amount of punishment
-  bestiaryCoinReward: 400
-  bestiaryGemReward: 15
+  codexCoinReward: 100
+  codexGemReward: 5

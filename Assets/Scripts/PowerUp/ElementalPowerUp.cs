@@ -15,6 +15,8 @@ public class ElementalPowerUp : PowerUpEffect
     public float slowMultiplier;
 
     [Header("Impostazioni Fulmine a Catena")]
+    [Tooltip("Il prefab dell'effetto visivo del fulmine (un LineRenderer con lo script ChainLightningVFX).")]
+    public GameObject chainLightningVFXPrefab;
     [Tooltip("Numero di nemici aggiuntivi che il fulmine può colpire.")]
     public int chainCount;
     [Tooltip("Moltiplicatore del danno per il colpo iniziale del fulmine, basato sull'Ability Power.")]
@@ -41,6 +43,8 @@ public class ElementalPowerUp : PowerUpEffect
                 player.chainCount = chainCount;
                 player.initialChainDamageMultiplier = initialChainDamageMultiplier;
                 player.chainDamageMultiplier = chainDamageMultiplier;
+                // Passiamo il riferimento al prefab al giocatore
+                player.chainLightningVFXPrefab = chainLightningVFXPrefab; 
                 break;
         }
     }

@@ -28,6 +28,7 @@ MonoBehaviour:
   burnDamageMultiplier: 0
   slowDuration: 0
   slowMultiplier: 0
+  chainLightningVFXPrefab: {fileID: 8110169462817228048, guid: 825d802b8cc80b445a68543bb7f55d03, type: 3}
   chainCount: 2
   initialChainDamageMultiplier: 1.5
   chainDamageMultiplier: 0.7

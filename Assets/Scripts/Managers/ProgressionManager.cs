@@ -55,7 +55,7 @@ public class ProgressionManager : MonoBehaviour
 
     // Dati progressione settori
     private Dictionary<string, int> sectorProgress = new Dictionary<string, int>();
-    private HashSet<string> claimedBestiaryRewards = new HashSet<string>();
+    private HashSet<string> claimedCodexRewards = new HashSet<string>();
 
     public static event System.Action OnValuesChanged;
 
@@ -128,7 +128,7 @@ public class ProgressionManager : MonoBehaviour
             sectorProgress[data.sectorProgressID[i]] = data.sectorProgressValue[i];
         }
 
-        claimedBestiaryRewards = new HashSet<string>(data.claimedBestiaryRewardsID);
+        claimedCodexRewards = new HashSet<string>(data.claimedCodexRewardsID);
     }
 
     void SaveData()
@@ -154,7 +154,7 @@ public class ProgressionManager : MonoBehaviour
         data.claimedMissionsID = claimedMissions.ToList();
         data.sectorProgressID = sectorProgress.Keys.ToList();
         data.sectorProgressValue = sectorProgress.Values.ToList();
-        data.claimedBestiaryRewardsID = claimedBestiaryRewards.ToList();
+        data.claimedCodexRewardsID = claimedCodexRewards.ToList();
 
         SaveSystem.SaveGame(data);
     }
@@ -308,7 +308,7 @@ public class ProgressionManager : MonoBehaviour
         missionProgress.Clear(); 
         claimedMissions.Clear(); 
         sectorProgress.Clear();
-        claimedBestiaryRewards.Clear();
+        claimedCodexRewards.Clear();
         
         // 3. Imposta esplicitamente lo stato della navicella di default
         ShipData defaultShip = allShips.Find(s => s.isDefaultShip);
@@ -332,22 +332,25 @@ public class ProgressionManager : MonoBehaviour
         OnValuesChanged?.Invoke(); 
         Debug.Log("Progresso resettato e nuovo stato iniziale salvato correttamente.");
     }
-    
-    // --- METODI MISSIONI ---
-    public void AddEnemyKill(string enemyPrefabName)
+
+    public void AddEnemyKill(string enemyDataID) // Il parametro ora è l'ID dell'EnemyData
     {
-        UpdateMissionProgress(MissionType.KILL_ENEMIES_TOTAL, 1);
-        UpdateMissionProgress(MissionType.KILL_ENEMIES_OF_TYPE, 1, enemyPrefabName);
-        
-        // Aggiorna anche il conteggio per il bestiario, usando il nome del prefab come ID
-        if (missionProgress.ContainsKey(enemyPrefabName))
+        // 1. Aggiorna il conteggio generico per il Codex e le missioni
+        if (missionProgress.ContainsKey(enemyDataID))
         {
-            missionProgress[enemyPrefabName]++;
+            missionProgress[enemyDataID]++;
         }
         else
         {
-            missionProgress[enemyPrefabName] = 1;
+            missionProgress[enemyDataID] = 1;
         }
+        
+        // 2. Aggiorna la missione di uccisioni totali
+        UpdateMissionProgress(MissionType.KILL_ENEMIES_TOTAL, 1);
+        
+        // 3. Controlla se questa uccisione è rilevante per una missione specifica "Uccidi nemico di tipo X"
+        // NOTA: Questo richiede che il campo 'targetEnemyID' nelle MissionData corrisponda al nome dell'EnemyData (es. "ED_Kamikaze")
+        UpdateMissionProgress(MissionType.KILL_ENEMIES_OF_TYPE, 1, enemyDataID);
     }
 
     public void AddCoinsCollected(int amount)
@@ -465,21 +468,24 @@ public class ProgressionManager : MonoBehaviour
         return starCount;
     }
 
-    // --- NUOVI METODI BESTIARIO ---
-    public void ClaimBestiaryReward(EnemyData enemyData)
+    // --- METODI DEL CODEX AGGIORNATI ---
+    public void ClaimCodexReward(EnemyData enemyData)
     {
-        if (enemyData == null || IsBestiaryRewardClaimed(enemyData.name)) return;
+        if (enemyData == null || IsCodexRewardClaimed(enemyData.name)) return;
         
         int killCount = GetMissionProgress(enemyData.name);
-        if (killCount >= enemyData.bestiaryKillRequirement)
+        if (killCount >= enemyData.codexKillRequirement)
         {
-            AddCoins(enemyData.bestiaryCoinReward);
-            AddSpecialCurrency(enemyData.bestiaryGemReward);
-            claimedBestiaryRewards.Add(enemyData.name);
+            AddCoins(enemyData.codexCoinReward);
+            AddSpecialCurrency(enemyData.codexGemReward);
+            claimedCodexRewards.Add(enemyData.name);
             SaveData();
             OnValuesChanged?.Invoke();
-            Debug.Log($"Ricompensa del bestiario per '{enemyData.name}' riscattata!");
+            Debug.Log($"Ricompensa del Codex per '{enemyData.name}' riscattata!");
         }
     }
-    public bool IsBestiaryRewardClaimed(string enemyID) => claimedBestiaryRewards.Contains(enemyID);
+    public bool IsCodexRewardClaimed(string enemyID)
+    {
+        return claimedCodexRewards.Contains(enemyID);
+    }
 }

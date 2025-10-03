@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class BestiaryEntryUI : MonoBehaviour
+public class CodexEntryUI : MonoBehaviour
 {
     [Header("Riferimenti Voce UI")]
     public Image enemyIcon;
@@ -19,8 +19,8 @@ public class BestiaryEntryUI : MonoBehaviour
     {
         associatedEnemyData = enemyData;
         int killCount = ProgressionManager.Instance.GetMissionProgress(enemyData.name);
-        bool isUnlocked = killCount >= enemyData.bestiaryKillRequirement;
-        bool isClaimed = ProgressionManager.Instance.IsBestiaryRewardClaimed(enemyData.name);
+        bool isUnlocked = killCount >= enemyData.codexKillRequirement;
+        bool isClaimed = ProgressionManager.Instance.IsCodexRewardClaimed(enemyData.name);
 
         if (isUnlocked)
         {
@@ -29,21 +29,21 @@ public class BestiaryEntryUI : MonoBehaviour
             enemyIcon.color = Color.white;
             // --- CORREZIONE 1: Rimosso ".enemyData" extra ---
             enemyNameText.text = associatedEnemyData.name.Replace("ED_", "").Replace("_", " ");
-            descriptionText.text = associatedEnemyData.bestiaryDescription;
-            killCountText.text = $"{killCount} / {associatedEnemyData.bestiaryKillRequirement}";
+            descriptionText.text = associatedEnemyData.codexDescription;
+            killCountText.text = $"{killCount} / {associatedEnemyData.codexKillRequirement}";
 
             if (isClaimed)
             {
                 // Già riscosso
                 claimButton.gameObject.SetActive(false);
-                rewardText.text = "RISCOSSO";
+                rewardText.text = "CLAIMED";
             }
             else
             {
                 // Da riscuotere
                 claimButton.gameObject.SetActive(true);
                 claimButton.onClick.AddListener(OnClaimButtonPressed);
-                rewardText.text = $"{associatedEnemyData.bestiaryCoinReward} Monete\n{associatedEnemyData.bestiaryGemReward} Gemme";
+                rewardText.text = $"{associatedEnemyData.codexCoinReward} Coins\n{associatedEnemyData.codexGemReward} Gems";
             }
         }
         else
@@ -52,8 +52,8 @@ public class BestiaryEntryUI : MonoBehaviour
             lockOverlay.SetActive(true);
             enemyIcon.color = Color.black; // Effetto silhouette
             enemyNameText.text = "???";
-            descriptionText.text = "Sconfiggi questo nemico per sbloccare le informazioni.";
-            killCountText.text = $"{killCount} / {associatedEnemyData.bestiaryKillRequirement}";
+            descriptionText.text = "Defeat this enemy to unlock its information.";
+            killCountText.text = $"{killCount} / {associatedEnemyData.codexKillRequirement}";
             claimButton.gameObject.SetActive(false);
             rewardText.text = "";
         }
@@ -67,8 +67,7 @@ public class BestiaryEntryUI : MonoBehaviour
 
     void OnClaimButtonPressed()
     {
-        ProgressionManager.Instance.ClaimBestiaryReward(associatedEnemyData);
-        // Aggiorna la UI di questa voce per mostrare che è stata riscossa
+        ProgressionManager.Instance.ClaimCodexReward(associatedEnemyData);
         Setup(associatedEnemyData);
     }
 }

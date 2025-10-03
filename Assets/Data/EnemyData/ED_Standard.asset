@@ -31,9 +31,9 @@ MonoBehaviour:
   deathShakeMagnitude: 0
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
   enemySprite: {fileID: -223799344, guid: 577f8c935f1fdca4b9a5f4c4be6becf7, type: 3}
-  hasBestiaryEntry: 1
-  bestiaryKillRequirement: 100
-  bestiaryDescription: The standard-issue drone of the Void fleet. Cheap, numerous,
+  hasCodexEntry: 1
+  codexKillRequirement: 50
+  codexDescription: The standard-issue drone of the Void fleet. Cheap, numerous,
     and relentlessly single-minded in its pursuit
-  bestiaryCoinReward: 250
-  bestiaryGemReward: 5
+  codexCoinReward: 100
+  codexGemReward: 5

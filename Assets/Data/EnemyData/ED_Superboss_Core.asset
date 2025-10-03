@@ -30,11 +30,11 @@ MonoBehaviour:
   deathShakeDuration: 0.5
   deathShakeMagnitude: 0.15
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
-  enemySprite: {fileID: 5093935317972156845, guid: 0b9388eb20b4970498ed92ff2c27be57, type: 3}
-  hasBestiaryEntry: 1
-  bestiaryKillRequirement: 5
-  bestiaryDescription: The heart of the Void fleet's command ship. Exposed only after
-    its primary defenses are destroyed, it can unleash devastating energy attacks
+  enemySprite: {fileID: -7483749253300245448, guid: 7608d85188a6f7d41baffb303aa9469a, type: 3}
+  hasCodexEntry: 1
+  codexKillRequirement: 50
+  codexDescription: The heart of the Void fleet's command ship. Exposed only after
+    its primary defenses are destroyed, it can unleash devastating energy attacks 
     at close range
-  bestiaryCoinReward: 2500
-  bestiaryGemReward: 100
+  codexCoinReward: 100
+  codexGemReward: 5

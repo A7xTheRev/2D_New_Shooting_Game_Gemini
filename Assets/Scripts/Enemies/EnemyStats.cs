@@ -353,7 +353,10 @@ public class EnemyStats : MonoBehaviour
         GetComponent<Collider2D>().enabled = false;
         if (GetComponent<Rigidbody2D>() != null) GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
 
-        ProgressionManager.Instance?.AddEnemyKill(gameObject.name.Replace("(Clone)", ""));
+        if (enemyData != null)
+        {
+            ProgressionManager.Instance?.AddEnemyKill(enemyData.name);
+        }
 
         if (deathShakeDuration > 0f && deathShakeMagnitude > 0f)
         {

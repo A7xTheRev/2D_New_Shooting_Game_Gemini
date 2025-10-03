@@ -28,7 +28,7 @@ public class SaveData
     // --- NUOVI CAMPI PER LA PROGRESSIONE DEI SETTORI ---
     public List<string> sectorProgressID = new List<string>();
     public List<int> sectorProgressValue = new List<int>(); // Salverà il "numero magico"
-    public List<string> claimedBestiaryRewardsID = new List<string>();
+    public List<string> claimedCodexRewardsID = new List<string>();
 }
 
 public static class SaveSystem

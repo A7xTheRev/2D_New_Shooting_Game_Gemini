@@ -2223,6 +2223,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6043420777772011870, guid: 685c43f1fdbde464fb6794401679a66e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1612968488}
+    - target: {fileID: 6043420777772011870, guid: 685c43f1fdbde464fb6794401679a66e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnRerollButtonPressed
+      objectReference: {fileID: 0}
     - target: {fileID: 6926825353311322695, guid: 685c43f1fdbde464fb6794401679a66e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

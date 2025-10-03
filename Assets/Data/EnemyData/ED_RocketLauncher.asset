@@ -31,9 +31,9 @@ MonoBehaviour:
   deathShakeMagnitude: 0
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
   enemySprite: {fileID: -1885181443, guid: a2fb0b801b276ba4683a01f483f1b816, type: 3}
-  hasBestiaryEntry: 1
-  bestiaryKillRequirement: 40
-  bestiaryDescription: A stationary artillery unit that launches slow-moving but
-    powerful homing missiles. A skilled pilot can bait its projectiles into missing
-  bestiaryCoinReward: 450
-  bestiaryGemReward: 15
+  hasCodexEntry: 1
+  codexKillRequirement: 50
+  codexDescription: A stationary artillery unit that launches slow-moving but powerful
+    homing missiles. A skilled pilot can bait its projectiles into missing
+  codexCoinReward: 100
+  codexGemReward: 5

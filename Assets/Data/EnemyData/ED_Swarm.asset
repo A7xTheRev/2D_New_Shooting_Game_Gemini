@@ -31,9 +31,9 @@ MonoBehaviour:
   deathShakeMagnitude: 0
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
   enemySprite: {fileID: 1657125338, guid: 524fdd27a44d1e540a6ad316152fd4a3, type: 3}
-  hasBestiaryEntry: 1
-  bestiaryKillRequirement: 75
-  bestiaryDescription: A larger, segmented organism that moves in unsettling wave
-    patterns. Its true threat is revealed upon destruction
-  bestiaryCoinReward: 200
-  bestiaryGemReward: 5
+  hasCodexEntry: 1
+  codexKillRequirement: 50
+  codexDescription: A larger, segmented organism that moves in unsettling wave patterns.
+    Its true threat is revealed upon destruction
+  codexCoinReward: 100
+  codexGemReward: 5

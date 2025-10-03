@@ -31,9 +31,9 @@ MonoBehaviour:
   deathShakeMagnitude: 0
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
   enemySprite: {fileID: 98067213, guid: 524fdd27a44d1e540a6ad316152fd4a3, type: 3}
-  hasBestiaryEntry: 1
-  bestiaryKillRequirement: 150
-  bestiaryDescription: The small, fast offspring of a larger Swarm unit. While individually
+  hasCodexEntry: 1
+  codexKillRequirement: 50
+  codexDescription: The small, fast offspring of a larger Swarm unit. While individually
     weak, they rely on overwhelming numbers to corner their prey
-  bestiaryCoinReward: 150
-  bestiaryGemReward: 5
+  codexCoinReward: 100
+  codexGemReward: 5

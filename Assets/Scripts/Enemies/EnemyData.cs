@@ -44,18 +44,18 @@ public class EnemyData : ScriptableObject
 
     // --- NUOVA SEZIONE BESTIARIO ---
     [Header("Bestiario")]
-    [Tooltip("L'icona/sprite di questo nemico che apparirà nel bestiario.")]
+    [Tooltip("L'icona/sprite di questo nemico che apparirà nel codex.")]
     public Sprite enemySprite;
-    [Tooltip("Se spuntato, questo nemico avrà una voce nel bestiario.")]
-    public bool hasBestiaryEntry = true;
+    [Tooltip("Se spuntato, questo nemico avrà una voce nel codex.")]
+    public bool hasCodexEntry = true;
     [Tooltip("Il numero di uccisioni richieste per sbloccare la voce completa.")]
-    public int bestiaryKillRequirement = 50;
+    public int codexKillRequirement = 50;
     [TextArea]
-    [Tooltip("La descrizione che apparirà nel bestiario una volta sbloccato.")]
-    public string bestiaryDescription;
+    [Tooltip("La descrizione che apparirà nel codex una volta sbloccato.")]
+    public string codexDescription;
     [Tooltip("La ricompensa in monete (una tantum) per il completamento.")]
-    public int bestiaryCoinReward = 100;
+    public int codexCoinReward = 100;
     [Tooltip("La ricompensa in gemme (una tantum) per il completamento.")]
-    public int bestiaryGemReward = 5;
+    public int codexGemReward = 5;
     // --- FINE NUOVA SEZIONE ---
 }

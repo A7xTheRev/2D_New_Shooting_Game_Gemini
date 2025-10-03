@@ -31,9 +31,9 @@ MonoBehaviour:
   deathShakeMagnitude: 0
   burnVFX: {fileID: 4182335007113691694, guid: 6be899097c0c3814882854835455dd13, type: 3}
   enemySprite: {fileID: 41295078, guid: f7f761ff58e2f4d40b0693688fe3ac47, type: 3}
-  hasBestiaryEntry: 1
-  bestiaryKillRequirement: 75
-  bestiaryDescription: 'A volatile, short-range interceptor designed for a single
-    purpose: to turn itself into a high-impact warhead. Evade at all costs'
-  bestiaryCoinReward: 300
-  bestiaryGemReward: 10
+  hasCodexEntry: 1
+  codexKillRequirement: 50
+  codexDescription: 'A volatile, short-range interceptor designed for a single purpose:
+    to turn itself into a high-impact warhead. Evade at all costs'
+  codexCoinReward: 100
+  codexGemReward: 5

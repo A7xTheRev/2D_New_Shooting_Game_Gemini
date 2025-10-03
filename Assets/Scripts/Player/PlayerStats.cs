@@ -77,6 +77,7 @@ public class PlayerStats : MonoBehaviour
     [HideInInspector] public int chainCount;
     [HideInInspector] public float initialChainDamageMultiplier;
     [HideInInspector] public float chainDamageMultiplier;
+    [HideInInspector] public GameObject chainLightningVFXPrefab;
 
     [HideInInspector] public List<PowerUpType> acquiredPowerUps = new List<PowerUpType>();
 

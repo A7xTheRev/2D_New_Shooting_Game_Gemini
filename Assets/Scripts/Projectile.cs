@@ -35,6 +35,7 @@ public class Projectile : MonoBehaviour
     private Camera cam;
     private float camLeftEdge, camRightEdge, camTopEdge, camBottomEdge;
     private float spriteWidth, spriteHeight;
+    private bool hasChained = false; // NUOVA VARIABILE: tiene traccia se questo proiettile ha già scatenato un fulmine
 
     void Awake()
     {
@@ -62,6 +63,7 @@ public class Projectile : MonoBehaviour
         currentPierceLeft = pierceCount;
         UpdateCameraBounds();
         CancelInvoke(nameof(Deactivate));
+        hasChained = false;
     }
 
     // Questo metodo viene chiamato dal PlayerController DOPO aver impostato tutte le statistiche.
@@ -80,14 +82,7 @@ public class Projectile : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        // Controlla se colpisce un ostacolo (come lo scudo Falange)
-        if (other.CompareTag("Obstacle"))
-        {
-            Deactivate();
-            return;
-        }
-
-        if (other.CompareTag("DeathZone"))
+        if (other.CompareTag("Obstacle") || other.CompareTag("DeathZone"))
         {
             Deactivate();
             return;
@@ -114,10 +109,7 @@ public class Projectile : MonoBehaviour
                 if (owner.hasIncendiaryRounds)
                 {
                     int burnDamage = Mathf.RoundToInt(owner.abilityPower * owner.burnDamageMultiplier);
-                    if (burnDamage > 0)
-                    {
-                        enemy.ApplyBurn(owner.burnDuration, burnDamage);
-                    }
+                    if (burnDamage > 0) enemy.ApplyBurn(owner.burnDuration, burnDamage);
                 }
 
                 // Effetto Congelante
@@ -126,47 +118,43 @@ public class Projectile : MonoBehaviour
                     // Ora legge i valori personalizzati dal PlayerStats
                     enemy.ApplySlow(owner.cryoSlowMultiplier, owner.cryoSlowDuration); 
                 }
-
-                // Effetto Fulmine a Catena
-                if (owner.hasChainLightning)
+            }
+            // --- LOGICA CHAIN LIGHTNING CORRETTA ---
+            // Si attiva solo se ha il potenziamento E se non lo ha già fatto in questa vita
+            if (owner != null && owner.hasChainLightning && !hasChained)
+            {
+                int lightningBaseDamage = Mathf.RoundToInt(owner.abilityPower * owner.initialChainDamageMultiplier);
+                if (lightningBaseDamage > 0)
                 {
-                    int lightningBaseDamage = Mathf.RoundToInt(owner.abilityPower * owner.initialChainDamageMultiplier);
-                    if (lightningBaseDamage > 0)
-                    {
-                        HandleChainLightning(enemy.transform, lightningBaseDamage);
-                    }
+                    HandleChainLightning(enemy.transform, lightningBaseDamage);
+                    hasChained = true; // Marchia questo proiettile, non scatenerà più fulmini
                 }
             }
-
             if (areaDamageRadius > 0f)
             {
                 Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, areaDamageRadius);
                 foreach (var hit in hits)
                 {
                     EnemyStats e = hit.GetComponentInParent<EnemyStats>();
-                    if (e != null && e != enemy && e.enabled)
-                        e.TakeDamage(finalDamage, isCrit);
+                    if (e != null && e != enemy && e.enabled) e.TakeDamage(finalDamage, isCrit);
                 }
             }
 
-            // --- NUOVA LOGICA DI PRIORITÀ: PERFORAZIONE > RIMBALZO > DISTRUZIONE ---
+            
+
             if (currentPierceLeft > 0)
             {
-                // Se il proiettile può ancora perforare, riduce il contatore e continua la sua corsa.
                 currentPierceLeft--;
             }
             else if (owner != null && bouncesDoneEnemy < owner.bounceCountEnemy)
             {
-                // Se non può perforare, controlla se può rimbalzare.
                 bouncesDoneEnemy++;
                 BounceToNextEnemy(enemy.transform);
             }
             else
             {
-                // Se non può né perforare né rimbalzare, si disattiva.
                 Deactivate();
             }
-            // --- FINE NUOVA LOGICA ---
         }
     }
 
@@ -293,7 +281,13 @@ public class Projectile : MonoBehaviour
     // --- METODO CHAIN LIGHTNING COMPLETAMENTE RISCRITTO ---
     private void HandleChainLightning(Transform initialTarget, int initialDamage)
     {
-        if (owner == null) return;
+        // --- CORREZIONE ERRORE: ORA USA IL PREFAB PASSATO DAL GIOCATORE ---
+        if (owner == null || owner.chainLightningVFXPrefab == null)
+        {
+            Debug.LogError("Prefab del Chain Lightning non assegnato al PlayerStats!");
+            return;
+        }
+        // --- FINE CORREZIONE ---
 
         List<Transform> hitTargets = new List<Transform> { initialTarget };
         Transform currentTarget = initialTarget;
@@ -302,6 +296,7 @@ public class Projectile : MonoBehaviour
         // Esegui il ciclo per ogni "rimbalzo" del fulmine
         for (int i = 0; i < owner.chainCount; i++)
         {
+            // ... (la logica interna per trovare il prossimo bersaglio rimane invariata) ...
             Collider2D[] nearbyEnemies = Physics2D.OverlapCircleAll(currentTarget.position, 7f);
             Transform nextTarget = null;
             float minDistance = Mathf.Infinity;
@@ -323,15 +318,14 @@ public class Projectile : MonoBehaviour
             // Se abbiamo trovato un nuovo bersaglio...
             if (nextTarget != null)
             {
-                // Crea il VFX del fulmine
-                GameObject lightningObj = new GameObject("ChainLightningVFX");
-                LineRenderer lr = lightningObj.AddComponent<LineRenderer>();
-                lr.startWidth = 0.1f; lr.endWidth = 0.1f;
-                lr.material = new Material(Shader.Find("Legacy Shaders/Particles/Additive"));
-                lr.startColor = Color.cyan; lr.endColor = Color.white;
+                // --- CORREZIONE ERRORE: Usa il prefab corretto ---
+                GameObject lightningObj = Instantiate(owner.chainLightningVFXPrefab);
                 
-                ChainLightningVFX vfxScript = lightningObj.AddComponent<ChainLightningVFX>();
+                ChainLightningVFX vfxScript = lightningObj.GetComponent<ChainLightningVFX>();
+                if (vfxScript != null)
+                {
                 vfxScript.Setup(currentTarget.position, nextTarget.position);
+                }
 
                 // Applica il danno ridotto
                 currentDamage = Mathf.RoundToInt(currentDamage * owner.chainDamageMultiplier);
