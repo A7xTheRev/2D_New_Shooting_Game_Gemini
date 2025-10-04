@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SD_Sector1_1_AsteroidBelt
   m_EditorClassIdentifier: Assembly-CSharp::SectorData
   sectorName: Asteroid Belt
-  numberOfWaves: 10
+  numberOfWaves: 9
   availableEnemies:
   - {fileID: 7499889512634669778, guid: 3a462d3c8b7648043b5f06dbfc01a853, type: 3}
   - {fileID: 8730231952669543138, guid: 675f5495df022e14f8dd04230b458cd0, type: 3}

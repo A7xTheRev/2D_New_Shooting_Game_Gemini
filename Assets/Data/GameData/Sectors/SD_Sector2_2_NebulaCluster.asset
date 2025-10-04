@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SD_Sector2_2_NebulaCluster
   m_EditorClassIdentifier: Assembly-CSharp::SectorData
   sectorName: Nebula Cluster
-  numberOfWaves: 15
+  numberOfWaves: 14
   availableEnemies:
   - {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}
   - {fileID: 1902516105903420111, guid: fa0042bb3244dfb4c8bffe022592cc3b, type: 3}

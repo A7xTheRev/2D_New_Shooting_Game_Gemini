@@ -2,25 +2,25 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
-using System.Collections.Generic; // <-- LIBRERIA MANCANTE AGGIUNTA QUI
+using System.Collections.Generic;
+using System.Reflection;
 
 public class DebugController : MonoBehaviour
 {
     public static DebugController Instance { get; private set; }
 
     [Header("Riferimenti Pannello")]
-    public GameObject debugPanel;
+    public string debugPanelName = "DebugPanel"; // Cercheremo il pannello con questo nome
     public KeyCode toggleKey = KeyCode.F1;
 
-    [Header("Riferimenti Giocatore")]
-    public TMP_InputField healthInput;
-    public TMP_InputField damageInput;
-    public TMP_InputField attackSpeedInput;
-    public TMP_Dropdown powerUpDropdown;
-
-    [Header("Riferimenti Stage")]
-    public TMP_InputField stageInput;
-    public TMP_InputField timerInput;
+    // Riferimenti interni, non più pubblici
+    private GameObject debugPanel;
+    private TMP_InputField healthInput;
+    private TMP_InputField damageInput;
+    private TMP_InputField attackSpeedInput;
+    private TMP_Dropdown powerUpDropdown;
+    private TMP_InputField stageInput;
+    private TMP_InputField timerInput;
 
     private PlayerStats playerStats;
     private StageManager stageManager;
@@ -43,12 +43,7 @@ public class DebugController : MonoBehaviour
 
     void Start()
     {
-        // Cerca i manager solo una volta all'inizio della scena di gioco
-        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "GameScene")
-        {
-            FindReferences();
-        }
-        if(debugPanel != null) debugPanel.SetActive(false);
+        // Non facciamo nulla in Start, aspetteremo che la scena di gioco sia caricata
     }
 
     // Aggiungiamo un listener per ricaricare i riferimenti quando si carica la GameScene
@@ -64,10 +59,12 @@ public class DebugController : MonoBehaviour
 
     void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
     {
-        if (scene.name == "GameScene")
-        {
-            FindReferences();
-        }
+        // Ogni volta che carichiamo una scena, resettiamo i nostri riferimenti "fantasma"
+        playerStats = null;
+        stageManager = null;
+        powerUpManager = null;
+        debugPanel = null;
+        isPanelActive = false;
     }
 
     void Update()
@@ -75,30 +72,79 @@ public class DebugController : MonoBehaviour
         if (Input.GetKeyDown(toggleKey))
         {
             isPanelActive = !isPanelActive;
-            debugPanel.SetActive(isPanelActive);
 
+            // Se stiamo attivando il pannello, assicuriamoci di avere tutti i riferimenti
             if (isPanelActive)
             {
-                // Quando apriamo il pannello, aggiorniamo i valori e mettiamo in pausa
+                // Cerchiamo i riferimenti solo la prima volta che apriamo il pannello in una scena
+                if (debugPanel == null)
+                {
+                    if (!FindAllReferencesInScene())
+                    {
+                        isPanelActive = false; // Se non troviamo il pannello, non lo attiviamo
+                        return;
+                    }
+                }
+                
+                debugPanel.SetActive(true);
                 Time.timeScale = 0f;
                 UpdateUIFields();
             }
             else
             {
+                // Se il pannello esiste, lo disattiviamo
+                if(debugPanel != null)
+                {
+                    debugPanel.SetActive(false);
+                }
                 Time.timeScale = 1f;
             }
         }
     }
-    
-    // Trova i riferimenti ai componenti nella scena
-    private void FindReferences()
+
+    // Trova tutti i riferimenti necessari nella scena corrente
+    private bool FindAllReferencesInScene()
     {
-        // --- METODI OBSOLETI AGGIORNATI ---
+        // --- LOGICA DI RICERCA CORRETTA ---
+        // Troviamo il Canvas principale della scena
+        Canvas mainCanvas = FindFirstObjectByType<Canvas>();
+        if (mainCanvas == null)
+        {
+            Debug.LogError("DebugController: Nessun Canvas trovato nella scena!");
+            return false;
+        }
+
+        // Cerchiamo il pannello per nome tra i figli del Canvas (anche quelli inattivi)
+        Transform panelTransform = mainCanvas.transform.Find(debugPanelName);
+        if (panelTransform == null)
+        {
+            Debug.LogError($"DebugController: Pannello con nome '{debugPanelName}' non trovato come figlio del Canvas principale!");
+            return false;
+        }
+        debugPanel = panelTransform.gameObject;
+        // --- FINE LOGICA CORRETTA ---
+
+        // Trova tutti i componenti UI come figli del pannello
+        healthInput = debugPanel.transform.Find("HealthInput")?.GetComponent<TMP_InputField>();
+        damageInput = debugPanel.transform.Find("DamageInput")?.GetComponent<TMP_InputField>();
+        attackSpeedInput = debugPanel.transform.Find("AttackSpeedInput")?.GetComponent<TMP_InputField>();
+        powerUpDropdown = debugPanel.transform.Find("PowerUpDropdown")?.GetComponent<TMP_Dropdown>();
+        stageInput = debugPanel.transform.Find("StageInput")?.GetComponent<TMP_InputField>();
+        timerInput = debugPanel.transform.Find("TimerInput")?.GetComponent<TMP_InputField>();
+        
+        // Collega gli eventi ai pulsanti
+        debugPanel.transform.Find("ApplyPlayerStatsButton")?.GetComponent<Button>().onClick.AddListener(ApplyPlayerStats);
+        debugPanel.transform.Find("HealButton")?.GetComponent<Button>().onClick.AddListener(HealPlayer);
+        debugPanel.transform.Find("AddPowerUpButton")?.GetComponent<Button>().onClick.AddListener(AddPowerUp);
+        debugPanel.transform.Find("ApplyStageSettingsButton")?.GetComponent<Button>().onClick.AddListener(ApplyStageSettings);
+
+        // Trova i manager di scena
         playerStats = FindFirstObjectByType<PlayerStats>();
         stageManager = FindFirstObjectByType<StageManager>();
         powerUpManager = FindFirstObjectByType<PowerUpManager>();
-        // --- FINE AGGIORNAMENTO ---
+
         PopulatePowerUpDropdown();
+        return true;
     }
 
     // Carica i valori attuali nella UI del pannello
@@ -132,10 +178,22 @@ public class DebugController : MonoBehaviour
     public void ApplyPlayerStats()
     {
         if (playerStats == null) return;
-        playerStats.currentHealth = int.Parse(healthInput.text);
-        playerStats.maxHealth = playerStats.currentHealth; // Aggiorniamo anche la max per la UI
-        playerStats.damage = int.Parse(damageInput.text);
-        playerStats.attackSpeed = float.Parse(attackSpeedInput.text);
+        
+        // Usiamo TryParse per evitare errori se l'input non è un numero valido
+        if(int.TryParse(healthInput.text, out int health)) 
+        {
+            playerStats.currentHealth = health;
+            playerStats.maxHealth = health; // Aggiorniamo anche la max per la UI
+        }
+        if(int.TryParse(damageInput.text, out int damage)) 
+        {
+            playerStats.damage = damage;
+        }
+        if(float.TryParse(attackSpeedInput.text, out float speed)) 
+        {
+            playerStats.attackSpeed = speed;
+        }
+
         Debug.Log("Statistiche Giocatore Aggiornate!");
     }
 
@@ -169,10 +227,28 @@ public class DebugController : MonoBehaviour
 
         if(float.TryParse(timerInput.text, out float timeInMinutes))
         {
-            var field = typeof(StageManager).GetField("survivalTimer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (field != null)
+            // --- LOGICA DI SINCRONIZZAZIONE CORRETTA ---
+            float newSurvivalTime = timeInMinutes * 60f;
+
+            // 1. Aggiorna il timer di sopravvivenza
+            var survivalTimerField = typeof(StageManager).GetField("survivalTimer", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (survivalTimerField != null)
             {
-                field.SetValue(stageManager, timeInMinutes * 60f);
+                survivalTimerField.SetValue(stageManager, newSurvivalTime);
+            }
+
+            // 2. Ricalcola e aggiorna il timer del boss
+            var bossTimerField = typeof(StageManager).GetField("bossTimer", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (bossTimerField != null)
+            {
+                float bossIntervalSeconds = stageManager.bossIntervalInMinutes * 60f;
+                if (bossIntervalSeconds > 0)
+                {
+                float timeSinceLastBoss = newSurvivalTime % bossIntervalSeconds;
+                // Il tempo rimanente è l'intervallo totale meno il tempo già passato
+                float newBossTimerValue = bossIntervalSeconds - timeSinceLastBoss;
+                bossTimerField.SetValue(stageManager, newBossTimerValue);
+                }
             }
         }
         Debug.Log("Impostazioni Stage Aggiornate!");

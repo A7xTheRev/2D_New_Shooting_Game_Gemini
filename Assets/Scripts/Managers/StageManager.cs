@@ -221,11 +221,33 @@ public class StageManager : MonoBehaviour
     
     void UpdateWaveBasedMode()
     {
-        if (!isSpawningWave && GameObject.FindGameObjectsWithTag("Enemy").Length == 0 && FindFirstObjectByType<BossTurret>() == null)
+        if (isSpawningWave) return; // Non controllare se stiamo ancora generando nemici
+
+        // --- LOGICA DI CONTROLLO FINE ONDATA CORRETTA ---
+        bool waveCleared = false;
+        if (isBossWave)
+        {
+            // Se è un'ondata di boss, controlliamo che non ci siano più oggetti con il tag "Boss"
+            if (GameObject.FindGameObjectWithTag("Boss") == null)
+            {
+                waveCleared = true;
+            }
+        }
+        else
+        {
+            // Se è un'ondata normale, controlliamo che non ci siano più oggetti con il tag "Enemy"
+            if (GameObject.FindGameObjectsWithTag("Enemy").Length == 0)
+            {
+                waveCleared = true;
+            }
+        }
+
+        // Se l'ondata è finita, procedi
+        if (waveCleared)
         {
             if (isBossWave)
             {
-                isBossWave = false;
+                isBossWave = false; // Resetta il flag
                 if (currentMode == GameMode.Story)
                 {
                     EndStorySector();
@@ -236,6 +258,7 @@ public class StageManager : MonoBehaviour
             NextStage();
         }
     }
+
 
     void UpdateEndlessContinuousMode()
     {
@@ -372,19 +395,14 @@ public class StageManager : MonoBehaviour
             float xPos = UnityEngine.Random.Range(safeSpawnXMin, safeSpawnXMax);
             Vector3 pos = new Vector3(xPos, spawnY, 0f);
             
-            // Usiamo il metodo SpawnEnemy per creare e scalare il nemico
-            SpawnEnemy(pos, prefabToSpawn);
+            // Creiamo l'istanza qui, ma applichiamo lo scaling DOPO
+            GameObject enemyInstance = Instantiate(prefabToSpawn, pos, prefabToSpawn.transform.rotation);
+            enemyInstance.GetComponent<EnemyStats>()?.ApplyStatScaling(GetCurrentStatMultiplier());
             
-            // La logica per gli Elite è gestita qui, DOPO lo spawn base
-            GameObject[] currentEnemies = GameObject.FindGameObjectsWithTag("Enemy");
-            if(currentEnemies.Length > 0)
+            float currentEliteChance = eliteSpawnChance + (globalDifficultyLevel * 0.01f);
+            if (stageNumber >= stageToStartElites && UnityEngine.Random.value < currentEliteChance)
             {
-                GameObject lastSpawned = currentEnemies[currentEnemies.Length-1];
-                float currentEliteChance = eliteSpawnChance + (globalDifficultyLevel * 0.01f);
-                if (stageNumber >= stageToStartElites && UnityEngine.Random.value < currentEliteChance)
-                {
-                    PromoteToElite(lastSpawned);
-                }
+                PromoteToElite(enemyInstance);
             }
 
             float delay = UnityEngine.Random.Range(spawnDelayMin, spawnDelayMax);
@@ -417,6 +435,7 @@ public class StageManager : MonoBehaviour
 
     private void PromoteToElite(GameObject enemyInstance)
     {
+        if(enemyInstance == null) return;
         EliteStats eliteComponent = enemyInstance.AddComponent<EliteStats>();
         eliteComponent.Initialize(eliteHealthMultiplier, eliteDamageMultiplier, eliteSpeedMultiplier, eliteAttackSpeedMultiplier, eliteCoinMultiplier, eliteXpMultiplier, eliteColorTint);
         if (eliteModifierPrefabs != null && eliteModifierPrefabs.Count > 0)

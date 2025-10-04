@@ -103,11 +103,6 @@ public class EnemyStats : MonoBehaviour
         
         // Aggiorna la vita corrente per riflettere la nuova vita massima
         currentHealth = maxHealth;
-
-        // IMPORTANTE: Aggiorna la velocità originale DOPO lo scaling,
-        // così i buff/debuff futuri si baseranno sul valore corretto.
-        moveSpeed *= multiplier;
-        originalMoveSpeed = moveSpeed;
         
         // Notifica la UI che la vita è cambiata
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
