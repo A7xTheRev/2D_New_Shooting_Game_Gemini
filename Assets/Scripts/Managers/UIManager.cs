@@ -257,13 +257,13 @@ public class UIManager : MonoBehaviour
     private void UpdateSessionCoinsUI(int sessionCoins)
     {
         if (sessionCoinsText != null)
-            sessionCoinsText.text = "Coins: " + sessionCoins;
+            sessionCoinsText.text = "" + sessionCoins;
     }
 
     private void UpdateSpecialCurrencyUI(int amount)
     {
         if (specialCurrencyText != null)
-            specialCurrencyText.text = "Gemme: " + amount;
+            specialCurrencyText.text = "" + amount;
     }
     
     public void UpdateSecondChanceUI(bool isAvailable)
