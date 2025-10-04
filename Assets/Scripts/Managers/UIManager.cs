@@ -20,9 +20,17 @@ public class UIManager : MonoBehaviour
     public GameObject optionsPanel;
     [Tooltip("L'immagine della vignetta che si trova nel Canvas della GameScene.")]
     public Image slowMotionVignetteImage; // Riferimento alla vignetta della scena
+
     [Header("UI Specifica Modalità")]
     [Tooltip("Il testo per mostrare il timer di sopravvivenza in modalità Endless.")]
     public TextMeshProUGUI survivalTimerText; 
+    // --- NUOVI RIFERIMENTI PER LA BARRA DEL BOSS ---
+    [Tooltip("Il contenitore della barra del boss (verrà nascosto nelle altre modalità).")]
+    public GameObject bossBarContainer;
+    [Tooltip("La slider che visualizza l'avvicinamento del boss.")]
+    public Slider bossBarSlider;
+    // --- FINE NUOVI RIFERIMENTI ---
+
     [Header("UI del Giocatore (collegata dinamicamente)")]
     public Slider abilitySlider;
     public Image abilityIconImage;
@@ -112,6 +120,17 @@ public class UIManager : MonoBehaviour
             bool isEndless = (GameDataManager.Instance != null && GameDataManager.Instance.selectedGameMode == GameMode.Endless);
             survivalTimerText.gameObject.SetActive(isEndless);
         }
+        
+        // --- NUOVA LOGICA PER LA BARRA DEL BOSS ---
+        bool isContinuousEndless = (GameDataManager.Instance != null && 
+                                    GameDataManager.Instance.selectedGameMode == GameMode.Endless &&
+                                    stageManager != null && // Aggiunto controllo per sicurezza
+                                    stageManager.endlessModeType == EndlessModeType.Continuous);
+
+        if (bossBarContainer != null)
+        {
+            bossBarContainer.SetActive(isContinuousEndless);
+        }
         // --- FINE NUOVA LOGICA ---
     }
 
@@ -131,6 +150,20 @@ public class UIManager : MonoBehaviour
                 // Usiamo TimeSpan per formattare facilmente il tempo in minuti e secondi
                 TimeSpan timeSpan = TimeSpan.FromSeconds(time);
                 survivalTimerText.text = string.Format("{0:D2}:{1:D2}", timeSpan.Minutes, timeSpan.Seconds);
+            }
+            
+            // --- NUOVA LOGICA DI AGGIORNAMENTO BARRA BOSS ---
+            if (bossBarContainer != null && bossBarContainer.activeInHierarchy)
+            {
+                float bossTimer = stageManager.GetBossTimer();
+                float bossInterval = stageManager.bossIntervalInMinutes * 60f;
+                if (bossInterval > 0)
+                {
+                    // La barra si riempie man mano che il tempo rimanente scende.
+                    // Progresso = (Tempo Totale - Tempo Rimanente) / Tempo Totale
+                    float progress = (bossInterval - bossTimer) / bossInterval;
+                    bossBarSlider.value = Mathf.Clamp01(progress);
+                }
             }
             // --- FINE NUOVA LOGICA ---
         }

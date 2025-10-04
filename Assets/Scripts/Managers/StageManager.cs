@@ -452,6 +452,7 @@ public class StageManager : MonoBehaviour
     }
 
     public float GetSurvivalTime() => survivalTimer;
+    public float GetBossTimer() => bossTimer;
 
     public void NextStage()
     {
