@@ -5392,9 +5392,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ddf3bd5fbfcce048a0839bdac269ed2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StageManager
-  storyGrowthRate: 0.045
+  storyGrowthRate: 0.05
   endlessModeType: 1
-  endlessGrowthRate: 0.13
+  endlessGrowthRate: 0.15
   endlessBossPrefabs:
   - {fileID: 6203975899621543097, guid: 4e89ff1fb7c5332479da56a93c21416c, type: 3}
   - {fileID: 5860843275857830134, guid: 73c2fa898dcc5b74c9ebb6fbcb6ceba9, type: 3}
@@ -5411,7 +5411,7 @@ MonoBehaviour:
   - {fileID: 8730231952669543138, guid: 675f5495df022e14f8dd04230b458cd0, type: 3}
   - {fileID: 7402836965189506433, guid: 3c8f12bbba5b8ca42a3bb4394cad7bc0, type: 3}
   endlessSuperBossStage: 20
-  initialSpawnInterval: 1.5
+  initialSpawnInterval: 2
   minSpawnInterval: 0.5
   timeToReachMinIntervalInMinutes: 15
   initialEnemyCap: 5
@@ -5419,7 +5419,7 @@ MonoBehaviour:
   timeToReachMaxCapInMinutes: 15
   startingEnemyTypeCount: 3
   newEnemyIntroductionInterval: 45
-  bossIntervalInMinutes: 5
+  bossIntervalInMinutes: 3.5
   eliteModifierPrefabs:
   - {fileID: 4182542984646248472, guid: db94f8e207ef2664eb9067e03d2c5f9e, type: 3}
   - {fileID: 2593946038037031173, guid: 90c284a6213b142469e304813e5558c0, type: 3}
