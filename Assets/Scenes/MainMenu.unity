@@ -20536,41 +20536,41 @@ MonoBehaviour:
     button: {fileID: 0}
   normalUpgradePanels:
   - upgradeType: 0
-    levelText: {fileID: 446743275}
-    costText: {fileID: 1926908542}
-    buyButton: {fileID: 587615580}
+    levelText: {fileID: 1692955666386695915}
+    costText: {fileID: 3412380878400845829}
+    buyButton: {fileID: 7329782544416696693}
   - upgradeType: 1
-    levelText: {fileID: 124443883}
-    costText: {fileID: 1242630028}
-    buyButton: {fileID: 885692244}
+    levelText: {fileID: 2921944635098163456}
+    costText: {fileID: 7318444274703584921}
+    buyButton: {fileID: 2755393150650187160}
   - upgradeType: 2
-    levelText: {fileID: 1071279587}
-    costText: {fileID: 429247940}
-    buyButton: {fileID: 1677602698}
+    levelText: {fileID: 2090358364243705713}
+    costText: {fileID: 425266636327000840}
+    buyButton: {fileID: 5045256865024099692}
   - upgradeType: 3
-    levelText: {fileID: 1342710990}
-    costText: {fileID: 1069548780}
-    buyButton: {fileID: 283557175}
+    levelText: {fileID: 9109466282174725792}
+    costText: {fileID: 8689517074088742206}
+    buyButton: {fileID: 5863307216549049905}
   - upgradeType: 4
-    levelText: {fileID: 588436711}
-    costText: {fileID: 1158463530}
-    buyButton: {fileID: 350323024}
+    levelText: {fileID: 121896000186175764}
+    costText: {fileID: 3098381236748474620}
+    buyButton: {fileID: 594533501191405863}
   specialUpgradePanels:
   - abilityID: 3
-    descriptionText: {fileID: 2086045613}
-    costText: {fileID: 1108899051}
-    buyButton: {fileID: 2006003025}
-    unlockedIndicator: {fileID: 489102878}
+    descriptionText: {fileID: 956566625212648609}
+    costText: {fileID: 1016106273696537356}
+    buyButton: {fileID: 3946283765965334375}
+    unlockedIndicator: {fileID: 3110497272403472733}
   - abilityID: 4
-    descriptionText: {fileID: 475890437}
-    costText: {fileID: 1707361177}
-    buyButton: {fileID: 57168229}
-    unlockedIndicator: {fileID: 919782387}
+    descriptionText: {fileID: 5968298391059343170}
+    costText: {fileID: 8996023980272138750}
+    buyButton: {fileID: 2069581528593275826}
+    unlockedIndicator: {fileID: 6486746616152286628}
   - abilityID: 5
-    descriptionText: {fileID: 291260828}
-    costText: {fileID: 1316042282}
-    buyButton: {fileID: 1528007516}
-    unlockedIndicator: {fileID: 418665077}
+    descriptionText: {fileID: 5498705354541207360}
+    costText: {fileID: 1324869603077359343}
+    buyButton: {fileID: 6910767752417614833}
+    unlockedIndicator: {fileID: 6461627629928297824}
 --- !u!4 &1769251313
 Transform:
   m_ObjectHideFlags: 0
@@ -30440,7 +30440,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 489.49573, y: -859.0493}
+  m_AnchoredPosition: {x: 539.94244, y: -760.1026}
   m_SizeDelta: {x: 300, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &1246718342298760459
@@ -38110,7 +38110,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 489.49573, y: -393.77045}
+  m_AnchoredPosition: {x: 539.94244, y: -360.7882}
   m_SizeDelta: {x: 1000, y: 324.52405}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2515670379684982695
@@ -70707,7 +70707,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 489.49573, y: -1324.3281}
+  m_AnchoredPosition: {x: 539.94244, y: -1159.417}
   m_SizeDelta: {x: 1000, y: 324.52405}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &8154773923583246516

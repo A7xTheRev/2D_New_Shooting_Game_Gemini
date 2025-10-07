@@ -37,6 +37,10 @@ public class Projectile : MonoBehaviour
     private float spriteWidth, spriteHeight;
     private bool hasChained = false; // NUOVA VARIABILE: tiene traccia se questo proiettile ha già scatenato un fulmine
 
+    // --- NUOVO: Variabile per memorizzare il danno del proiettile ---
+    private int currentDamage;
+    // --- FINE NUOVO ---
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -73,6 +77,17 @@ public class Projectile : MonoBehaviour
         // Ora inizializziamo il contatore e il timer qui, DOPO che le statistiche sono state impostate.
         currentPierceLeft = pierceCount;
         Invoke(nameof(Deactivate), lifeTime);
+        
+        // --- NUOVO: Imposta il danno iniziale del proiettile al momento dell'attivazione ---
+        if (owner != null)
+        {
+            this.currentDamage = Mathf.RoundToInt(owner.GetCurrentDamage() * this.damageMultiplier);
+        }
+        else
+        {
+            this.currentDamage = 0;
+        }
+        // --- FINE NUOVO ---
     }
 
     void FixedUpdate()
@@ -130,6 +145,7 @@ public class Projectile : MonoBehaviour
                     hasChained = true; // Marchia questo proiettile, non scatenerà più fulmini
                 }
             }
+
             if (areaDamageRadius > 0f)
             {
                 Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, areaDamageRadius);
@@ -140,8 +156,6 @@ public class Projectile : MonoBehaviour
                 }
             }
 
-            
-
             if (currentPierceLeft > 0)
             {
                 currentPierceLeft--;
@@ -149,6 +163,9 @@ public class Projectile : MonoBehaviour
             else if (owner != null && bouncesDoneEnemy < owner.bounceCountEnemy)
             {
                 bouncesDoneEnemy++;
+                // --- NUOVO: Riduci il danno prima del prossimo rimbalzo ---
+                this.currentDamage = Mathf.RoundToInt(this.currentDamage * owner.bounceDamageMultiplier);
+                // --- FINE NUOVO ---
                 BounceToNextEnemy(enemy.transform);
             }
             else
@@ -175,7 +192,10 @@ public class Projectile : MonoBehaviour
         isCrit = false;
         if (owner == null) return 0; // Modificato per non usare più baseDamage
 
-        int finalDamage = Mathf.RoundToInt(owner.damage * damageMultiplier);
+        // --- MODIFICA: Usa 'currentDamage' come base invece di ricalcolarlo da owner.damage ---
+        int finalDamage = this.currentDamage;
+        // --- FINE MODIFICA ---
+
         if (UnityEngine.Random.value < owner.critChance)
         {
             isCrit = true;

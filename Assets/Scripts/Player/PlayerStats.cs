@@ -38,7 +38,11 @@ public class PlayerStats : MonoBehaviour
     public int sessionCoins = 0;
     public int sessionSpecialCurrency = 0;
 
-    // --- NUOVA VARIABILE DI STATO ---
+    // --- NUOVO: Variabili per i moltiplicatori di danno ---
+    [HideInInspector] public float globalDamageMultiplier;
+    [HideInInspector] public float bounceDamageMultiplier;
+    // --- FINE NUOVO ---
+
     [HideInInspector]
     public bool isWeaponDisabled = false;
 
@@ -142,6 +146,11 @@ public class PlayerStats : MonoBehaviour
 
     void Start()
     {
+        // --- NUOVO: Reset dei moltiplicatori a inizio partita ---
+        globalDamageMultiplier = 1f;
+        bounceDamageMultiplier = 1f;
+        // --- FINE NUOVO ---
+
         ApplyPermanentUpgrades();
         tookDamageThisRun = false;
         
@@ -166,6 +175,17 @@ public class PlayerStats : MonoBehaviour
         if (spriteRenderer != null) { originalColor = spriteRenderer.color; }
         UpdateAllUI();
     }
+    
+    // --- NUOVO: Metodo per calcolare il danno base corretto ---
+    /// <summary>
+    /// Calcola il danno base del giocatore, tenendo conto dei moltiplicatori globali (es. penalità da ExtraProjectile).
+    /// </summary>
+    /// <returns>Il danno base attuale per un nuovo proiettile.</returns>
+    public int GetCurrentDamage()
+    {
+        return Mathf.RoundToInt(damage * globalDamageMultiplier);
+    }
+    // --- FINE NUOVO ---
 
     void Update()
     {
@@ -196,15 +216,9 @@ public class PlayerStats : MonoBehaviour
         {
             switch (pickup.type)
             {
-                case Pickup.PickupType.Coin:
-                    CollectCoin(pickup.value);
-                    break;
-                case Pickup.PickupType.Gem:
-                    CollectSpecialCurrency(pickup.value);
-                    break;
-                case Pickup.PickupType.Health:
-                    Heal(pickup.value);
-                    break;
+                case Pickup.PickupType.Coin: CollectCoin(pickup.value); break;
+                case Pickup.PickupType.Gem: CollectSpecialCurrency(pickup.value); break;
+                case Pickup.PickupType.Health: Heal(pickup.value); break;
             }
             pickup.Collect();
         }

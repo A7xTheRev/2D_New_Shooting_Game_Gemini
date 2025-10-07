@@ -22,3 +22,5 @@ MonoBehaviour:
   prerequisite: {fileID: 0}
   mutuallyExclusivePowerUps: []
   amount: 1
+  globalDamagePenalty: 0.85
+  bounceDamageMultiplier: 1
