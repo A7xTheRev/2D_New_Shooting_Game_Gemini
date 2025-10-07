@@ -31,7 +31,6 @@ public class TabMenuController : MonoBehaviour
 
     void Start()
     {
-        // Imposta i tab
         for (int i = 0; i < tabs.Length; i++)
         {
             if (tabs[i].panel.GetComponent<CanvasGroup>() == null)
@@ -43,14 +42,12 @@ public class TabMenuController : MonoBehaviour
             int index = i;
             tabs[i].button.onClick.AddListener(() => OnTabSelected(index));
 
-            // Tutti disattivi all'inizio
             tabs[i].panel.gameObject.SetActive(false);
             tabs[i].canvasGroup.alpha = 0;
             tabs[i].button.transform.localScale = Vector3.one;
             tabs[i].iconImage.color = deselectedColor;
         }
 
-        // 🔹 Mostra tab di default
         defaultTab = Mathf.Clamp(defaultTab, 0, tabs.Length - 1);
         ShowDefaultTab(defaultTab);
     }
@@ -82,20 +79,23 @@ public class TabMenuController : MonoBehaviour
         CanvasGroup currentCG = tabs[currentTab].canvasGroup;
         CanvasGroup nextCG = tabs[newIndex].canvasGroup;
 
-        float direction = (newIndex > currentTab) ? 1 : -1;
-        float width = Screen.width;
-
-        nextPanel.anchoredPosition = new Vector2(direction * width, 0);
+        // Attiva subito il nuovo pannello con alpha 0
         nextPanel.gameObject.SetActive(true);
         nextCG.alpha = 0;
 
+        // 🔹 FASE 1: Fade Out pannello attuale
         Sequence seq = DOTween.Sequence();
-        seq.Join(currentPanel.DOAnchorPosX(-direction * width, transitionDuration).SetEase(Ease.InOutQuad));
-        seq.Join(nextPanel.DOAnchorPosX(0, transitionDuration).SetEase(Ease.InOutQuad));
-        seq.Join(currentCG.DOFade(0, transitionDuration * 0.8f));
-        seq.Join(nextCG.DOFade(1, transitionDuration * 0.8f));
+        //seq.Join(currentCG.DOFade(0, transitionDuration * 0.5f).SetEase(Ease.InOutQuad));
 
-        // Aggiorna icone
+        // 🔹 FASE 2: Fade In nuovo pannello (dopo fade out)
+        //seq.Append(nextCG.DOFade(1, transitionDuration * 0.5f).SetEase(Ease.InOutQuad));
+
+        // Una sola fase con CrossFade
+        seq.Join(currentCG.DOFade(0, transitionDuration).SetEase(Ease.InOutQuad));
+        seq.Join(nextCG.DOFade(1, transitionDuration).SetEase(Ease.InOutQuad));
+
+
+        // Aggiorna icone (colore e scala)
         tabs[currentTab].button.transform.DOScale(1f, 0.25f);
         tabs[newIndex].button.transform.DOScale(iconScaleSelected, 0.25f);
         tabs[currentTab].iconImage.DOColor(deselectedColor, 0.25f);
@@ -103,6 +103,7 @@ public class TabMenuController : MonoBehaviour
 
         yield return seq.WaitForCompletion();
 
+        // 🔹 Fine transizione
         currentPanel.gameObject.SetActive(false);
         isTransitioning = false;
         currentTab = newIndex;

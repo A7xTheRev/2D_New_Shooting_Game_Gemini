@@ -106,7 +106,7 @@ public class MenuManager : MonoBehaviour
             panel.buyButton.onClick.AddListener(() => OnBuySpecialUpgradeButtonPressed(id));
         }
 
-        ShowMainPanel();
+// ---- ShowMainPanel();
         UpdateAllUI();
         UpdateRecordUI();
     }
@@ -135,14 +135,14 @@ public class MenuManager : MonoBehaviour
 
     private void DeactivateAllPanels()
     {
-        mainPanel.SetActive(false);
-        storePanel.SetActive(false);
-        hangarPanel.SetActive(false);
+// ---- mainPanel.SetActive(false);
+// ---- storePanel.SetActive(false);
+// ---- hangarPanel.SetActive(false);
         backgroundPanel.SetActive(false);
-        shipPanel.SetActive(false);
+// ---- shipPanel.SetActive(false);
         if (worldSelectionPanel != null) worldSelectionPanel.SetActive(false);
         if (sectorSelectionPanel != null) sectorSelectionPanel.SetActive(false);
-        if (missionsPanel != null) missionsPanel.SetActive(false);
+// ---- if (missionsPanel != null) missionsPanel.SetActive(false);
         if (gameModeSelectionPanel != null) gameModeSelectionPanel.SetActive(false);
         if (codexPanel != null) codexPanel.SetActive(false);
     }
