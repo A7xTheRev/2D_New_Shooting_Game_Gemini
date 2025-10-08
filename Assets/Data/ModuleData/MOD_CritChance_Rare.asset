@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_crit_r
   moduleName: Laser Targeting Scope
-  description: Increases critical chance by 8%.
+  description: Increases critical chance by 7%.
   icon: {fileID: 2665820773745100346, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 1
   slotType: 0
   statToModify: 2
-  bonusValue: 8
+  bonusValue: 0.07
   fusionResult: {fileID: 11400000, guid: cdc13841b8e447542b5bcd3ec456648a, type: 2}

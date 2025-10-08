@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_ap_m
   moduleName: Zero-Point Core
-  description: Increases ability power by 180.
+  description: Increases ability power by 160.
   icon: {fileID: 2125422020, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 4
   slotType: 2
   statToModify: 7
-  bonusValue: 180
+  bonusValue: 160
   fusionResult: {fileID: 0}

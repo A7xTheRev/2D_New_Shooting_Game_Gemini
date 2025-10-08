@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_hp_l
   moduleName: Ablative Armor Plate
-  description: Increases max health by 180.
+  description: Increases max health by 170.
   icon: {fileID: -876236540, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 3
   slotType: 1
   statToModify: 4
-  bonusValue: 180
+  bonusValue: 170
   fusionResult: {fileID: 11400000, guid: c141453d09754ca42a7ba0678547c959, type: 2}

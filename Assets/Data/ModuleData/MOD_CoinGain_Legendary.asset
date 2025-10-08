@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_coin_l
   moduleName: Matter Replicator
-  description: Increases coin drops by 17%.
+  description: Increases coin drops by 15%.
   icon: {fileID: 2125422020, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 3
   slotType: 2
   statToModify: 9
-  bonusValue: 17
+  bonusValue: 0.15
   fusionResult: {fileID: 11400000, guid: 7935875ad5d237b4991ef6a18046fab7, type: 2}

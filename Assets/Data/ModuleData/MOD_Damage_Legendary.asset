@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_dmg_l
   moduleName: Overcharged Amplifier
-  description: Increases base damage by 50.
+  description: Increases base damage by 45.
   icon: {fileID: 2665820773745100346, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 3
   slotType: 0
   statToModify: 0
-  bonusValue: 50
+  bonusValue: 45
   fusionResult: {fileID: 11400000, guid: ca1329a6aabce3f498864c8dcbcc3afe, type: 2}

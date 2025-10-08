@@ -405,6 +405,10 @@ public class ProgressionManager : MonoBehaviour
         pilotLevel = 1;
         moduleInventory.Clear();
         equippedModules.Clear();
+        foreach (ModuleSlotType slotType in System.Enum.GetValues(typeof(ModuleSlotType)))
+        {
+            equippedModules[slotType] = new List<string>();
+        }
         // --- FINE NUOVA LOGICA ---
         
         // 3. Imposta esplicitamente lo stato della navicella di default

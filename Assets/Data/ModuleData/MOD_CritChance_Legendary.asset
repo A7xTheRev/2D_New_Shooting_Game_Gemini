@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_crit_l
   moduleName: Weak-Point Analyzer
-  description: Increases critical chance by 17%.
+  description: Increases critical chance by 16%.
   icon: {fileID: 2665820773745100346, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 3
   slotType: 0
   statToModify: 2
-  bonusValue: 17
+  bonusValue: 0.16
   fusionResult: {fileID: 11400000, guid: 854397603d496214e9c123a2021d0fde, type: 2}

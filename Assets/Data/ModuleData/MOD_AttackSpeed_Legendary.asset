@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_as_l
   moduleName: Pre-loaded Capacitor
-  description: Increases attack speed by 17%.
+  description: Increases attack speed by 20%.
   icon: {fileID: 2665820773745100346, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 3
   slotType: 0
   statToModify: 1
-  bonusValue: 0.17
+  bonusValue: 0.2
   fusionResult: {fileID: 11400000, guid: 4761e07032a1e884f96575ef7b193fb1, type: 2}

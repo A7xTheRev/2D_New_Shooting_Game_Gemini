@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_crit_c
   moduleName: Targeting Scope
-  description: Increases critical chance by 5%.
+  description: Increases critical chance by 4%.
   icon: {fileID: 2665820773745100346, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 0
   slotType: 0
   statToModify: 2
-  bonusValue: 5
+  bonusValue: 0.04
   fusionResult: {fileID: 11400000, guid: d145626f21f695642a704a6ec457f584, type: 2}

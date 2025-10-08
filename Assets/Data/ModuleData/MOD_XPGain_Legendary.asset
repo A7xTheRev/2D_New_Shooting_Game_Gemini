@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_xp_l
   moduleName: Heuristic Processor
-  description: Increases XP gain by 17%.
+  description: Increases XP gain by 15%.
   icon: {fileID: 2125422020, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 3
   slotType: 2
   statToModify: 8
-  bonusValue: 17
+  bonusValue: 0.15
   fusionResult: {fileID: 11400000, guid: 72d349ee909a94f48bbd5a18491f9ac5, type: 2}

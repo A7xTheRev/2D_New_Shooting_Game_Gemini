@@ -2,7 +2,8 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Collections.Generic;
-using System.Linq; // Aggiunto per usare .FirstOrDefault
+using System.Linq;
+using System.Globalization;
 
 public class ModuleGenerator : EditorWindow
 {
@@ -60,7 +61,8 @@ public class ModuleGenerator : EditorWindow
             ModuleRarity rarity = (ModuleRarity)System.Enum.Parse(typeof(ModuleRarity), values[3]);
             ModuleSlotType slotType = (ModuleSlotType)System.Enum.Parse(typeof(ModuleSlotType), values[4]);
             ModuleStatType statToModify = (ModuleStatType)System.Enum.Parse(typeof(ModuleStatType), values[5]);
-            float bonusValue = float.Parse(values[6]);
+            // Usiamo CultureInfo.InvariantCulture per forzare l'uso del '.' come separatore decimale
+            float bonusValue = float.Parse(values[6], CultureInfo.InvariantCulture);
             // fusionResult (values[7]) lo useremo dopo
 
             // --- Logica per il nome del file ---

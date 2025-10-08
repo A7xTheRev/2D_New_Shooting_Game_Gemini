@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_hp_m
   moduleName: Nanite-Infused Plate
-  description: Increases max health by 350.
+  description: Increases max health by 320.
   icon: {fileID: -876236540, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 4
   slotType: 1
   statToModify: 4
-  bonusValue: 350
+  bonusValue: 320
   fusionResult: {fileID: 0}

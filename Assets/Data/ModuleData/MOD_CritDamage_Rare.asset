@@ -19,5 +19,5 @@ MonoBehaviour:
   rarity: 1
   slotType: 0
   statToModify: 3
-  bonusValue: 20
+  bonusValue: 0.2
   fusionResult: {fileID: 11400000, guid: 30378531713fd5e4484a6ecce846afeb, type: 2}

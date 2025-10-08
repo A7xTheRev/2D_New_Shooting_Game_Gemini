@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_ap_l
   moduleName: Energy Manifold
-  description: Increases ability power by 90.
+  description: Increases ability power by 85.
   icon: {fileID: 2125422020, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 3
   slotType: 2
   statToModify: 7
-  bonusValue: 90
+  bonusValue: 85
   fusionResult: {fileID: 11400000, guid: f58933b6f19e93e4289f8da972df5ff2, type: 2}

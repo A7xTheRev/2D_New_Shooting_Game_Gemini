@@ -1,19 +1,19 @@
 moduleID,moduleName,description,rarity,slotType,statToModify,bonusValue,fusionResult
 mod_dmg_c,Micro-Amplifier,Increases base damage by 5.,Common,Offensive,Damage,5,mod_dmg_r
 mod_dmg_r,Standard Amplifier,Increases base damage by 12.,Rare,Offensive,Damage,12,mod_dmg_e
-mod_dmg_e,Advanced Amplifier,Increases base damage by 25.,Epic,Offensive,Damage,25,mod_dmg_l
-mod_dmg_l,Overcharged Amplifier,Increases base damage by 50.,Legendary,Offensive,Damage,50,mod_dmg_m
-mod_dmg_m,Aetherium Amplifier,Increases base damage by 100.,Mythic,Offensive,Damage,100,None
+mod_dmg_e,Advanced Amplifier,Increases base damage by 24.,Epic,Offensive,Damage,24,mod_dmg_l
+mod_dmg_l,Overcharged Amplifier,Increases base damage by 45.,Legendary,Offensive,Damage,45,mod_dmg_m
+mod_dmg_m,Aetherium Amplifier,Increases base damage by 80.,Mythic,Offensive,Damage,80,None
 mod_as_c,Fast Capacitor,Increases attack speed by 5%.,Common,Offensive,AttackSpeed,0.05,mod_as_r
-mod_as_r,Rapid-Cycle Capacitor,Increases attack speed by 8%.,Rare,Offensive,AttackSpeed,0.08,mod_as_e
-mod_as_e,High-Flow Capacitor,Increases attack speed by 12%.,Epic,Offensive,AttackSpeed,0.12,mod_as_l
-mod_as_l,Pre-loaded Capacitor,Increases attack speed by 17%.,Legendary,Offensive,AttackSpeed,0.17,mod_as_m
-mod_as_m,Zero-Point Capacitor,Increases attack speed by 25%.,Mythic,Offensive,AttackSpeed,0.25,None
-mod_crit_c,Targeting Scope,Increases critical chance by 5%.,Common,Offensive,CritChance,0.05,mod_crit_r
-mod_crit_r,Laser Targeting Scope,Increases critical chance by 8%.,Rare,Offensive,CritChance,0.08,mod_crit_e
-mod_crit_e,Predictive Scope,Increases critical chance by 12%.,Epic,Offensive,CritChance,0.12,mod_crit_l
-mod_crit_l,Weak-Point Analyzer,Increases critical chance by 17%.,Legendary,Offensive,CritChance,0.17,mod_crit_m
-mod_crit_m,Fate-Weaver Scope,Increases critical chance by 25%.,Mythic,Offensive,CritChance,0.25,None
+mod_as_r,Rapid-Cycle Capacitor,Increases attack speed by 9%.,Rare,Offensive,AttackSpeed,0.09,mod_as_e
+mod_as_e,High-Flow Capacitor,Increases attack speed by 14%.,Epic,Offensive,AttackSpeed,0.14,mod_as_l
+mod_as_l,Pre-loaded Capacitor,Increases attack speed by 20%.,Legendary,Offensive,AttackSpeed,0.20,mod_as_m
+mod_as_m,Zero-Point Capacitor,Increases attack speed by 27%.,Mythic,Offensive,AttackSpeed,0.27,None
+mod_crit_c,Targeting Scope,Increases critical chance by 4%.,Common,Offensive,CritChance,0.04,mod_crit_r
+mod_crit_r,Laser Targeting Scope,Increases critical chance by 7%.,Rare,Offensive,CritChance,0.07,mod_crit_e
+mod_crit_e,Predictive Scope,Increases critical chance by 11%.,Epic,Offensive,CritChance,0.11,mod_crit_l
+mod_crit_l,Weak-Point Analyzer,Increases critical chance by 16%.,Legendary,Offensive,CritChance,0.16,mod_crit_m
+mod_crit_m,Fate-Weaver Scope,Increases critical chance by 22%.,Mythic,Offensive,CritChance,0.22,None
 mod_cdmg_c,Impact Magnifier,Increases critical damage by 10%.,Common,Offensive,CritDamage,0.10,mod_cdmg_r
 mod_cdmg_r,Force Magnifier,Increases critical damage by 20%.,Rare,Offensive,CritDamage,0.20,mod_cdmg_e
 mod_cdmg_e,Kinetic Magnifier,Increases critical damage by 35%.,Epic,Offensive,CritDamage,0.35,mod_cdmg_l
@@ -22,8 +22,8 @@ mod_cdmg_m,Singularity Magnifier,Increases critical damage by 75%.,Mythic,Offens
 mod_hp_c,Small Armor Plate,Increases max health by 20.,Common,Defensive,MaxHealth,20,mod_hp_r
 mod_hp_r,Standard Armor Plate,Increases max health by 45.,Rare,Defensive,MaxHealth,45,mod_hp_e
 mod_hp_e,Reinforced Armor Plate,Increases max health by 90.,Epic,Defensive,MaxHealth,90,mod_hp_l
-mod_hp_l,Ablative Armor Plate,Increases max health by 180.,Legendary,Defensive,MaxHealth,180,mod_hp_m
-mod_hp_m,Nanite-Infused Plate,Increases max health by 350.,Mythic,Defensive,MaxHealth,350,None
+mod_hp_l,Ablative Armor Plate,Increases max health by 170.,Legendary,Defensive,MaxHealth,170,mod_hp_m
+mod_hp_m,Nanite-Infused Plate,Increases max health by 320.,Mythic,Defensive,MaxHealth,320,None
 mod_regen_c,Auto-Repair System,Regenerates 0.2 health per second.,Common,Defensive,HealthRegen,0.2,mod_regen_r
 mod_regen_r,Nanite Repair System,Regenerates 0.5 health per second.,Rare,Defensive,HealthRegen,0.5,mod_regen_e
 mod_regen_e,Advanced Nanite System,Regenerates 1.0 health per second.,Epic,Defensive,HealthRegen,1.0,mod_regen_l
@@ -37,15 +37,15 @@ mod_spd_m,Slipstream Drive,Increases movement speed by 22%.,Mythic,Utility,MoveS
 mod_ap_c,Power Conduit,Increases ability power by 10.,Common,Utility,AbilityPower,10,mod_ap_r
 mod_ap_r,Energy Focus,Increases ability power by 22.,Rare,Utility,AbilityPower,22,mod_ap_e
 mod_ap_e,Power Overcharger,Increases ability power by 45.,Epic,Utility,AbilityPower,45,mod_ap_l
-mod_ap_l,Energy Manifold,Increases ability power by 90.,Legendary,Utility,AbilityPower,90,mod_ap_m
-mod_ap_m,Zero-Point Core,Increases ability power by 180.,Mythic,Utility,AbilityPower,180,None
+mod_ap_l,Energy Manifold,Increases ability power by 85.,Legendary,Utility,AbilityPower,85,mod_ap_m
+mod_ap_m,Zero-Point Core,Increases ability power by 160.,Mythic,Utility,AbilityPower,160,None
 mod_xp_c,Learning Algorithm,Increases XP gain by 5%.,Common,Utility,XPGain,0.05,mod_xp_r
 mod_xp_r,Enhanced Learning CPU,Increases XP gain by 8%.,Rare,Utility,XPGain,0.08,mod_xp_e
-mod_xp_e,Combat Data Processor,Increases XP gain by 12%.,Epic,Utility,XPGain,0.12,mod_xp_l
-mod_xp_l,Heuristic Processor,Increases XP gain by 17%.,Legendary,Utility,XPGain,0.17,mod_xp_m
-mod_xp_m,Quantum AI Processor,Increases XP gain by 25%.,Mythic,Utility,XPGain,0.25,None
+mod_xp_e,Combat Data Processor,Increases XP gain by 11%.,Epic,Utility,XPGain,0.11,mod_xp_l
+mod_xp_l,Heuristic Processor,Increases XP gain by 15%.,Legendary,Utility,XPGain,0.15,mod_xp_m
+mod_xp_m,Quantum AI Processor,Increases XP gain by 20%.,Mythic,Utility,XPGain,0.20,None
 mod_coin_c,Scavenger Magnet,Increases coin drops by 5%.,Common,Utility,CoinGain,0.05,mod_coin_r
 mod_coin_r,Enhanced Scavenger,Increases coin drops by 8%.,Rare,Utility,CoinGain,0.08,mod_coin_e
-mod_coin_e,Resource Optimizer,Increases coin drops by 12%.,Epic,Utility,CoinGain,0.12,mod_coin_l
-mod_coin_l,Matter Replicator,Increases coin drops by 17%.,Legendary,Utility,CoinGain,0.17,mod_coin_m
-mod_coin_m,Aetherium Converter,Increases coin drops by 25%.,Mythic,Utility,CoinGain,0.25,None
+mod_coin_e,Resource Optimizer,Increases coin drops by 11%.,Epic,Utility,CoinGain,0.11,mod_coin_l
+mod_coin_l,Matter Replicator,Increases coin drops by 15%.,Legendary,Utility,CoinGain,0.15,mod_coin_m
+mod_coin_m,Aetherium Converter,Increases coin drops by 20%.,Mythic,Utility,CoinGain,0.20,None

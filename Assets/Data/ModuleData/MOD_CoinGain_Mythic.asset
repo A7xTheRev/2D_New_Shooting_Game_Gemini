@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_coin_m
   moduleName: Aetherium Converter
-  description: Increases coin drops by 25%.
+  description: Increases coin drops by 20%.
   icon: {fileID: 2125422020, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 4
   slotType: 2
   statToModify: 9
-  bonusValue: 25
+  bonusValue: 0.2
   fusionResult: {fileID: 0}

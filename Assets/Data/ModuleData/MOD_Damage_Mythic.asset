@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_dmg_m
   moduleName: Aetherium Amplifier
-  description: Increases base damage by 100.
+  description: Increases base damage by 80.
   icon: {fileID: 2665820773745100346, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 4
   slotType: 0
   statToModify: 0
-  bonusValue: 100
+  bonusValue: 80
   fusionResult: {fileID: 0}

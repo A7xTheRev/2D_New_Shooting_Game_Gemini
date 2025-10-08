@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_coin_e
   moduleName: Resource Optimizer
-  description: Increases coin drops by 12%.
+  description: Increases coin drops by 11%.
   icon: {fileID: 2125422020, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 2
   slotType: 2
   statToModify: 9
-  bonusValue: 12
+  bonusValue: 0.11
   fusionResult: {fileID: 11400000, guid: 1adcc927894c89245bfebc6accf1419e, type: 2}

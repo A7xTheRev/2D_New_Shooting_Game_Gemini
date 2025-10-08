@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_crit_e
   moduleName: Predictive Scope
-  description: Increases critical chance by 12%.
+  description: Increases critical chance by 11%.
   icon: {fileID: 2665820773745100346, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 2
   slotType: 0
   statToModify: 2
-  bonusValue: 12
+  bonusValue: 0.11
   fusionResult: {fileID: 11400000, guid: 5df2590c16ac4de4d8fe16933ed027db, type: 2}

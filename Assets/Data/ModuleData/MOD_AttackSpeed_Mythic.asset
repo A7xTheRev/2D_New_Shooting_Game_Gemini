@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_as_m
   moduleName: Zero-Point Capacitor
-  description: Increases attack speed by 25%.
+  description: Increases attack speed by 27%.
   icon: {fileID: 2665820773745100346, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 4
   slotType: 0
   statToModify: 1
-  bonusValue: 0.25
+  bonusValue: 0.27
   fusionResult: {fileID: 0}

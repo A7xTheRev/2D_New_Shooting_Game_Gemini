@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_dmg_e
   moduleName: Advanced Amplifier
-  description: Increases base damage by 25.
+  description: Increases base damage by 24.
   icon: {fileID: 2665820773745100346, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 2
   slotType: 0
   statToModify: 0
-  bonusValue: 25
+  bonusValue: 24
   fusionResult: {fileID: 11400000, guid: 7f6f0c4f906374e4bbb09febbc0c90ed, type: 2}
