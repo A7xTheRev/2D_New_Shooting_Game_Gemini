@@ -80,13 +80,16 @@ public class ProgressionManager : MonoBehaviour
     private Dictionary<string, int> sectorProgress = new Dictionary<string, int>();
     private HashSet<string> claimedCodexRewards = new HashSet<string>();
     
-    // --- NUOVE VARIABILI PER IL SISTEMA DI MODULI ---
+    // Dati Sistema Moduli
     private long totalExperience;
     private int pilotLevel;
     private Dictionary<string, int> moduleInventory = new Dictionary<string, int>();
     // La chiave è il tipo di slot, la lista contiene gli ID dei moduli equipaggiati in ordine
     private Dictionary<ModuleSlotType, List<string>> equippedModules = new Dictionary<ModuleSlotType, List<string>>();
-    // --- FINE NUOVE VARIABILI ---
+    
+    // --- NUOVO: Dizionario per accedere velocemente ai moduli per rarità ---
+    private Dictionary<ModuleRarity, List<ModuleData>> modulesByRarity = new Dictionary<ModuleRarity, List<ModuleData>>();
+    // --- FINE NUOVO ---
 
     public static event System.Action OnValuesChanged;
 
@@ -96,6 +99,7 @@ public class ProgressionManager : MonoBehaviour
         { 
             _instance = this; 
             DontDestroyOnLoad(gameObject);
+            InitializeModuleDatabase(); // --- NUOVO: Pre-organizza i moduli all'avvio ---
             LoadData(); 
         }
         else if (_instance != this) 
@@ -483,6 +487,7 @@ public class ProgressionManager : MonoBehaviour
                 {
                 Debug.Log($"Progresso missione '{mission.title}': {missionProgress[mission.missionID]}/{mission.targetValue}");
                 }
+                
                 if(missionProgress[mission.missionID] >= mission.targetValue)
                 {
                     if (DebugManager.Instance != null && DebugManager.Instance.showMissionLogs)
@@ -578,7 +583,76 @@ public class ProgressionManager : MonoBehaviour
     
     #region Module System
 
-    // --- METODI PUBBLICI PER IL LIVELLO PILOTA ---
+    // --- NUOVI METODI PER LA LOGICA DI LOOT BASATA SULLA RARITA' ---
+
+    /// <summary>
+    /// Pre-organizza tutti i moduli in un dizionario per efficienza, chiamato una sola volta all'avvio.
+    /// </summary>
+    private void InitializeModuleDatabase()
+    {
+        modulesByRarity.Clear();
+        foreach (ModuleRarity rarity in System.Enum.GetValues(typeof(ModuleRarity)))
+        {
+            modulesByRarity[rarity] = new List<ModuleData>();
+        }
+
+        foreach (ModuleData module in allModuleDataAssets)
+        {
+            if (module != null)
+            {
+                modulesByRarity[module.rarity].Add(module);
+            }
+        }
+        Debug.Log("Banca dati dei moduli per rarità inizializzata.");
+    }
+
+    /// <summary>
+    /// Restituisce una lista di tutti i ModuleData di una specifica rarità.
+    /// </summary>
+    public List<ModuleData> GetModulesByRarity(ModuleRarity rarity)
+    {
+        return modulesByRarity.ContainsKey(rarity) ? modulesByRarity[rarity] : new List<ModuleData>();
+    }
+
+    /// <summary>
+    /// Esegue la logica di drop a 2 fasi: prima sceglie una rarità, poi un modulo a caso di quella rarità.
+    /// </summary>
+    public ModuleData GetRandomModuleDrop(List<RarityDropChance> chances)
+    {
+        if (chances == null || chances.Count == 0) return null;
+
+        // FASE 1: Scegli la Rarità in base ai pesi
+        float totalWeight = chances.Sum(c => c.weight);
+        if (totalWeight <= 0) return null;
+
+        float randomValue = Random.Range(0f, totalWeight);
+        ModuleRarity chosenRarity = chances.Last().rarity; // Fallback in caso di errori
+
+        foreach (var chance in chances)
+        {
+            if (randomValue <= chance.weight)
+            {
+                chosenRarity = chance.rarity;
+                break;
+            }
+            randomValue -= chance.weight;
+        }
+
+        // FASE 2: Scegli un modulo a caso di quella rarità
+        List<ModuleData> availableModules = GetModulesByRarity(chosenRarity);
+        if (availableModules.Count == 0)
+        {
+            Debug.LogWarning($"Nessun modulo trovato per la rarità estratta: {chosenRarity}. Controlla che 'allModuleDataAssets' sia popolato.");
+            return null;
+        }
+
+        int randomIndex = Random.Range(0, availableModules.Count);
+        return availableModules[randomIndex];
+    }
+    // --- FINE NUOVI METODI ---
+
+
+    // --- METODI ESISTENTI DEL MODULE SYSTEM ---
     public int GetPilotLevel() => pilotLevel;
     public long GetTotalExperience() => totalExperience;
     public long GetCurrentLevelXP()
@@ -656,7 +730,10 @@ public class ProgressionManager : MonoBehaviour
     {
         return moduleInventory.ContainsKey(moduleID) ? moduleInventory[moduleID] : 0;
     }
-    
+    public Dictionary<string, int> GetModuleInventory()
+    {
+        return moduleInventory;
+    }
     public void AddModule(string moduleID, int quantity = 1)
     {
         if (moduleInventory.ContainsKey(moduleID))
@@ -766,18 +843,6 @@ public class ProgressionManager : MonoBehaviour
         equippedModules[slotType][slotIndex] = null;
         // Aggiungi all'inventario
         AddModule(moduleID, 1);
-        
-        // Non è necessario chiamare SaveData/OnValuesChanged qui perché AddModule lo fa già.
-    }
-    
-    // --- METODI PER L'INVENTARIO DEI MODULI ---
-
-    /// <summary>
-    /// Restituisce una copia del dizionario dell'inventario dei moduli.
-    /// </summary>
-    public Dictionary<string, int> GetModuleInventory()
-    {
-        return moduleInventory;
     }
     #endregion
 }

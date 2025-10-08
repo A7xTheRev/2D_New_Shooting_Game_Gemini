@@ -355,13 +355,13 @@ public class EnemyStats : MonoBehaviour
         }
 
         // --- NUOVA LOGICA PER IL DROP DEI MODULI ---
-        if (enemyData.moduleLootTable != null && ProgressionManager.Instance != null)
+    if (ProgressionManager.Instance != null && enemyData.moduleRarityDropChances.Count > 0)
         {
-            // Controlla se il "tiro" per droppare un modulo ha successo
+        // Controlla se il "tiro" generale per droppare un modulo ha successo
             if (UnityEngine.Random.value < enemyData.moduleDropChance)
             {
-                // Se ha successo, estrai un modulo dalla loot table
-                ModuleData droppedModule = enemyData.moduleLootTable.GetRandomDrop();
+                // Chiama il nuovo metodo del ProgressionManager per ottenere un modulo
+                ModuleData droppedModule = ProgressionManager.Instance.GetRandomModuleDrop(enemyData.moduleRarityDropChances);
                 if (droppedModule != null)
                 {
                     // Aggiungi il modulo all'inventario del giocatore

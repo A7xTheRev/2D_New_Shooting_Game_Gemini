@@ -146,10 +146,10 @@ MonoBehaviour:
   selectionOutline: {fileID: 3155741540474307810}
   fuseButton: {fileID: 6943778533024893931}
   commonColor: {r: 1, g: 1, b: 1, a: 1}
-  rareColor: {r: 0, g: 1, b: 1, a: 1}
-  epicColor: {r: 1, g: 0, b: 1, a: 1}
-  legendaryColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  mythicColor: {r: 1, g: 0, b: 0, a: 1}
+  rareColor: {r: 0.13333334, g: 0.41960788, b: 0.16470589, a: 1}
+  epicColor: {r: 0.003921569, g: 0.3137255, b: 0.6156863, a: 1}
+  legendaryColor: {r: 0.4666667, g: 0.09019608, b: 0.7843138, a: 1}
+  mythicColor: {r: 0.78823537, g: 0.627451, b: 0.16470589, a: 1}
 --- !u!1 &2650061434034576932
 GameObject:
   m_ObjectHideFlags: 0

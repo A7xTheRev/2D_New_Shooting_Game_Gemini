@@ -12773,12 +12773,56 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cd3fdfa1b20652d499c47534fbeae6f8, type: 2}
   - {fileID: 11400000, guid: bd4c504eb7e2bf74182d067e6670c2e9, type: 2}
   allModuleDataAssets:
-  - {fileID: 11400000, guid: a3406835e108a0e4489c66894b468bd5, type: 2}
-  - {fileID: 11400000, guid: 5323df88b6bdb934db2e58ab0389c9db, type: 2}
-  - {fileID: 11400000, guid: ce13a4b6d0b595e49a994fd65f9acd4b, type: 2}
-  - {fileID: 11400000, guid: 45c59489ba1b13b4e88d82d420745084, type: 2}
-  - {fileID: 11400000, guid: ab103859ed6eeb84db58b369312cdb08, type: 2}
-  - {fileID: 11400000, guid: 10a45132189d2124d918571152cca96d, type: 2}
+  - {fileID: 11400000, guid: e01c0fdbd0e2ff7459573b61ad12920c, type: 2}
+  - {fileID: 11400000, guid: bab486d6fc75cbd4395c7b6bbef07e4e, type: 2}
+  - {fileID: 11400000, guid: 93088207211e0c84b9638326a20e3765, type: 2}
+  - {fileID: 11400000, guid: f58933b6f19e93e4289f8da972df5ff2, type: 2}
+  - {fileID: 11400000, guid: 2780684a157783c4cbf2a5bea8643f9e, type: 2}
+  - {fileID: 11400000, guid: 51cb7466cb4cd3743a45184300a1a774, type: 2}
+  - {fileID: 11400000, guid: 20abea4525c45bf4ab273a9e970caf8e, type: 2}
+  - {fileID: 11400000, guid: 884c78708a5bae649b2dfb32ad55a0d4, type: 2}
+  - {fileID: 11400000, guid: 4761e07032a1e884f96575ef7b193fb1, type: 2}
+  - {fileID: 11400000, guid: 0354da7252ed9a84ea3726dd6188640e, type: 2}
+  - {fileID: 11400000, guid: 92df1d5e50e776f4aac9f189acb246b5, type: 2}
+  - {fileID: 11400000, guid: ae1bd7b11d63b9749ba8df5e5b451bcc, type: 2}
+  - {fileID: 11400000, guid: 1adcc927894c89245bfebc6accf1419e, type: 2}
+  - {fileID: 11400000, guid: 7935875ad5d237b4991ef6a18046fab7, type: 2}
+  - {fileID: 11400000, guid: 157e5f56c7c1ef74c90003173d16b167, type: 2}
+  - {fileID: 11400000, guid: 4300ee953996aec4486d993675cf75c9, type: 2}
+  - {fileID: 11400000, guid: cdc13841b8e447542b5bcd3ec456648a, type: 2}
+  - {fileID: 11400000, guid: 5df2590c16ac4de4d8fe16933ed027db, type: 2}
+  - {fileID: 11400000, guid: 854397603d496214e9c123a2021d0fde, type: 2}
+  - {fileID: 11400000, guid: d145626f21f695642a704a6ec457f584, type: 2}
+  - {fileID: 11400000, guid: a9971b447e565784ea9da2be3090b257, type: 2}
+  - {fileID: 11400000, guid: 30378531713fd5e4484a6ecce846afeb, type: 2}
+  - {fileID: 11400000, guid: 1f5fefaf486c0f24b93cd261f9579241, type: 2}
+  - {fileID: 11400000, guid: 4de5e43a48dd5fb4d9cede72b71c7ff9, type: 2}
+  - {fileID: 11400000, guid: 4d5cfd6d578cad341a0a44718c60a6a0, type: 2}
+  - {fileID: 11400000, guid: 25dc105de9325b64a8706f6336eeec67, type: 2}
+  - {fileID: 11400000, guid: 4eb0252d326b4f94c88622ee196450c2, type: 2}
+  - {fileID: 11400000, guid: 7f6f0c4f906374e4bbb09febbc0c90ed, type: 2}
+  - {fileID: 11400000, guid: ca1329a6aabce3f498864c8dcbcc3afe, type: 2}
+  - {fileID: 11400000, guid: da0403166be796c4c8886a0b81973acf, type: 2}
+  - {fileID: 11400000, guid: c7b1dba69ce88b94ebc12231b196f976, type: 2}
+  - {fileID: 11400000, guid: 223c0816156c9944fad57ee1e3fec86c, type: 2}
+  - {fileID: 11400000, guid: 644d55702bcc34a4d8d474c4b22ad99b, type: 2}
+  - {fileID: 11400000, guid: 3c02f7ae15534934698ad9cad5927c30, type: 2}
+  - {fileID: 11400000, guid: b7fbe2608c207fb4f9716eaa748703fb, type: 2}
+  - {fileID: 11400000, guid: c6b8f99dfa21992429a7e70c7a828a88, type: 2}
+  - {fileID: 11400000, guid: a402cab42316bbc409e7be4deca1fa6f, type: 2}
+  - {fileID: 11400000, guid: 4fc0de9953c24384ca941ad3f65641cf, type: 2}
+  - {fileID: 11400000, guid: c141453d09754ca42a7ba0678547c959, type: 2}
+  - {fileID: 11400000, guid: 876e2dcc011c5a849a0c1b17f9f50a22, type: 2}
+  - {fileID: 11400000, guid: ca151bf6779736b4c8293d60d936b0f8, type: 2}
+  - {fileID: 11400000, guid: 6136e9f643394764ab40100fff40ed1d, type: 2}
+  - {fileID: 11400000, guid: 691620eead47df74ea8764bc9113b7be, type: 2}
+  - {fileID: 11400000, guid: 7ada5418207a47b4885ac9f2d03ab7ee, type: 2}
+  - {fileID: 11400000, guid: e8bcbd4155eb0fa449f8d207140cc768, type: 2}
+  - {fileID: 11400000, guid: 13b9fd481b92bd9449739c6d8259d1ca, type: 2}
+  - {fileID: 11400000, guid: 3c240d331b5233346b9a1c224e4f0486, type: 2}
+  - {fileID: 11400000, guid: ed6ea417291956d4abbc15081ae401a3, type: 2}
+  - {fileID: 11400000, guid: 72d349ee909a94f48bbd5a18491f9ac5, type: 2}
+  - {fileID: 11400000, guid: 6c9c190e230793b4aa2e8b644229652a, type: 2}
   baseXPForLevelUp: 1000
   xpMultiplierPerLevel: 1.15
   pilotLevelUnlocks: []

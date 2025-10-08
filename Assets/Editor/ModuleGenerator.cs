@@ -9,8 +9,8 @@ public class ModuleGenerator : EditorWindow
     // Variabili per la nostra finestra del tool
     private string csvPath = "Assets/Data/Modules.csv";
     private string outputPath = "Assets/Data/ModuleData/";
-    private string specificIconsFolderPath = "Assets/Resources/ModuleIcons/Specific/";
-    private string genericIconsSheetPath = "Assets/Resources/ModuleIcons/Generic/GenericIcons.png"; // Percorso al file dello sheet
+    private string specificIconsFolderPath = "Assets/Resources/Icons/Modules";
+    private string genericIconsSheetPath = "Assets/Resources/Icons/Modules/MOD_GenericIcons.png"; // Percorso al file dello sheet
 
     private Sprite[] genericSpritesCache; // Cache per non ricaricare lo sheet ogni volta
 

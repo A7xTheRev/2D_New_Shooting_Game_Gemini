@@ -70,17 +70,22 @@ public class VictoryManager : MonoBehaviour
     // --- NUOVO METODO PER GESTIRE LE RICOMPENSE IN MODULI ---
     private void GrantModuleRewards()
     {
-        if (lastCompletedSectorData == null || lastCompletedSectorData.victoryLootTable == null)
+    if (lastCompletedSectorData == null || ProgressionManager.Instance == null)
         {
             return;
         }
+
+    // --- MODIFICA: Logica di ricompensa aggiornata ---
+    var chances = lastCompletedSectorData.victoryRarityDropChances;
+    if (chances == null || chances.Count == 0) return;
 
         List<ModuleData> awardedModules = new List<ModuleData>();
 
         // Tira il dado per ogni modulo che dobbiamo assegnare
         for (int i = 0; i < lastCompletedSectorData.moduleRewardsCount; i++)
         {
-            ModuleData droppedModule = lastCompletedSectorData.victoryLootTable.GetRandomDrop();
+        // Chiama il nuovo metodo del ProgressionManager per ottenere un modulo
+        ModuleData droppedModule = ProgressionManager.Instance.GetRandomModuleDrop(chances);
             if (droppedModule != null)
             {
                 ProgressionManager.Instance.AddModule(droppedModule.moduleID, 1);
@@ -90,8 +95,6 @@ public class VictoryManager : MonoBehaviour
 
         if (awardedModules.Count > 0)
         {
-            // Per ora, logghiamo in console i moduli ottenuti.
-            // In Fase 4, creeremo la UI per mostrarli a schermo.
             Debug.Log($"Ricompense settore '{lastCompletedSectorName}' completato:");
             foreach (var module in awardedModules)
             {

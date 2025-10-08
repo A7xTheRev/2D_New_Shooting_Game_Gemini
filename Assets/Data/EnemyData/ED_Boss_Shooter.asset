@@ -38,5 +38,11 @@ MonoBehaviour:
     targeted barrages
   codexCoinReward: 100
   codexGemReward: 5
-  moduleLootTable: {fileID: 11400000, guid: e216185c94374444998b45e5a0a5849f, type: 2}
+  moduleRarityDropChances:
+  - rarity: 0
+    weight: 50
+  - rarity: 1
+    weight: 45
+  - rarity: 2
+    weight: 5
   moduleDropChance: 1

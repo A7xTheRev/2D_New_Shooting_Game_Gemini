@@ -37,3 +37,9 @@ MonoBehaviour:
     but temporarily disables primary weapon systems upon impact
   codexCoinReward: 100
   codexGemReward: 5
+  moduleRarityDropChances:
+  - rarity: 0
+    weight: 95
+  - rarity: 1
+    weight: 5
+  moduleDropChance: 0.01

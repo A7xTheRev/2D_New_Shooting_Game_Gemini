@@ -27,9 +27,10 @@ public class SectorData : ScriptableObject
     public Texture2D backgroundTexture;
 
     // --- NUOVA SEZIONE PER LE RICOMPENSE DEI MODULI ---
-    [Header("Module Rewards")]
-    [Tooltip("La Loot Table da cui pescare le ricompense in moduli alla vittoria.")]
-    public LootTable victoryLootTable;
+    [Header("Module Rewards (Rarity-Based)")]
+    [Tooltip("Definisce le probabilità (pesi) per ogni rarità dei moduli dati come ricompensa.")]
+    public List<RarityDropChance> victoryRarityDropChances;
+    
     [Tooltip("Quanti moduli vengono assegnati al giocatore alla vittoria.")]
     [Range(0, 10)]
     public int moduleRewardsCount = 1;

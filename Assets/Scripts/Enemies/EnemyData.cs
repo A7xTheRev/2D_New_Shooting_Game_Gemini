@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic; // <-- ECCO LA RIGA MANCANTE
 
 // Questo attributo ci permette di creare nuovi "Enemy Data" dal menu di Unity
 [CreateAssetMenu(fileName = "New Enemy Data", menuName = "Game Data/Enemy Data")]
@@ -59,11 +60,13 @@ public class EnemyData : ScriptableObject
     public int codexGemReward = 5;
 
     // --- NUOVA SEZIONE PER I DROP DEI MODULI ---
-    [Header("Module Drops")]
-    [Tooltip("La tabella di loot usata per determinare QUALE modulo droppare.")]
-    public LootTable moduleLootTable;
+    // --- MODIFICA: Sostituito il sistema di loot table ---
+    [Header("Module Drops (Rarity-Based)")]
+    [Tooltip("Definisce le probabilità (pesi) di drop per ogni rarità di modulo.")]
+    public List<RarityDropChance> moduleRarityDropChances;
+    
     [Range(0f, 1f)]
-    [Tooltip("La probabilità (da 0 a 1) che questo nemico droppi un modulo dalla sua loot table.")]
-    public float moduleDropChance = 0.01f; // Es. 1% di base
-    // --- FINE NUOVA SEZIONE ---
+    [Tooltip("La probabilità generale (da 0 a 1) che questo nemico droppi un modulo.")]
+    public float moduleDropChance = 0.01f;
+    // --- FINE MODIFICA ---
 }

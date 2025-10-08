@@ -25,5 +25,9 @@ MonoBehaviour:
   availableElites: []
   guardianBossPrefab: {fileID: 2360865920486709351, guid: 9cd1657c2c9750f4ab79e9b95ab815f2, type: 3}
   backgroundTexture: {fileID: 2800000, guid: e761502bf3b1d13428fb2f26a4edd6db, type: 3}
-  victoryLootTable: {fileID: 11400000, guid: f81ba3ce7905ac046b8190992db78b22, type: 2}
+  victoryRarityDropChances:
+  - rarity: 0
+    weight: 35
+  - rarity: 1
+    weight: 65
   moduleRewardsCount: 2
