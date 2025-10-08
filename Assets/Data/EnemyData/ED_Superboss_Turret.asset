@@ -37,3 +37,5 @@ MonoBehaviour:
     threat on its own, designed to protect the central command unit
   codexCoinReward: 100
   codexGemReward: 5
+  moduleLootTable: {fileID: 0}
+  moduleDropChance: 0.01

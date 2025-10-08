@@ -37,3 +37,5 @@ MonoBehaviour:
     weak, they rely on overwhelming numbers to corner their prey
   codexCoinReward: 100
   codexGemReward: 5
+  moduleLootTable: {fileID: 11400000, guid: 1a0665500f256ab4ebdfcb3cc989567c, type: 2}
+  moduleDropChance: 0.01

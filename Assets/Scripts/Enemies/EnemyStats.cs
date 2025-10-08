@@ -354,6 +354,26 @@ public class EnemyStats : MonoBehaviour
             Instantiate(LootManager.Instance.healthPickupPrefab, transform.position, Quaternion.identity);
         }
 
+        // --- NUOVA LOGICA PER IL DROP DEI MODULI ---
+        if (enemyData.moduleLootTable != null && ProgressionManager.Instance != null)
+        {
+            // Controlla se il "tiro" per droppare un modulo ha successo
+            if (UnityEngine.Random.value < enemyData.moduleDropChance)
+            {
+                // Se ha successo, estrai un modulo dalla loot table
+                ModuleData droppedModule = enemyData.moduleLootTable.GetRandomDrop();
+                if (droppedModule != null)
+                {
+                    // Aggiungi il modulo all'inventario del giocatore
+                    ProgressionManager.Instance.AddModule(droppedModule.moduleID, 1);
+                    
+                    // TODO in futuro: Istanziare un prefab "Pickup Modulo" qui
+                    Debug.Log($"Nemico ha droppato il modulo: {droppedModule.moduleName}");
+                }
+            }
+        }
+        // --- FINE NUOVA LOGICA ---
+
         player.GetComponent<AbilityController>()?.AddChargeFromKill();
     }
 

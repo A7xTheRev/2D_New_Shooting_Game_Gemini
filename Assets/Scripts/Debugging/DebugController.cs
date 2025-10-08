@@ -22,6 +22,12 @@ public class DebugController : MonoBehaviour
     private TMP_InputField stageInput;
     private TMP_InputField timerInput;
 
+    // --- NUOVI RIFERIMENTI PER I MODULI ---
+    private TMP_InputField moduleIDInput;
+    private TMP_InputField moduleQuantityInput;
+    private Button addModuleButton;
+    // --- FINE NUOVI RIFERIMENTI ---
+
     private PlayerStats playerStats;
     private StageManager stageManager;
     private PowerUpManager powerUpManager;
@@ -132,11 +138,24 @@ public class DebugController : MonoBehaviour
         stageInput = debugPanel.transform.Find("StageInput")?.GetComponent<TMP_InputField>();
         timerInput = debugPanel.transform.Find("TimerInput")?.GetComponent<TMP_InputField>();
         
+        // --- NUOVA LOGICA PER TROVARE I CAMPI DEI MODULI ---
+        moduleIDInput = debugPanel.transform.Find("ModuleIDInput")?.GetComponent<TMP_InputField>();
+        moduleQuantityInput = debugPanel.transform.Find("ModuleQuantityInput")?.GetComponent<TMP_InputField>();
+        addModuleButton = debugPanel.transform.Find("AddModuleButton")?.GetComponent<Button>();
+        // --- FINE NUOVA LOGICA ---
+        
         // Collega gli eventi ai pulsanti
         debugPanel.transform.Find("ApplyPlayerStatsButton")?.GetComponent<Button>().onClick.AddListener(ApplyPlayerStats);
         debugPanel.transform.Find("HealButton")?.GetComponent<Button>().onClick.AddListener(HealPlayer);
         debugPanel.transform.Find("AddPowerUpButton")?.GetComponent<Button>().onClick.AddListener(AddPowerUp);
         debugPanel.transform.Find("ApplyStageSettingsButton")?.GetComponent<Button>().onClick.AddListener(ApplyStageSettings);
+
+        // --- NUOVO LISTENER PER IL PULSANTE DEI MODULI ---
+        if (addModuleButton != null)
+        {
+            addModuleButton.onClick.AddListener(AddModuleDebug);
+        }
+        // --- FINE NUOVO LISTENER ---
 
         // Trova i manager di scena
         playerStats = FindFirstObjectByType<PlayerStats>();
@@ -253,4 +272,37 @@ public class DebugController : MonoBehaviour
         }
         Debug.Log("Impostazioni Stage Aggiornate!");
     }
+
+    // --- NUOVO METODO PER AGGIUNGERE MODULI ---
+    public void AddModuleDebug()
+    {
+        if (ProgressionManager.Instance == null)
+        {
+            Debug.LogError("ProgressionManager not found!");
+            return;
+        }
+
+        string moduleID = moduleIDInput.text;
+        if (string.IsNullOrEmpty(moduleID))
+        {
+            Debug.LogWarning("Module ID cannot be empty.");
+            return;
+        }
+
+        if (!int.TryParse(moduleQuantityInput.text, out int quantity) || quantity <= 0)
+        {
+            quantity = 1; // Default to 1 if input is invalid or empty
+        }
+
+        // Check if the module ID is valid
+        if (ProgressionManager.Instance.GetModuleDataByID(moduleID) == null)
+        {
+            Debug.LogError($"Module with ID '{moduleID}' not found in ProgressionManager's list of all modules.");
+            return;
+        }
+
+        ProgressionManager.Instance.AddModule(moduleID, quantity);
+        Debug.Log($"Successfully added {quantity}x module(s) with ID: '{moduleID}'");
+    }
+    // --- FINE NUOVO METODO ---
 }

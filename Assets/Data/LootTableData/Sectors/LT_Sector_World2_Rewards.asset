@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc1e637a74be78b439049a5682c2bacd, type: 3}
+  m_Name: LT_Sector_World2_Rewards
+  m_EditorClassIdentifier: Assembly-CSharp::LootTable
+  possibleDrops:
+  - moduleData: {fileID: 11400000, guid: a3406835e108a0e4489c66894b468bd5, type: 2}
+    weight: 10
+  - moduleData: {fileID: 11400000, guid: 5323df88b6bdb934db2e58ab0389c9db, type: 2}
+    weight: 10
+  - moduleData: {fileID: 11400000, guid: 45c59489ba1b13b4e88d82d420745084, type: 2}
+    weight: 10
+  - moduleData: {fileID: 11400000, guid: 10a45132189d2124d918571152cca96d, type: 2}
+    weight: 10
+  - moduleData: {fileID: 11400000, guid: ce13a4b6d0b595e49a994fd65f9acd4b, type: 2}
+    weight: 4
+  - moduleData: {fileID: 11400000, guid: ab103859ed6eeb84db58b369312cdb08, type: 2}
+    weight: 4

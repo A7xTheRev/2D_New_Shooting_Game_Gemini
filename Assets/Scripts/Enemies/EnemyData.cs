@@ -57,5 +57,13 @@ public class EnemyData : ScriptableObject
     public int codexCoinReward = 100;
     [Tooltip("La ricompensa in gemme (una tantum) per il completamento.")]
     public int codexGemReward = 5;
+
+    // --- NUOVA SEZIONE PER I DROP DEI MODULI ---
+    [Header("Module Drops")]
+    [Tooltip("La tabella di loot usata per determinare QUALE modulo droppare.")]
+    public LootTable moduleLootTable;
+    [Range(0f, 1f)]
+    [Tooltip("La probabilità (da 0 a 1) che questo nemico droppi un modulo dalla sua loot table.")]
+    public float moduleDropChance = 0.01f; // Es. 1% di base
     // --- FINE NUOVA SEZIONE ---
 }

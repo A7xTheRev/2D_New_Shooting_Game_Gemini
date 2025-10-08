@@ -37,3 +37,5 @@ MonoBehaviour:
     to turn itself into a high-impact warhead. Evade at all costs'
   codexCoinReward: 100
   codexGemReward: 5
+  moduleLootTable: {fileID: 11400000, guid: 1a0665500f256ab4ebdfcb3cc989567c, type: 2}
+  moduleDropChance: 0.01

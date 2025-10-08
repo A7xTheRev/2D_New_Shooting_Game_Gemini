@@ -326,12 +326,75 @@ public class PlayerStats : MonoBehaviour
     private void ApplyPermanentUpgrades()
     {
         if (ProgressionManager.Instance == null) return;
+
+        // Applica potenziamenti permanenti dal negozio
         maxHealth += (int)ProgressionManager.Instance.GetTotalBonus(PermanentUpgradeType.Health);
         damage += (int)ProgressionManager.Instance.GetTotalBonus(PermanentUpgradeType.Damage);
         attackSpeed += ProgressionManager.Instance.GetTotalBonus(PermanentUpgradeType.AttackSpeed);
         moveSpeed += ProgressionManager.Instance.GetTotalBonus(PermanentUpgradeType.MoveSpeed);
         abilityPower += (int)ProgressionManager.Instance.GetTotalBonus(PermanentUpgradeType.AbilityPower);
+
+        // --- NUOVA LOGICA PER APPLICARE I BONUS DEI MODULI EQUIPAGGIATI ---
+        foreach (var slotType in System.Enum.GetValues(typeof(ModuleSlotType)))
+        {
+            var equippedInSlot = ProgressionManager.Instance.GetEquippedModules((ModuleSlotType)slotType);
+            foreach (var moduleID in equippedInSlot)
+            {
+                if (string.IsNullOrEmpty(moduleID)) continue;
+
+                ModuleData moduleData = ProgressionManager.Instance.GetModuleDataByID(moduleID);
+                if (moduleData != null)
+                {
+                    ApplyModuleBonus(moduleData);
+                }
+            }
+        }
+        // --- FINE NUOVA LOGICA ---
     }
+    
+    // --- NUOVO METODO PER APPLICARE IL BONUS DI UN SINGOLO MODULO ---
+    private void ApplyModuleBonus(ModuleData data)
+    {
+        switch (data.statToModify)
+        {
+            // Offensive
+            case ModuleStatType.Damage:
+                damage += (int)data.bonusValue;
+                break;
+            case ModuleStatType.AttackSpeed:
+                attackSpeed += data.bonusValue; // Questo è un bonus additivo alla %
+                break;
+            case ModuleStatType.CritChance:
+                critChance += data.bonusValue;
+                break;
+            case ModuleStatType.CritDamage:
+                critDamageMultiplier += data.bonusValue;
+                break;
+
+            // Defensive
+            case ModuleStatType.MaxHealth:
+                maxHealth += (int)data.bonusValue;
+                break;
+            case ModuleStatType.HealthRegen:
+                healthRegenPerSecond += data.bonusValue;
+                break;
+
+            // Utility
+            case ModuleStatType.MoveSpeed:
+                moveSpeed += data.bonusValue;
+                break;
+            case ModuleStatType.AbilityPower:
+                abilityPower += (int)data.bonusValue;
+                break;
+            case ModuleStatType.XPGain:
+                xpMultiplier += data.bonusValue;
+                break;
+            case ModuleStatType.CoinGain:
+                coinDropMultiplier += data.bonusValue;
+                break;
+        }
+    }
+    // --- FINE NUOVO METODO ---
 
     private void UpdateAllUI()
     {
@@ -499,6 +562,15 @@ public class PlayerStats : MonoBehaviour
             int currentWave = (stageManager != null) ? stageManager.stageNumber : 1;
             float timeSurvived = (stageManager != null) ? stageManager.GetSurvivalTime() : 0f;
 
+            // --- NUOVO: Aggiunge l'esperienza guadagnata a fine partita ---
+            if (ProgressionManager.Instance != null)
+            {
+                // Qui puoi definire una formula per l'XP, per ora usiamo monete + tempo
+                int xpGained = sessionCoins + (int)(timeSurvived * 10);
+                ProgressionManager.Instance.AddExperience(xpGained);
+            }
+            // --- FINE NUOVO ---
+            
             // Passiamo anche il tempo di sopravvivenza
             GameOverManager.SetEndGameStats(currentWave, sessionCoins, sessionSpecialCurrency, timeSurvived);
 

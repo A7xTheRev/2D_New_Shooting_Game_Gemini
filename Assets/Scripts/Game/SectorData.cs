@@ -25,4 +25,13 @@ public class SectorData : ScriptableObject
     [Header("Aspetto Visivo")]
     [Tooltip("La texture di sfondo per questo settore.")]
     public Texture2D backgroundTexture;
+
+    // --- NUOVA SEZIONE PER LE RICOMPENSE DEI MODULI ---
+    [Header("Module Rewards")]
+    [Tooltip("La Loot Table da cui pescare le ricompense in moduli alla vittoria.")]
+    public LootTable victoryLootTable;
+    [Tooltip("Quanti moduli vengono assegnati al giocatore alla vittoria.")]
+    [Range(0, 10)]
+    public int moduleRewardsCount = 1;
+    // --- FINE NUOVA SEZIONE ---
 }

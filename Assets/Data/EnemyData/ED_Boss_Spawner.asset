@@ -38,3 +38,5 @@ MonoBehaviour:
     cries to empower its fleet
   codexCoinReward: 100
   codexGemReward: 5
+  moduleLootTable: {fileID: 11400000, guid: e216185c94374444998b45e5a0a5849f, type: 2}
+  moduleDropChance: 1

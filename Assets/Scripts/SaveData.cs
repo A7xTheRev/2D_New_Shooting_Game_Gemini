@@ -2,6 +2,17 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 
+// --- NUOVA CLASSE DI SUPPORTO PER IL SALVATAGGIO DEI MODULI EQUIPAGGIATI ---
+// Serve a "tradurre" i dati dei moduli equipaggiati in un formato che Unity può salvare.
+[System.Serializable]
+public class SerializableEquippedModule
+{
+    public ModuleSlotType slotType;
+    public string moduleID;
+    public int slotIndex; // A quale slot di quel tipo è equipaggiato
+}
+// --- FINE NUOVA CLASSE ---
+
 [System.Serializable]
 public class SaveData
 {
@@ -29,6 +40,18 @@ public class SaveData
     public List<string> sectorProgressID = new List<string>();
     public List<int> sectorProgressValue = new List<int>(); // Salverà il "numero magico"
     public List<string> claimedCodexRewardsID = new List<string>();
+
+    // --- NUOVI DATI PER IL SISTEMA DI MODULI ---
+    public long totalExperience;
+    public int pilotLevel = 1; // Inizia dal livello 1
+    
+    // Per salvare il dizionario 'moduleInventory'
+    public List<string> moduleInventory_keys = new List<string>();
+    public List<int> moduleInventory_values = new List<int>();
+
+    // Per salvare i moduli equipaggiati
+    public List<SerializableEquippedModule> equippedModules = new List<SerializableEquippedModule>();
+    // --- FINE NUOVI DATI ---
 }
 
 public static class SaveSystem

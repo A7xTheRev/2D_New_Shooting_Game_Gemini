@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.UI; // Aggiunto per poter usare le Image
+using System.Collections.Generic; // Aggiunto per poter usare le List
 
 public class VictoryManager : MonoBehaviour
 {
@@ -24,6 +25,7 @@ public class VictoryManager : MonoBehaviour
     private static int lastSessionCoins;
     private static int lastSessionGems;
     private static SectorObjective lastObjectivesAchieved;
+    private static SectorData lastCompletedSectorData; // --- NUOVO: Memorizziamo l'intero SectorData ---
 
     // Metodo statico che lo StageManager chiamerà prima di cambiare scena
     public static void SetVictoryStats(SectorData sector, int coins, int gems, SectorObjective objectives)
@@ -33,11 +35,12 @@ public class VictoryManager : MonoBehaviour
         lastSessionCoins = coins;
         lastSessionGems = gems;
         lastObjectivesAchieved = objectives;
+        lastCompletedSectorData = sector; // --- NUOVO: Salviamo il riferimento al SectorData ---
     }
 
     void Start()
     {
-        // 1. Salva il progresso
+        // 1. Salva il progresso e assegna le valute
         if (ProgressionManager.Instance != null && !string.IsNullOrEmpty(lastCompletedSectorID))
         {
             ProgressionManager.Instance.SetSectorProgress(lastCompletedSectorID, lastObjectivesAchieved);
@@ -46,6 +49,10 @@ public class VictoryManager : MonoBehaviour
             // Aggiungi le valute della sessione al totale
             ProgressionManager.Instance.AddCoins(lastSessionCoins);
             ProgressionManager.Instance.AddSpecialCurrency(lastSessionGems);
+
+            // --- NUOVA LOGICA PER ASSEGNARE I MODULI ---
+            GrantModuleRewards();
+            // --- FINE NUOVA LOGICA ---
         }
 
         // 2. Mostra le informazioni nella UI
@@ -59,6 +66,42 @@ public class VictoryManager : MonoBehaviour
         // Collega il pulsante per tornare al menu
         continueButton.onClick.AddListener(() => SceneManager.LoadScene("MainMenu"));
     }
+
+    // --- NUOVO METODO PER GESTIRE LE RICOMPENSE IN MODULI ---
+    private void GrantModuleRewards()
+    {
+        if (lastCompletedSectorData == null || lastCompletedSectorData.victoryLootTable == null)
+        {
+            return;
+        }
+
+        List<ModuleData> awardedModules = new List<ModuleData>();
+
+        // Tira il dado per ogni modulo che dobbiamo assegnare
+        for (int i = 0; i < lastCompletedSectorData.moduleRewardsCount; i++)
+        {
+            ModuleData droppedModule = lastCompletedSectorData.victoryLootTable.GetRandomDrop();
+            if (droppedModule != null)
+            {
+                ProgressionManager.Instance.AddModule(droppedModule.moduleID, 1);
+                awardedModules.Add(droppedModule);
+            }
+        }
+
+        if (awardedModules.Count > 0)
+        {
+            // Per ora, logghiamo in console i moduli ottenuti.
+            // In Fase 4, creeremo la UI per mostrarli a schermo.
+            Debug.Log($"Ricompense settore '{lastCompletedSectorName}' completato:");
+            foreach (var module in awardedModules)
+            {
+                Debug.Log($"- Ricevuto 1x {module.moduleName} ({module.rarity})");
+            }
+
+            // TODO in Fase 4: Aggiornare la UI della schermata di vittoria per mostrare i moduli ottenuti.
+        }
+    }
+    // --- FINE NUOVO METODO ---
 
     private void UpdateStars()
     {
