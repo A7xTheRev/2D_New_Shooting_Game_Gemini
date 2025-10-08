@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b1ae6bddf0d3a6b4dbb686040b15aaf4, type: 3}
-  m_Name: MOD_AtkSpeed_Common
+  m_Name: MOD_CritDamage_Common
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
-  moduleID: mod_as_c
-  moduleName: Condensatore Rapido
-  description: "Aumenta la velocit\xE0 d'attacco del 5%"
+  moduleID: mod_cdmg_c
+  moduleName: Impact Magnifier
+  description: Increases critical damage by 10%.
   icon: {fileID: 2665820773745100346, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 0
   slotType: 0
-  statToModify: 1
-  bonusValue: 0.05
-  fusionResult: {fileID: 0}
+  statToModify: 3
+  bonusValue: 10
+  fusionResult: {fileID: 11400000, guid: 4d5cfd6d578cad341a0a44718c60a6a0, type: 2}

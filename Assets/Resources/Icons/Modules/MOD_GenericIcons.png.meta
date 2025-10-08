@@ -139,7 +139,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ModuleIcons_Offensive
+      name: MOD_Offensive_Icon
       rect:
         serializedVersion: 2
         x: 66
@@ -161,7 +161,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: ModuleIcons_Defensive
+      name: MOD_Defensive_Icon
       rect:
         serializedVersion: 2
         x: 403
@@ -183,7 +183,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: ModuleIcons_Utility
+      name: MOD_Utility_Icon
       rect:
         serializedVersion: 2
         x: 740
@@ -220,9 +220,9 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":3.0,"y":1.0},"gridSpriteSize":{"x":218.0,"y":218.0},"gridSpriteOffset":{"x":66.0,"y":399.0},"gridSpritePadding":{"x":119.0,"y":190.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      ModuleIcons_Defensive: -876236540
-      ModuleIcons_Offensive: 2665820773745100346
-      ModuleIcons_Utility: 2125422020
+      MOD_Defensive_Icon: -876236540
+      MOD_Offensive_Icon: 2665820773745100346
+      MOD_Utility_Icon: 2125422020
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

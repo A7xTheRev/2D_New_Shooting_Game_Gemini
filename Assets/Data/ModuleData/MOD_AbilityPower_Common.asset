@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1ae6bddf0d3a6b4dbb686040b15aaf4, type: 3}
+  m_Name: MOD_AbilityPower_Common
+  m_EditorClassIdentifier: Assembly-CSharp::ModuleData
+  moduleID: mod_ap_c
+  moduleName: Power Conduit
+  description: Increases ability power by 10.
+  icon: {fileID: 2125422020, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
+  rarity: 0
+  slotType: 2
+  statToModify: 7
+  bonusValue: 10
+  fusionResult: {fileID: 11400000, guid: 2780684a157783c4cbf2a5bea8643f9e, type: 2}

@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b1ae6bddf0d3a6b4dbb686040b15aaf4, type: 3}
-  m_Name: MOD_Health_Common
+  m_Name: MOD_XPGain_Epic
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
-  moduleID: mod_hp_c
-  moduleName: Placca Corazzata Piccola
-  description: Aumenta la vita massima
-  icon: {fileID: -876236540, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
-  rarity: 0
-  slotType: 1
-  statToModify: 4
-  bonusValue: 20
-  fusionResult: {fileID: 11400000, guid: ab103859ed6eeb84db58b369312cdb08, type: 2}
+  moduleID: mod_xp_e
+  moduleName: Combat Data Processor
+  description: Increases XP gain by 12%.
+  icon: {fileID: 2125422020, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
+  rarity: 2
+  slotType: 2
+  statToModify: 8
+  bonusValue: 12
+  fusionResult: {fileID: 11400000, guid: ed6ea417291956d4abbc15081ae401a3, type: 2}

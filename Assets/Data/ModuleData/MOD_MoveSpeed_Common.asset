@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: MOD_MoveSpeed_Common
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_spd_c
-  moduleName: Propulsore Ausiliario
-  description: "Aumenta la velocit\xE0 di movimento del 4%"
+  moduleName: Auxiliary Thruster
+  description: Increases movement speed by 4%.
   icon: {fileID: 2125422020, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 0
   slotType: 2
   statToModify: 6
-  bonusValue: 0.04
-  fusionResult: {fileID: 0}
+  bonusValue: 4
+  fusionResult: {fileID: 11400000, guid: e8bcbd4155eb0fa449f8d207140cc768, type: 2}

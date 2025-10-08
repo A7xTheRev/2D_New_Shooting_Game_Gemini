@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: MOD_Damage_Rare
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_dmg_r
-  moduleName: Amplificatore Standard
-  description: Aumenta notevolmente il danno base
+  moduleName: Standard Amplifier
+  description: Increases base damage by 12.
   icon: {fileID: 2665820773745100346, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 1
   slotType: 0
   statToModify: 0
   bonusValue: 12
-  fusionResult: {fileID: 0}
+  fusionResult: {fileID: 11400000, guid: 4eb0252d326b4f94c88622ee196450c2, type: 2}

@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b1ae6bddf0d3a6b4dbb686040b15aaf4, type: 3}
-  m_Name: MOD_Health_Rare
+  m_Name: MOD_CritChance_Common
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
-  moduleID: mod_hp_r
-  moduleName: Placca Corazzata Standard
-  description: Aumenta notevolmente la vita massima
-  icon: {fileID: -876236540, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
-  rarity: 1
-  slotType: 1
-  statToModify: 4
-  bonusValue: 45
-  fusionResult: {fileID: 0}
+  moduleID: mod_crit_c
+  moduleName: Targeting Scope
+  description: Increases critical chance by 5%.
+  icon: {fileID: 2665820773745100346, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
+  rarity: 0
+  slotType: 0
+  statToModify: 2
+  bonusValue: 5
+  fusionResult: {fileID: 11400000, guid: d145626f21f695642a704a6ec457f584, type: 2}

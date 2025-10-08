@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: MOD_Damage_Common
   m_EditorClassIdentifier: Assembly-CSharp::ModuleData
   moduleID: mod_dmg_c
-  moduleName: Micro-Amplificatore
-  description: Aumenta il danno base
+  moduleName: Micro-Amplifier
+  description: Increases base damage by 5.
   icon: {fileID: 2665820773745100346, guid: 5fb67fe11cb798045a1508d11156189c, type: 3}
   rarity: 0
   slotType: 0
   statToModify: 0
   bonusValue: 5
-  fusionResult: {fileID: 11400000, guid: ce13a4b6d0b595e49a994fd65f9acd4b, type: 2}
+  fusionResult: {fileID: 11400000, guid: da0403166be796c4c8886a0b81973acf, type: 2}
