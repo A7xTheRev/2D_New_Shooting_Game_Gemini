@@ -27,7 +27,8 @@ public class MenuManager : MonoBehaviour
     public GameObject sectorSelectionPanel;
     public GameObject missionsPanel;
     public GameObject gameModeSelectionPanel;
-    public GameObject codexPanel; // --- 1. NUOVO RIFERIMENTO ---
+    public GameObject codexPanel;
+    public GameObject workshopPanel; // --- NUOVO: Riferimento al pannello Officina ---
 
     [Header("Selezione Modalità di Gioco")]
     public List<WorldData> allWorlds;
@@ -145,6 +146,7 @@ public class MenuManager : MonoBehaviour
 // ---- if (missionsPanel != null) missionsPanel.SetActive(false);
         if (gameModeSelectionPanel != null) gameModeSelectionPanel.SetActive(false);
         if (codexPanel != null) codexPanel.SetActive(false);
+        if (missionsPanel != null) missionsPanel.SetActive(false);
     }
 
     public void ShowMainPanel() { DeactivateAllPanels(); mainPanel.SetActive(true); }
