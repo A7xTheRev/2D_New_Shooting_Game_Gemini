@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq; // <-- 1. AGGIUNGI QUESTA RIGA ALL'INIZIO
+using System.Linq;
+using System;
 
 public class WorkshopManager : MonoBehaviour
 {
@@ -20,19 +21,20 @@ public class WorkshopManager : MonoBehaviour
     [Tooltip("Il genitore dove verranno creati gli oggetti dell'inventario.")]
     public Transform inventoryItemsContainer;
 
-    [Header("Pannelli")] // --- NEW HEADER ---
-    public ModuleInfoPanel moduleInfoPanel; // --- NEW FIELD ---
-    // --- NUOVO: Variabili di stato per l'interattività ---
-    private string selectedModuleID = null; // Memorizza l'ID del modulo selezionato nell'inventario
-    private List<ModuleInventoryItem> spawnedInventoryItems = new List<ModuleInventoryItem>(); // Lista di tutti gli item UI creati
-    // --- FINE NUOVO ---
+    [Header("Pannelli")]
+    public ModuleInfoPanel moduleInfoPanel;
     
-    // Questo metodo viene chiamato ogni volta che l'oggetto viene attivato.
-    // Utile per aggiornare la UI quando apriamo il pannello dell'Officina.
+    // --- MODIFICA: Variabili di stato per la nuova modalità equipaggiamento ---
+    private bool isEquipMode = false;
+    private string moduleIDToEquip;
+    private List<ModuleSlot> spawnedSlots = new List<ModuleSlot>();
+    // --- FINE MODIFICA ---
+    
     void OnEnable()
     {
         if (ProgressionManager.Instance != null)
         {
+            ExitEquipMode(); // Assicura di non essere in modalità equipaggiamento
             DrawWorkshopUI();
             if (moduleInfoPanel != null) moduleInfoPanel.Hide(); // --- NEW: Ensure panel is hidden on enable
         }
@@ -47,7 +49,8 @@ public class WorkshopManager : MonoBehaviour
     /// </summary>
     public void DrawWorkshopUI()
     {
-        selectedModuleID = null; // Deseleziona tutto quando si ridisegna
+        // --- MODIFICA: Rimossa la riga che causava l'errore ---
+        // selectedModuleID = null; 
         DrawSlots();
         DrawInventory();
     }
@@ -61,6 +64,7 @@ public class WorkshopManager : MonoBehaviour
         ClearContainer(offensiveSlotsContainer);
         ClearContainer(defensiveSlotsContainer);
         ClearContainer(utilitySlotsContainer);
+        spawnedSlots.Clear(); // Pulisce la lista degli slot
 
         // Ottiene il numero di slot sbloccati per ogni tipo dal ProgressionManager
         Dictionary<ModuleSlotType, int> unlockedSlots = ProgressionManager.Instance.GetUnlockedSlotsCount();
@@ -97,7 +101,7 @@ public class WorkshopManager : MonoBehaviour
 
             // --- NUOVO: Iscrizione all'evento di click dello slot ---
             slotScript.OnSlotClicked += HandleSlotClick;
-            // --- FINE NUOVO ---
+            spawnedSlots.Add(slotScript); // Aggiunge lo slot alla lista
         }
     }
 
@@ -107,7 +111,6 @@ public class WorkshopManager : MonoBehaviour
     private void DrawInventory()
     {
         ClearContainer(inventoryItemsContainer);
-        spawnedInventoryItems.Clear(); // --- NUOVO: Pulisce la lista degli item UI ---
 
         // --- 2. MODIFICA QUESTA RIGA ---
         Dictionary<string, int> inventory = ProgressionManager.Instance.GetModuleInventory();
@@ -127,12 +130,7 @@ public class WorkshopManager : MonoBehaviour
                 GameObject itemGO = Instantiate(moduleInventoryItemPrefab, inventoryItemsContainer);
                 ModuleInventoryItem itemScript = itemGO.GetComponent<ModuleInventoryItem>();
                 itemScript.Setup(moduleData, quantity);
-
-                // Iscrizione a entrambi gli eventi dell'item
                 itemScript.OnInventoryItemClicked += HandleInventoryItemClick;
-                itemScript.OnFuseButtonClicked += HandleFuseClick; // --- NUOVO ---
-                spawnedInventoryItems.Add(itemScript);
-                // --- FINE NUOVO ---
             }
         }
     }
@@ -148,94 +146,113 @@ public class WorkshopManager : MonoBehaviour
         }
     }
 
-    // --- NUOVI METODI PER GESTIRE I CLICK ---
+    // --- LOGICA CLICK COMPLETAMENTE RISCRITTA ---
 
     /// <summary>
-    /// Chiamato quando si clicca su un oggetto nell'inventario.
+    /// Chiamato quando si clicca un item nell'inventario. Apre il pannello dettagli.
     /// </summary>
     private void HandleInventoryItemClick(string moduleID)
     {
-        selectedModuleID = moduleID;
+        // Se siamo in modalità equipaggiamento, ignora i click sull'inventario
+        if (isEquipMode) return;
 
-        // Aggiorna la UI per mostrare visivamente quale item è selezionato
-        foreach (var item in spawnedInventoryItems)
-        {
-            if (item.GetModuleID() == moduleID)
-            {
-                item.Select();
-            }
-            else
-            {
-                item.Deselect();
-            }
-        }
-
-        // --- NEW: Show info panel on inventory item click ---
         ModuleData moduleData = ProgressionManager.Instance.GetModuleDataByID(moduleID);
-        if (moduleInfoPanel != null && moduleData != null)
+        if (moduleInfoPanel == null || moduleData == null) return;
+
+        Action onEquip = () => EnterEquipMode(moduleID);
+        Action onFuse = null;
+        if (ProgressionManager.Instance.GetModuleCount(moduleID) >= 3 && moduleData.fusionResult != null)
         {
-            moduleInfoPanel.Show(moduleData);
+            // La logica di fusione ora è gestita da HandleFuseClick, 
+            // ma potremmo volerla anche qui nel pannello. Per ora la lasciamo sull'item.
+            onFuse = () => {
+                ProgressionManager.Instance.FuseModules(moduleID);
+                DrawWorkshopUI();
+            };
         }
+        
+        moduleInfoPanel.Show(moduleData, onEquip, null, onFuse);
     }
 
     /// <summary>
-    /// Chiamato quando si clicca su uno slot di equipaggiamento.
+    /// Chiamato quando si clicca uno slot. Apre il pannello dettagli se pieno.
     /// </summary>
     private void HandleSlotClick(ModuleSlotType slotType, int slotIndex)
     {
-        // CASO 1: Stiamo cercando di EQUIPAGGIARE un modulo selezionato
-        if (!string.IsNullOrEmpty(selectedModuleID))
+        // CASO 1: Siamo in Modalità Equipaggiamento
+        if (isEquipMode)
         {
-            ModuleData moduleToEquip = ProgressionManager.Instance.GetModuleDataByID(selectedModuleID);
-            
-            // Controlla se il tipo di modulo è compatibile con lo slot
+            ModuleData moduleToEquip = ProgressionManager.Instance.GetModuleDataByID(moduleIDToEquip);
             if (moduleToEquip != null && moduleToEquip.slotType == slotType)
             {
-                ProgressionManager.Instance.EquipModule(selectedModuleID, slotIndex);
-                if (moduleInfoPanel != null) moduleInfoPanel.Hide(); // Hide panel after equipping
-                DrawWorkshopUI(); // Ridisegna tutto per mostrare il cambiamento
-            }
-            else
-            {
-                // Feedback per l'utente (opzionale, es. suono di errore)
-                Debug.Log("Slot non compatibile!");
+                // Esegui l'equipaggiamento/swap
+                ProgressionManager.Instance.EquipModule(moduleIDToEquip, slotIndex);
+                ExitEquipMode();
+                DrawWorkshopUI();
             }
         }
-        // CASO 2: Stiamo cercando di DE-EQUIPAGGIARE un modulo
-        else 
+        // CASO 2: Non siamo in Modalità Equipaggiamento, apriamo solo i dettagli
+        else
         {
             List<string> equippedModules = ProgressionManager.Instance.GetEquippedModules(slotType);
             if (slotIndex < equippedModules.Count && !string.IsNullOrEmpty(equippedModules[slotIndex]))
             {
-                // --- NEW: Show info panel for equipped module ---
-                string equippedModuleID = equippedModules[slotIndex];
-                ModuleData moduleData = ProgressionManager.Instance.GetModuleDataByID(equippedModuleID);
-                if (moduleInfoPanel != null && moduleData != null)
-                {
-                    moduleInfoPanel.Show(moduleData);
-                }
+                string moduleID = equippedModules[slotIndex];
+                ModuleData moduleData = ProgressionManager.Instance.GetModuleDataByID(moduleID);
+                if (moduleInfoPanel == null || moduleData == null) return;
+
+                // Definisce l'azione di rimozione
+                Action onUnequip = () => {
+                    ProgressionManager.Instance.UnequipModule(slotType, slotIndex);
+                    DrawWorkshopUI();
+                };
+                
+                moduleInfoPanel.Show(moduleData, null, onUnequip, null);
             }
         }
     }
 
-    // --- NUOVO METODO PER GESTIRE IL CLICK SUL PULSANTE DI FUSIONE ---
-    private void HandleFuseClick(string moduleID)
-    {
-        Debug.Log($"Richiesta di fusione per il modulo: {moduleID}");
-        
-        // Chiama il metodo del ProgressionManager che fa tutto il lavoro
-        bool success = ProgressionManager.Instance.FuseModules(moduleID);
+    // --- NUOVI METODI PER LA MODALITÀ EQUIPAGGIAMENTO ---
 
-        // Se la fusione è andata a buon fine, ridisegna l'intera UI per mostrare i cambiamenti
-        if (success)
+    private void EnterEquipMode(string moduleID)
+    {
+        isEquipMode = true;
+        moduleIDToEquip = moduleID;
+
+        ModuleData moduleToEquip = ProgressionManager.Instance.GetModuleDataByID(moduleID);
+        if (moduleToEquip == null)
         {
-            if (moduleInfoPanel != null) moduleInfoPanel.Hide(); // Hide panel after fusing
-            DrawWorkshopUI();
+            ExitEquipMode();
+            return;
         }
-        else
+
+        // Evidenzia solo gli slot compatibili
+        foreach (var slot in spawnedSlots)
         {
-            Debug.LogWarning($"Fusione fallita per {moduleID}. Controlla la logica del ProgressionManager.");
+            // La riga seguente è stata corretta per accedere al tipo di slot tramite reflection o un getter pubblico.
+            // Poiché ModuleSlot ha il campo `slotType` privato, aggiungiamo un getter.
+            // Per ora, assumiamo di aver aggiunto `public ModuleSlotType GetSlotType() { return slotType; }` a ModuleSlot.cs
+            // EDIT: Modifico direttamente ModuleSlot.cs per rendere i campi accessibili
+            if (slot.GetSlotType() == moduleToEquip.slotType)
+            {
+                slot.SetHighlight(true);
+            }
+            else
+            {
+            slot.SetHighlight(false);
+            }
         }
     }
-    // --- FINE NUOVI METODI ---
+
+    private void ExitEquipMode()
+    {
+        isEquipMode = false;
+        moduleIDToEquip = null;
+        
+        // Disattiva tutti gli highlight
+        foreach (var slot in spawnedSlots)
+        {
+            slot.SetHighlight(false);
+        }
+    }
 }

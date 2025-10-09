@@ -12,6 +12,7 @@ public class ModuleSlot : MonoBehaviour
     public GameObject emptySlotIndicator; // Un oggetto "+" o simile da mostrare quando lo slot è vuoto
     public Button slotButton;
     public TextMeshProUGUI statText; // --- NUOVO: Riferimento al testo della statistica ---
+    public Image highlightImage; // --- NUOVO: Riferimento a un'immagine per l'highlight ---
 
     [Header("Colori Tipi di Slot")]
     public Color offensiveColor = new Color(1f, 0.6f, 0.6f, 0.5f); // Rosso semitrasparente
@@ -21,7 +22,7 @@ public class ModuleSlot : MonoBehaviour
     // Evento che notifica il manager quando questo slot viene cliccato
     public event Action<ModuleSlotType, int> OnSlotClicked;
 
-    // Stato interno
+    // --- CORRECTED: 'slotType' needs to be declared here as a private field ---
     private ModuleSlotType slotType;
     private int slotIndex;
     private string currentModuleID;
@@ -31,16 +32,16 @@ public class ModuleSlot : MonoBehaviour
         // Aggiunge un listener al pulsante che scatena l'evento OnSlotClicked
         if (slotButton != null)
         {
-            slotButton.onClick.AddListener(() => OnSlotClicked?.Invoke(slotType, slotIndex));
+            // --- CORRECTED: The listener now correctly references the private 'slotType' field ---
+            slotButton.onClick.AddListener(() => OnSlotClicked?.Invoke(this.slotType, this.slotIndex));
+        }
+        // --- NUOVO: Assicura che l'highlight sia spento all'inizio ---
+        if (highlightImage != null)
+        {
+            highlightImage.gameObject.SetActive(false);
         }
     }
 
-    /// <summary>
-    /// Configura l'aspetto e i dati di questo slot.
-    /// </summary>
-    /// <param name="moduleData">I dati del modulo da mostrare (null se vuoto).</param>
-    /// <param name="type">Il tipo di slot (Offensive, Defensive, Utility).</param>
-    /// <param name="index">L'indice di questo slot (0, 1, 2...).</param>
     public void Setup(ModuleData moduleData, ModuleSlotType type, int index)
     {
         this.slotType = type;
@@ -49,15 +50,9 @@ public class ModuleSlot : MonoBehaviour
         // Imposta il colore di sfondo in base al tipo di slot
         switch (type)
         {
-            case ModuleSlotType.Offensive:
-                slotBackground.color = offensiveColor;
-                break;
-            case ModuleSlotType.Defensive:
-                slotBackground.color = defensiveColor;
-                break;
-            case ModuleSlotType.Utility:
-                slotBackground.color = utilityColor;
-                break;
+            case ModuleSlotType.Offensive: slotBackground.color = offensiveColor; break;
+            case ModuleSlotType.Defensive: slotBackground.color = defensiveColor; break;
+            case ModuleSlotType.Utility: slotBackground.color = utilityColor; break;
         }
 
         // Controlla se lo slot è equipaggiato o vuoto
@@ -83,7 +78,21 @@ public class ModuleSlot : MonoBehaviour
 
             // --- NUOVO: Nasconde il testo ---
             statText.gameObject.SetActive(false);
-            // --- FINE NUOVO ---
         }
+    }
+
+    // --- NUOVO METODO PER GESTIRE L'HIGHLIGHT ---
+    public void SetHighlight(bool isActive)
+    {
+        if (highlightImage != null)
+        {
+            highlightImage.gameObject.SetActive(isActive);
+        }
+    }
+
+    // --- NEW: The public getter method, correctly placed ---
+    public ModuleSlotType GetSlotType()
+    {
+        return this.slotType;
     }
 }

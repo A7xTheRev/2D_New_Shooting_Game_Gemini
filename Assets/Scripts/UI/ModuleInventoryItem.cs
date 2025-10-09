@@ -13,7 +13,7 @@ public class ModuleInventoryItem : MonoBehaviour
     public TextMeshProUGUI statText; // --- NUOVO: Riferimento al testo della statistica ---
     public Button itemButton;
     public GameObject selectionOutline; // Un bordo visivo per mostrare quando l'oggetto è selezionato
-    public Button fuseButton; // --- NUOVO: Riferimento al pulsante di fusione ---
+    public GameObject fusionReadyIndicator; // --- NUOVO: Riferimento all'icona di fusione ---
 
     [Header("Colori Rarità")]
     public Color commonColor = Color.white;
@@ -24,7 +24,6 @@ public class ModuleInventoryItem : MonoBehaviour
 
     // Evento che notifica il manager quando questo item viene cliccato
     public event Action<string> OnInventoryItemClicked;
-    public event Action<string> OnFuseButtonClicked; // Evento per il click sulla fusione
 
     // Stato interno
     private string currentModuleID;
@@ -36,13 +35,7 @@ public class ModuleInventoryItem : MonoBehaviour
         {
             itemButton.onClick.AddListener(() => OnInventoryItemClicked?.Invoke(currentModuleID));
         }
-        // --- NUOVO: Aggiunge il listener per il pulsante di fusione ---
-        if (fuseButton != null)
-        {
-            fuseButton.onClick.AddListener(() => OnFuseButtonClicked?.Invoke(currentModuleID));
-        }
-        // --- FINE NUOVO ---
-        Deselect(); // Assicura che non sia selezionato all'inizio
+        Deselect();
     }
 
     /// <summary>
@@ -78,13 +71,12 @@ public class ModuleInventoryItem : MonoBehaviour
         {
             quantityText.gameObject.SetActive(false);
         }
-        
-        // --- NUOVO: Logica per mostrare/nascondere il pulsante di fusione ---
-        // Mostra il pulsante solo se abbiamo abbastanza moduli E se il modulo ha un risultato di fusione definito
-        if (fuseButton != null)
+
+        // --- NUOVO: Logica per mostrare/nascondere l'icona di fusione ---
+        if (fusionReadyIndicator != null)
         {
             bool canFuse = (quantity >= 3 && moduleData.fusionResult != null);
-            fuseButton.gameObject.SetActive(canFuse);
+            fusionReadyIndicator.SetActive(canFuse);
         }
         // --- FINE NUOVO ---
     }
