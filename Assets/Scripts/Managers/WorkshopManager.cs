@@ -20,6 +20,8 @@ public class WorkshopManager : MonoBehaviour
     [Tooltip("Il genitore dove verranno creati gli oggetti dell'inventario.")]
     public Transform inventoryItemsContainer;
 
+    [Header("Pannelli")] // --- NEW HEADER ---
+    public ModuleInfoPanel moduleInfoPanel; // --- NEW FIELD ---
     // --- NUOVO: Variabili di stato per l'interattività ---
     private string selectedModuleID = null; // Memorizza l'ID del modulo selezionato nell'inventario
     private List<ModuleInventoryItem> spawnedInventoryItems = new List<ModuleInventoryItem>(); // Lista di tutti gli item UI creati
@@ -32,6 +34,7 @@ public class WorkshopManager : MonoBehaviour
         if (ProgressionManager.Instance != null)
         {
             DrawWorkshopUI();
+            if (moduleInfoPanel != null) moduleInfoPanel.Hide(); // --- NEW: Ensure panel is hidden on enable
         }
         else
         {
@@ -166,6 +169,13 @@ public class WorkshopManager : MonoBehaviour
                 item.Deselect();
             }
         }
+
+        // --- NEW: Show info panel on inventory item click ---
+        ModuleData moduleData = ProgressionManager.Instance.GetModuleDataByID(moduleID);
+        if (moduleInfoPanel != null && moduleData != null)
+        {
+            moduleInfoPanel.Show(moduleData);
+        }
     }
 
     /// <summary>
@@ -182,6 +192,7 @@ public class WorkshopManager : MonoBehaviour
             if (moduleToEquip != null && moduleToEquip.slotType == slotType)
             {
                 ProgressionManager.Instance.EquipModule(selectedModuleID, slotIndex);
+                if (moduleInfoPanel != null) moduleInfoPanel.Hide(); // Hide panel after equipping
                 DrawWorkshopUI(); // Ridisegna tutto per mostrare il cambiamento
             }
             else
@@ -193,8 +204,17 @@ public class WorkshopManager : MonoBehaviour
         // CASO 2: Stiamo cercando di DE-EQUIPAGGIARE un modulo
         else 
         {
-            ProgressionManager.Instance.UnequipModule(slotType, slotIndex);
-            DrawWorkshopUI(); // Ridisegna tutto per mostrare il cambiamento
+            List<string> equippedModules = ProgressionManager.Instance.GetEquippedModules(slotType);
+            if (slotIndex < equippedModules.Count && !string.IsNullOrEmpty(equippedModules[slotIndex]))
+            {
+                // --- NEW: Show info panel for equipped module ---
+                string equippedModuleID = equippedModules[slotIndex];
+                ModuleData moduleData = ProgressionManager.Instance.GetModuleDataByID(equippedModuleID);
+                if (moduleInfoPanel != null && moduleData != null)
+                {
+                    moduleInfoPanel.Show(moduleData);
+                }
+            }
         }
     }
 
@@ -209,6 +229,7 @@ public class WorkshopManager : MonoBehaviour
         // Se la fusione è andata a buon fine, ridisegna l'intera UI per mostrare i cambiamenti
         if (success)
         {
+            if (moduleInfoPanel != null) moduleInfoPanel.Hide(); // Hide panel after fusing
             DrawWorkshopUI();
         }
         else
