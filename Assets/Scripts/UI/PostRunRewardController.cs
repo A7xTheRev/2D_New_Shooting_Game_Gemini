@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
-public class PilotLevelUI : MonoBehaviour
+public class PostRunRewardController : MonoBehaviour
 {
     [Header("Riferimenti UI")]
     public TextMeshProUGUI levelText;
@@ -25,11 +25,23 @@ public class PilotLevelUI : MonoBehaviour
     {
         if (ProgressionManager.Instance != null)
         {
+        // --- NUOVA LOGICA ---
+        // Per prima cosa, applica le monete e le gemme in sospeso.
+        // Questo farà scattare l'evento OnValuesChanged e animerà i contatori della valuta.
+        ProgressionManager.Instance.ApplyPendingRewards();
+        // --- FINE NUOVA LOGICA ---
+        
             ProgressionManager.OnValuesChanged += UpdateUI;
+        
+        // La logica per l'animazione dell'XP rimane quasi la stessa.
+        // `lastRunXPGained` è stato impostato in PlayerStats.Die()
             int xpGained = ProgressionManager.lastRunXPGained;
             if (xpGained > 0 && !isAnimating)
             {
+            // Resettiamo l'XP in sospeso qui, dopo averlo letto, per evitare che l'animazione
+            // si ripeta ogni volta che il pannello viene riattivato.
                 ProgressionManager.lastRunXPGained = 0;
+            
                 ProgressionManager pm = ProgressionManager.Instance;
                 int startLevel = pm.GetPilotLevel();
                 long startTotalXp = pm.GetTotalExperience();

@@ -47,31 +47,24 @@ public class GameOverManager : MonoBehaviour
         // Controlla se abbiamo stabilito un nuovo record
         if (ProgressionManager.Instance != null)
         {
-            // Se la partita era in Endless, notifica il tempo di sopravvivenza
+        // Notifica il tempo di sopravvivenza per le missioni
             if (GameDataManager.Instance != null && GameDataManager.Instance.selectedGameMode == GameMode.Endless)
             {
                 ProgressionManager.Instance.ReportEndlessSurvivalTime(lastSessionTime);
             }
+        
+        // Controlla e salva i nuovi record
             bool isNewRecord = ProgressionManager.Instance.CheckForNewHighScores(lastSessionWave, lastSessionCoins);
+        if (newRecordIndicator != null) newRecordIndicator.SetActive(isNewRecord);
 
-            // Se sì, mostra l'indicatore di nuovo record
-            if (newRecordIndicator != null)
-            {
-                newRecordIndicator.SetActive(isNewRecord);
-            }
-
-            // Somma le valute al totale persistente
-            if (lastSessionCoins > 0)
-            {
-                ProgressionManager.Instance.AddCoins(lastSessionCoins);
-            }
-            if (lastSessionGems > 0)
-            {
-                ProgressionManager.Instance.AddSpecialCurrency(lastSessionGems);
-            }
+        // --- MODIFICA CHIAVE ---
+        // Invece di sommare le valute, le mettiamo in attesa per il menu principale.
+        ProgressionManager.PendingCoinsGained = lastSessionCoins;
+        ProgressionManager.PendingGemsGained = lastSessionGems;
+        // --- FINE MODIFICA ---
         }
 
-        // Resetta le valute della sessione per la prossima partita
+    // Resetta le statistiche statiche per la prossima partita
         lastSessionCoins = 0;
         lastSessionGems = 0;
         lastSessionWave = 1;

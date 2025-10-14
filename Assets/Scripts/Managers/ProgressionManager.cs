@@ -20,6 +20,15 @@ public class ProgressionManager : MonoBehaviour
         }
     }
 
+    // --- NUOVE VARIABILI STATICHE PER LE RICOMPENSE IN SOSPESO ---
+    // Queste variabili manterranno il loro valore durante il cambio di scena.
+    public static int PendingCoinsGained { get; set; } = 0;
+    public static int PendingGemsGained { get; set; } = 0;
+    // La variabile lastRunXPGained viene già usata per l'XP, quindi la manteniamo.
+    public static int lastRunXPGained = 0;
+    // --- FINE NUOVE VARIABILI ---
+
+
     void OnApplicationQuit()
     {
         isQuitting = true;
@@ -48,9 +57,6 @@ public class ProgressionManager : MonoBehaviour
     public float xpCurveExponent = 2.2f;
     [Tooltip("Lista degli slot per moduli che si sbloccano a determinati livelli pilota.")]
     public List<PilotLevelReward> pilotLevelRewards;
-    // --- NUOVA VARIABILE STATICA PER L'ANIMAZIONE DELLA UI ---
-    public static int lastRunXPGained = 0;
-    // --- FINE RIPRISTINO ---
 
     // Valute e stato
     private int coins; 
@@ -100,6 +106,37 @@ public class ProgressionManager : MonoBehaviour
             Destroy(gameObject); 
         }
     }
+    
+    // --- NUOVO METODO PER APPLICARE TUTTE LE RICOMPENSE IN SOSPESO ---
+    public void ApplyPendingRewards()
+    {
+        bool hasChanged = false;
+
+        // Applica le valute in sospeso
+        if (PendingCoinsGained > 0)
+        {
+            coins += PendingCoinsGained;
+            hasChanged = true;
+        }
+        if (PendingGemsGained > 0)
+        {
+            specialCurrency += PendingGemsGained;
+            hasChanged = true;
+        }
+
+        // Resetta i contatori in sospeso
+        PendingCoinsGained = 0;
+        PendingGemsGained = 0;
+
+        // Se qualcosa è cambiato, salva i dati e notifica la UI
+        if (hasChanged)
+        {
+            SaveData();
+            OnValuesChanged?.Invoke(); // Questo farà partire le animazioni di conteggio delle valute!
+            Debug.Log("Applicate ricompense in valuta in sospeso.");
+        }
+    }
+
 
     void LoadData()
     {
@@ -240,7 +277,7 @@ public class ProgressionManager : MonoBehaviour
         SaveSystem.SaveGame(data);
     }
     
-    #region Metodi Esistenti
+    #region Metodi Esistenti (con modifiche)
 
     public int GetMaxWave() => maxWaveReached;
     public int GetMaxCoins() => maxCoinsInSession;
@@ -269,6 +306,7 @@ public class ProgressionManager : MonoBehaviour
     public int GetCoins() => coins;
     public int GetSpecialCurrency() => specialCurrency;
 
+    // --- METODI MODIFICATI: Ora operano sui valori diretti, non più chiamati da GameOver/Victory ---
     public void AddCoins(int value)
     {
         coins += value;

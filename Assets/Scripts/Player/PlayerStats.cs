@@ -572,9 +572,9 @@ public class PlayerStats : MonoBehaviour
                 int xpFromStages = (currentWave - 1) * 50; // -1 perché partiamo da stage 1
                 int xpGained = xpFromTime + xpFromCoins + xpFromStages;
 
-                // La chiamata a AddExperience ora memorizzerà anche il valore in una variabile statica
-                // per permettere alla UI del menu di animare la barra.
-                ProgressionManager.Instance.AddExperience(xpGained);
+                // Impostiamo direttamente la variabile statica che verrà letta dalla UI del menu.
+                // L'applicazione vera e propria dell'XP avverrà nel menu.
+                ProgressionManager.lastRunXPGained = xpGained;
             }
             // --- FINE NUOVO ---
             

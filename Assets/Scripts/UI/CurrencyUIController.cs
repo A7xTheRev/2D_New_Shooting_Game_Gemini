@@ -13,16 +13,23 @@ public class CurrencyUIController : MonoBehaviour
     public float animationDuration = 1.5f;
 
     // Variabili per memorizzare i valori attualmente visualizzati
-    private int displayedCoins = 0;
-    private int displayedGems = 0;
+    private int displayedCoins;
+    private int displayedGems;
 
     void OnEnable()
     {
         if (ProgressionManager.Instance != null)
         {
-            // Imposta i valori iniziali senza animazione
-            InitializeDisplay();
-            // Poi, iscriviti per ascoltare i futuri cambiamenti
+            // 1. Leggi i valori attuali (che sono ancora quelli "vecchi" perché questo script
+            //    verrà eseguito prima dell'applicazione delle ricompense).
+            displayedCoins = ProgressionManager.Instance.GetCoins();
+            displayedGems = ProgressionManager.Instance.GetSpecialCurrency();
+
+            // 2. Imposta immediatamente il testo con i valori iniziali.
+            if (coinsText != null) coinsText.text = displayedCoins.ToString("N0"); // "N0" formatta il numero, es: 1,000
+            if (gemsText != null) gemsText.text = displayedGems.ToString("N0");
+
+            // 3. Iscriviti all'evento per ascoltare i cambiamenti futuri.
             ProgressionManager.OnValuesChanged += UpdateDisplayAnimated;
         }
         else
@@ -45,35 +52,16 @@ public class CurrencyUIController : MonoBehaviour
         transform.DOKill();
     }
 
-    // Imposta i valori iniziali della UI senza animazione
-    private void InitializeDisplay()
-    {
-        if (ProgressionManager.Instance == null) return;
-
-        displayedCoins = ProgressionManager.Instance.GetCoins();
-        displayedGems = ProgressionManager.Instance.GetSpecialCurrency();
-
-        if (coinsText != null)
-        {
-            coinsText.text = displayedCoins.ToString();
-        }
-
-        if (gemsText != null)
-        {
-            gemsText.text = displayedGems.ToString();
-        }
-    }
-
-    // Aggiorna i testi della UI con un'animazione di conteggio
+    // Questo metodo viene ora chiamato SOLO dall'evento OnValuesChanged
     private void UpdateDisplayAnimated()
     {
         if (ProgressionManager.Instance == null) return;
 
-        // Recupera i nuovi valori target
+        // Recupera i nuovi valori target dal manager
         int newCoinsValue = ProgressionManager.Instance.GetCoins();
         int newGemsValue = ProgressionManager.Instance.GetSpecialCurrency();
 
-        // Anima il conteggio delle monete
+        // Anima il conteggio delle monete dal valore ATTUALMENTE visualizzato al nuovo valore
         if (coinsText != null && displayedCoins != newCoinsValue)
         {
             // DOTween.To() è un tween generico. Anima un valore da A a B in un dato tempo.
@@ -83,7 +71,7 @@ public class CurrencyUIController : MonoBehaviour
             // Duration: animationDuration -> la durata
             DOTween.To(() => displayedCoins, x => {
                 displayedCoins = x;
-                coinsText.text = x.ToString();
+                coinsText.text = x.ToString("N0");
             }, newCoinsValue, animationDuration).SetEase(Ease.OutSine);
         }
 
@@ -92,7 +80,7 @@ public class CurrencyUIController : MonoBehaviour
         {
             DOTween.To(() => displayedGems, x => {
                 displayedGems = x;
-                gemsText.text = x.ToString();
+                gemsText.text = x.ToString("N0");
             }, newGemsValue, animationDuration).SetEase(Ease.OutSine);
         }
     }

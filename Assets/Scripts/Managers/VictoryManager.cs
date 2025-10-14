@@ -40,19 +40,18 @@ public class VictoryManager : MonoBehaviour
 
     void Start()
     {
-        // 1. Salva il progresso e assegna le valute
+    // 1. Salva il progresso degli obiettivi e delle missioni
         if (ProgressionManager.Instance != null && !string.IsNullOrEmpty(lastCompletedSectorID))
         {
             ProgressionManager.Instance.SetSectorProgress(lastCompletedSectorID, lastObjectivesAchieved);
-            ProgressionManager.Instance.NotifySectorCompleted(lastCompletedSectorID); // Per le missioni
-            
-            // Aggiungi le valute della sessione al totale
-            ProgressionManager.Instance.AddCoins(lastSessionCoins);
-            ProgressionManager.Instance.AddSpecialCurrency(lastSessionGems);
-
-            // --- NUOVA LOGICA PER ASSEGNARE I MODULI ---
-            GrantModuleRewards();
-            // --- FINE NUOVA LOGICA ---
+        ProgressionManager.Instance.NotifySectorCompleted(lastCompletedSectorID);
+        
+        // --- MODIFICA CHIAVE ---
+        // Mettiamo in attesa le valute e assegniamo i moduli
+        ProgressionManager.PendingCoinsGained = lastSessionCoins;
+        ProgressionManager.PendingGemsGained = lastSessionGems;
+        GrantModuleRewards(); // L'assegnazione dei moduli può rimanere qui, non necessita di animazione
+        // --- FINE MODIFICA ---
         }
 
         // 2. Mostra le informazioni nella UI
@@ -60,7 +59,7 @@ public class VictoryManager : MonoBehaviour
         if (coinsEarnedText != null) coinsEarnedText.text = "Obtained: " + lastSessionCoins;
         if (gemsEarnedText != null) gemsEarnedText.text = "Obtained: " + lastSessionGems;
 
-        // 3. Mostra le stelle
+    // 3. Mostra le stelle e collega il pulsante
         UpdateStars();
 
         // Collega il pulsante per tornare al menu
