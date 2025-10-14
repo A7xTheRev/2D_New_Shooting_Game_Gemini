@@ -2,15 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-// --- NUOVA STRUTTURA PER GLI SBLOCCHI DEL LIVELLO PILOTA ---
-// Ci permette di definire facilmente a quale livello si sblocca un nuovo slot
-[System.Serializable]
-public struct PilotLevelUnlock
-{
-    public int levelRequired;
-    public ModuleSlotType slotToUnlock;
-}
-
 public class ProgressionManager : MonoBehaviour
 {
     private static ProgressionManager _instance;
@@ -51,13 +42,15 @@ public class ProgressionManager : MonoBehaviour
     public List<ModuleData> allModuleDataAssets = new List<ModuleData>();
     
     [Header("Configurazione Livello Pilota")]
-    [Tooltip("XP base richiesto per il primo level-up.")]
-    public int baseXPForLevelUp = 1000;
-    [Tooltip("Fattore di moltiplicazione dell'XP richiesto per ogni livello (es. 1.15 per +15% a livello).")]
-    public float xpMultiplierPerLevel = 1.15f;
+    [Tooltip("XP base usato nella formula. Controlla la velocità di progressione generale.")]
+    public int baseXpForLevel = 500;
+    [Tooltip("Esponente della curva di progressione. Valori consigliati: 1.5 - 2.5")]
+    public float xpCurveExponent = 2.2f;
     [Tooltip("Lista degli slot per moduli che si sbloccano a determinati livelli pilota.")]
-    public List<PilotLevelUnlock> pilotLevelUnlocks;
-    // --- FINE NUOVA SEZIONE ---
+    public List<PilotLevelReward> pilotLevelRewards;
+    // --- NUOVA VARIABILE STATICA PER L'ANIMAZIONE DELLA UI ---
+    public static int lastRunXPGained = 0;
+    // --- FINE RIPRISTINO ---
 
     // Valute e stato
     private int coins; 
@@ -659,44 +652,111 @@ public class ProgressionManager : MonoBehaviour
     // --- METODI ESISTENTI DEL MODULE SYSTEM ---
     public int GetPilotLevel() => pilotLevel;
     public long GetTotalExperience() => totalExperience;
+
+    // --- FORMULA XP AGGIORNATA ---
+    // Calcola l'XP totale necessario per raggiungere un dato livello
+    public long GetTotalXPRequiredForLevel(int level)
+    {
+        if (level <= 1) return 0;
+
+        long totalXp = 0;
+        for (int i = 1; i < level; i++)
+        {
+            // La nuova formula calcola il costo di ogni singolo livello e lo somma
+            totalXp += (long)(baseXpForLevel * Mathf.Pow(i, xpCurveExponent));
+        }
+        return totalXp;
+    }
+
     public long GetCurrentLevelXP()
     {
-        if (pilotLevel <= 1) return totalExperience;
-        long xpForPreviousLevels = 0;
-        for (int i = 1; i < pilotLevel; i++)
-        {
-            xpForPreviousLevels += (long)Mathf.Pow(xpMultiplierPerLevel, i - 1) * baseXPForLevelUp;
-        }
-        return totalExperience - xpForPreviousLevels;
+        return totalExperience - GetTotalXPRequiredForLevel(pilotLevel);
     }
-    public long GetXPForNextLevel()
+
+    // Overload per ottenere l'XP per un livello specifico (usato dalla UI)
+    public long GetXPForNextLevel(int level)
     {
-        return (long)(Mathf.Pow(xpMultiplierPerLevel, pilotLevel - 1) * baseXPForLevelUp);
+        // Costo per il prossimo livello = base * (livello_attuale ^ esponente)
+        return (long)(baseXpForLevel * Mathf.Pow(level, xpCurveExponent));
+    }
+
+    // Metodo originale senza argomenti
+    public long GetXPForNextLevel() => GetXPForNextLevel(pilotLevel);
+
+    /// <summary>
+    /// Calcola a quale livello corrisponde un dato ammontare di esperienza totale.
+    /// </summary>
+    public int GetPilotLevelFromTotalXP(long totalXp)
+    {
+        int level = 1;
+        while (totalXp >= GetTotalXPRequiredForLevel(level + 1))
+        {
+            level++;
+        }
+        return level;
     }
     
     /// <summary>
     /// Aggiunge esperienza al totale del giocatore e gestisce i level up.
     /// Da chiamare alla fine di una partita.
+    /// MODIFICATA: Ora memorizza solo l'XP. L'applicazione vera e propria
+    /// viene gestita da ApplyPendingExperience().
     /// </summary>
     public void AddExperience(int amount)
     {
         if (amount <= 0) return;
+        lastRunXPGained = amount; // Memorizza l'XP per l'animazione della UI
+        Debug.Log($"[ProgressionManager] Memorizzati {amount} XP da applicare.");
+    }
+
+    public void ApplyPendingExperience(int xpGained)
+    {
+        if (xpGained <= 0) return;
+        int amount = xpGained;
         totalExperience += amount;
-        
-        // Controlla se il giocatore è salito di livello (potrebbe salire più livelli in una volta)
-        bool leveledUp = false;
-        while (GetCurrentLevelXP() >= GetXPForNextLevel())
+
+        // Controlla e aggiorna il livello del pilota in base alla nuova esperienza totale.
+        // Il ciclo while gestisce i level up multipli.
+        while (totalExperience >= GetTotalXPRequiredForLevel(pilotLevel + 1))
         {
             pilotLevel++;
-            leveledUp = true;
             Debug.Log($"Level Up Pilota! Nuovo livello: {pilotLevel}");
         }
 
-        if (leveledUp)
-        {
-            OnValuesChanged?.Invoke(); // Notifica la UI di un cambiamento
-        }
+        // Le ricompense vengono ora applicate istantaneamente dal popup PilotLevelRewardPopup.
+        // Questa funzione ora si occupa solo di aggiornare l'esperienza e il livello del pilota.
+
+        // Non è necessario chiamare OnValuesChanged qui, perché viene già chiamato
+        // da ApplyPilotLevelReward al momento giusto.
         SaveData();
+        Debug.Log($"[ProgressionManager] Applicati e salvati {amount} XP. Nuovo totale: {totalExperience}");
+    }
+    
+    /// <summary>
+    /// Trova la ricompensa associata a un livello specifico.
+    /// </summary>
+    public PilotLevelReward GetRewardForLevel(int level) => pilotLevelRewards.Find(r => r.level == level);
+    // --- FINE NUOVI METODI ---
+    public void ApplyPilotLevelReward(PilotLevelReward reward)
+    {
+        Debug.Log($"Applicando ricompensa per il livello {reward.level}: {reward.rewardType}");
+        switch (reward.rewardType)
+        {
+            case PilotRewardType.Coins:
+                AddCoins(reward.amount);
+                OnValuesChanged?.Invoke(); // Notifica la UI dell'aggiunta di monete
+                // TODO: Mostrare una notifica UI per la ricompensa
+                break;
+            case PilotRewardType.Gems:
+                AddSpecialCurrency(reward.amount);
+                OnValuesChanged?.Invoke(); // Notifica la UI dell'aggiunta di gemme
+                // TODO: Mostrare una notifica UI per la ricompensa
+                break;
+            case PilotRewardType.ModuleSlot:
+                // L'esistenza della ricompensa è sufficiente, GetUnlockedSlotsCount() farà il resto.
+                // TODO: Mostrare una notifica UI per lo sblocco dello slot
+                break;
+        }
     }
     
     // --- METODI PER GLI SLOT ---
@@ -713,11 +773,11 @@ public class ProgressionManager : MonoBehaviour
             { ModuleSlotType.Utility, 1 }
         };
 
-        foreach (var unlock in pilotLevelUnlocks)
+        foreach (var reward in pilotLevelRewards)
         {
-            if (pilotLevel >= unlock.levelRequired)
+            if (reward.rewardType == PilotRewardType.ModuleSlot && pilotLevel >= reward.level)
             {
-                unlockedCount[unlock.slotToUnlock]++;
+                unlockedCount[reward.moduleSlotType]++;
             }
         }
         return unlockedCount;

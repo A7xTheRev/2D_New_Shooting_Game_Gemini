@@ -42,7 +42,13 @@ public class TabMenuController : MonoBehaviour
             int index = i;
             tabs[i].button.onClick.AddListener(() => OnTabSelected(index));
 
-            tabs[i].panel.gameObject.SetActive(false);
+            // La modifica chiave è qui: non disattivare il pannello di default,
+            // perché verrà attivato comunque da ShowDefaultTab, causando il flicker.
+            if (i != defaultTab)
+            {
+                tabs[i].panel.gameObject.SetActive(false);
+            }
+
             tabs[i].canvasGroup.alpha = 0;
             tabs[i].button.transform.localScale = Vector3.one;
             tabs[i].iconImage.color = deselectedColor;
@@ -107,5 +113,19 @@ public class TabMenuController : MonoBehaviour
         currentPanel.gameObject.SetActive(false);
         isTransitioning = false;
         currentTab = newIndex;
+    }
+
+    /// <summary>
+    /// Abilita o disabilita l'interazione con tutti i pulsanti delle schede.
+    /// </summary>
+    public void SetTabsInteractable(bool interactable)
+    {
+        foreach (var tab in tabs)
+        {
+            if (tab.button != null)
+            {
+                tab.button.interactable = interactable;
+            }
+        }
     }
 }

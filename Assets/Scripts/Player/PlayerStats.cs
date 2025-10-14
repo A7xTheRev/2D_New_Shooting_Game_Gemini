@@ -565,8 +565,15 @@ public class PlayerStats : MonoBehaviour
             // --- NUOVO: Aggiunge l'esperienza guadagnata a fine partita ---
             if (ProgressionManager.Instance != null)
             {
-                // Qui puoi definire una formula per l'XP, per ora usiamo monete + tempo
-                int xpGained = sessionCoins + (int)(timeSurvived * 10);
+                // --- NUOVA FORMULA DI GUADAGNO XP BILANCIATA ---
+                // La formula considera il tempo, le monete e gli stage superati.
+                int xpFromTime = (int)(timeSurvived * 2);
+                int xpFromCoins = sessionCoins / 2;
+                int xpFromStages = (currentWave - 1) * 50; // -1 perché partiamo da stage 1
+                int xpGained = xpFromTime + xpFromCoins + xpFromStages;
+
+                // La chiamata a AddExperience ora memorizzerà anche il valore in una variabile statica
+                // per permettere alla UI del menu di animare la barra.
                 ProgressionManager.Instance.AddExperience(xpGained);
             }
             // --- FINE NUOVO ---
