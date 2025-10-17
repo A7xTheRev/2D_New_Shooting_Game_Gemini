@@ -1,59 +1,42 @@
 using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
-using UnityEngine.UI;
+using System.Linq;
 
 public class WeaponSelectorUI : MonoBehaviour
 {
-    [Header("Riferimenti UI")]
-    [Tooltip("Il pannello 'Content' dello Scroll View delle armi.")]
+    [Header("UI References")]
     public Transform contentPanel;
-    [Tooltip("Il prefab del pulsante/icona dell'arma.")]
     public GameObject weaponButtonPrefab;
-    [Tooltip("Il campo di testo per mostrare la descrizione dell'arma selezionata.")]
     public TextMeshProUGUI descriptionText;
-    [Tooltip("Il riferimento allo script SnapController sullo Scroll View.")]
-    public SnapController snapController;
 
-    // Riferimenti interni
+    // Data
     private List<WeaponData> allWeapons;
-    private List<WeaponButtonUI> weaponButtons = new List<WeaponButtonUI>();
-    private List<RectTransform> weaponButtonRects = new List<RectTransform>();
+    private List<WeaponButton> weaponButtons = new List<WeaponButton>();
 
     void Start()
     {
-        // Prendiamo le armi disponibili dal MenuManager
-        if (MenuManager.Instance != null)
+        // Get weapon data from ProgressionManager
+        if (ProgressionManager.Instance != null)
         {
-            allWeapons = new List<WeaponData>();
-            foreach (var buttonData in MenuManager.Instance.weaponButtons)
-            {
-                allWeapons.Add(buttonData.weaponData);
-            }
+            allWeapons = ProgressionManager.Instance.allWeapons;
         }
 
         PopulateScrollView();
 
-        // --- NUOVA LOGICA PER CARICARE LA SELEZIONE ---
-        // 1. Leggi il nome dell'arma salvata in precedenza
-        string savedWeaponName = PlayerPrefs.GetString("SelectedWeapon", "Standard");
-
-        // 2. Trova l'indice di quell'arma nella nostra lista
-        int startingIndex = 0;
-        for (int i = 0; i < allWeapons.Count; i++)
+        // Select the initially equipped weapon
+        if (ProgressionManager.Instance != null)
         {
-            if (allWeapons[i].weaponName == savedWeaponName)
+            WeaponData equippedWeapon = ProgressionManager.Instance.GetEquippedWeapon();
+            if (equippedWeapon != null)
             {
-                startingIndex = i;
-                break;
+                OnWeaponEquipped(equippedWeapon);
             }
-        }
-        // --- FINE NUOVA LOGICA ---
-
-        if (snapController != null)
-        {
-            // 3. Passa l'indice iniziale corretto allo SnapController
-            snapController.Initialize(weaponButtonRects, this.OnWeaponChanged, startingIndex);
+            else if (allWeapons.Count > 0)
+            {
+                // If no weapon is equipped, equip the first one by default
+                OnWeaponEquipped(allWeapons[0]);
+            }
         }
     }
 
@@ -64,42 +47,46 @@ public class WeaponSelectorUI : MonoBehaviour
             Destroy(child.gameObject);
         }
         weaponButtons.Clear();
-        weaponButtonRects.Clear();
+
+        if (allWeapons == null) return;
 
         foreach (WeaponData weapon in allWeapons)
         {
             GameObject itemObj = Instantiate(weaponButtonPrefab, contentPanel);
-            WeaponButtonUI buttonUI = itemObj.GetComponent<WeaponButtonUI>();
-            buttonUI.Setup(weapon);
-            weaponButtons.Add(buttonUI);
-            weaponButtonRects.Add(itemObj.GetComponent<RectTransform>());
+            WeaponButton buttonScript = itemObj.GetComponent<WeaponButton>();
+            if (buttonScript != null)
+            {
+                buttonScript.Setup(weapon, OnWeaponEquipped);
+                weaponButtons.Add(buttonScript);
+            }
         }
     }
 
-    // Questo metodo viene chiamato dallo SnapController quando l'arma al centro cambia
-    public void OnWeaponChanged(int index)
+    void OnWeaponEquipped(WeaponData selectedWeapon)
     {
-        if (index < 0 || index >= allWeapons.Count) return;
+        if (selectedWeapon == null) return;
 
-        WeaponData selectedWeapon = allWeapons[index];
-
-        // Aggiorna la descrizione
-        // (Qui dovrai aggiungere le descrizioni ai tuoi WeaponData)
+        // Update description panel
         if (descriptionText != null)
         {
-            descriptionText.text = selectedWeapon.description; 
+            descriptionText.text = selectedWeapon.description;
         }
 
-        // Evidenzia il pulsante selezionato e deseleziona gli altri
-        for (int i = 0; i < weaponButtons.Count; i++)
+        // Save and select the weapon in the backend using the new system
+        if (ProgressionManager.Instance != null)
         {
-            weaponButtons[i].SetHighlight(i == index);
+            ProgressionManager.Instance.SetEquippedWeapon(selectedWeapon);
         }
 
-        // Salva la scelta
-        if (MenuManager.Instance != null)
+        // Update all buttons to reflect the new selection
+        UpdateAllButtonsUI(selectedWeapon);
+    }
+
+    private void UpdateAllButtonsUI(WeaponData equippedWeapon)
+    {
+        foreach (var button in weaponButtons)
         {
-            MenuManager.Instance.SelectWeapon(selectedWeapon);
+            button.UpdateUI(equippedWeapon);
         }
     }
 }

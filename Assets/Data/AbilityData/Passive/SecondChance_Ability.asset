@@ -15,7 +15,9 @@ MonoBehaviour:
   abilityID: 3
   behaviorType: 1
   abilityName: SECOND CHANCE
-  description: 
+  description: "Inganna la morte, quando la tua vita scende sotto lo 0, torni in
+    vita con met\xE0 vita.\nUna volta per partita\nInganna la morte, quando la tua
+    vita scende sotto lo 0, torni in vita con met\xE0 vita.\nUna volta per partita"
   icon: {fileID: 0}
   isDefaultAbility: 0
   cost: 40

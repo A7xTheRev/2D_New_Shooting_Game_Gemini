@@ -4,63 +4,62 @@ using System.Linq;
 
 public class AbilitySelectorUI : MonoBehaviour
 {
-    [Header("Riferimenti UI")]
-    [Tooltip("Il pannello 'Content' dello Scroll View delle abilità.")]
+    [Header("UI References")]
+    [Tooltip("The container where the ability buttons will be created.")]
     public Transform contentPanel;
-    [Tooltip("Il prefab della 'scheda' dell'abilità.")]
-    public GameObject abilityPreviewPrefab;
-    [Tooltip("Il riferimento allo script SnapController sullo Scroll View.")]
-    public SnapController snapController;
+    [Tooltip("The prefab for the special ability button.")]
+    public GameObject specialAbilityButtonPrefab;
 
-    private List<SpecialAbility> unlockedAbilities;
-    private List<AbilityPreviewUI> abilityPreviews = new List<AbilityPreviewUI>();
-    private List<RectTransform> abilityPreviewRects = new List<RectTransform>();
+    private List<SpecialAbilityButton> spawnedButtons = new List<SpecialAbilityButton>();
 
     void OnEnable()
     {
-        // Usiamo OnEnable invece di Start per far sì che si aggiorni ogni volta che il pannello Hangar viene aperto
         PopulateScrollView();
-
-        if (snapController != null && unlockedAbilities != null && unlockedAbilities.Count > 0)
+        if (ProgressionManager.Instance != null)
         {
-            SpecialAbility equippedAbility = ProgressionManager.Instance.GetEquippedAbility();
-            int startingIndex = unlockedAbilities.IndexOf(equippedAbility);
-            if (startingIndex < 0) startingIndex = 0;
+            ProgressionManager.OnValuesChanged += UpdateAllButtonsUI;
+        }
+    }
 
-            snapController.Initialize(abilityPreviewRects, OnAbilityChanged, startingIndex);
+    void OnDisable()
+    {
+        if (ProgressionManager.Instance != null)
+        {
+            ProgressionManager.OnValuesChanged -= UpdateAllButtonsUI;
         }
     }
 
     void PopulateScrollView()
     {
-        if (ProgressionManager.Instance == null) return;
+        if (ProgressionManager.Instance == null || specialAbilityButtonPrefab == null || contentPanel == null) return;
 
-        foreach (Transform child in contentPanel) Destroy(child.gameObject);
-        abilityPreviews.Clear();
-        abilityPreviewRects.Clear();
+        foreach (Transform child in contentPanel)
+        {
+            Destroy(child.gameObject);
+        }
+        spawnedButtons.Clear();
 
-        // Ottieni solo le abilità ATTIVE sbloccate
-        unlockedAbilities = ProgressionManager.Instance.allSpecialAbilities
-            .Where(a => ProgressionManager.Instance.IsSpecialUpgradeUnlocked(a.abilityID) && a.behaviorType == AbilityBehaviorType.Active)
+        List<SpecialAbility> activeAbilities = ProgressionManager.Instance.allSpecialAbilities
+            .Where(a => a.behaviorType == AbilityBehaviorType.Active)
             .ToList();
 
-        // Crea una "scheda" per ogni abilità
-        foreach (SpecialAbility ability in unlockedAbilities)
+        foreach (SpecialAbility ability in activeAbilities)
         {
-            GameObject itemObj = Instantiate(abilityPreviewPrefab, contentPanel);
-            AbilityPreviewUI previewUI = itemObj.GetComponent<AbilityPreviewUI>();
-            previewUI.Setup(ability);
-            abilityPreviews.Add(previewUI);
-            abilityPreviewRects.Add(itemObj.GetComponent<RectTransform>());
+            GameObject buttonGO = Instantiate(specialAbilityButtonPrefab, contentPanel);
+            SpecialAbilityButton buttonScript = buttonGO.GetComponent<SpecialAbilityButton>();
+            if (buttonScript != null)
+            {
+                buttonScript.Setup(ability);
+                spawnedButtons.Add(buttonScript);
+            }
         }
     }
 
-    // Chiamato dallo SnapController quando la selezione cambia
-    public void OnAbilityChanged(int index)
+    private void UpdateAllButtonsUI()
     {
-        if (index < 0 || index >= unlockedAbilities.Count) return;
-        SpecialAbility selectedAbility = unlockedAbilities[index];
-        for (int i = 0; i < abilityPreviews.Count; i++) abilityPreviews[i].SetHighlight(i == index);
-        ProgressionManager.Instance.SetEquippedAbility(selectedAbility);
+        foreach (var button in spawnedButtons)
+        {
+            button.UpdateUI();
+        }
     }
 }

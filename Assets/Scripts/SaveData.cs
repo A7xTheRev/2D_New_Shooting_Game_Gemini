@@ -27,6 +27,7 @@ public class SaveData
     public int maxCoinsInSession = 0;
 
     public string equippedShipName;
+    public string equippedWeaponName;
     public List<string> unlockedShipNames = new List<string>();
 
     // Salviamo i progressi attuali (es. "kill_kamikaze", 45)

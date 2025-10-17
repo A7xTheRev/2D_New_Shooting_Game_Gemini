@@ -21,27 +21,26 @@ public class ProgressionManager : MonoBehaviour
     }
 
     // --- NUOVE VARIABILI STATICHE PER LE RICOMPENSE IN SOSPESO ---
-    // Queste variabili manterranno il loro valore durante il cambio di scena.
     public static int PendingCoinsGained { get; set; } = 0;
     public static int PendingGemsGained { get; set; } = 0;
-    // La variabile lastRunXPGained viene già usata per l'XP, quindi la manteniamo.
     public static int lastRunXPGained = 0;
     // --- FINE NUOVE VARIABILI ---
-
 
     void OnApplicationQuit()
     {
         isQuitting = true;
     }
 
-    [Header("Potenziamenti Normali")] 
-    // --- MODIFICATO --- La lista ora usa PermanentUpgradeData come richiesto
-    public List<PermanentUpgradeData> availableUpgrades = new List<PermanentUpgradeData>(); 
+    [Header("Potenziamenti Normali")]
+    public List<PermanentUpgradeData> availableUpgrades = new List<PermanentUpgradeData>();
 
-    [Header("Potenziamenti Speciali")] 
+    [Header("Potenziamenti Speciali")]
     public List<SpecialAbility> allSpecialAbilities = new List<SpecialAbility>();
     [Tooltip("Trascina qui tutti gli asset ShipData di tutte le navicelle del gioco.")]
     public List<ShipData> allShips = new List<ShipData>();
+
+    [Header("Configurazione Armi")]
+    public List<WeaponData> allWeapons = new List<WeaponData>();
 
     [Header("Configurazione Missioni")]
     [Tooltip("Trascina qui tutti gli asset MissionData del gioco.")]
@@ -51,7 +50,7 @@ public class ProgressionManager : MonoBehaviour
     [Header("Configurazione Moduli")]
     [Tooltip("Trascina qui TUTTI gli asset ModuleData del gioco. Serve per trovarli tramite ID.")]
     public List<ModuleData> allModuleDataAssets = new List<ModuleData>();
-    
+
     [Header("Configurazione Livello Pilota")]
     [Tooltip("XP base usato nella formula. Controlla la velocità di progressione generale.")]
     public int baseXpForLevel = 500;
@@ -61,13 +60,14 @@ public class ProgressionManager : MonoBehaviour
     public List<PilotLevelReward> pilotLevelRewards;
 
     // Valute e stato
-    private int coins; 
-    private int specialCurrency; 
+    private int coins;
+    private int specialCurrency;
     private AbilityID equippedAbilityID;
     private int maxWaveReached;
     private int maxCoinsInSession;
     private string equippedShipName;
-    
+    private string equippedWeaponName;
+
     // Dati di progressione
     private Dictionary<PermanentUpgradeType, int> upgradeLevels = new Dictionary<PermanentUpgradeType, int>();
     private HashSet<AbilityID> unlockedAbilitiesSet = new HashSet<AbilityID>();
@@ -80,41 +80,34 @@ public class ProgressionManager : MonoBehaviour
     // Dati progressione settori
     private Dictionary<string, int> sectorProgress = new Dictionary<string, int>();
     private HashSet<string> claimedCodexRewards = new HashSet<string>();
-    
+
     // Dati Sistema Moduli
     private long totalExperience;
     private int pilotLevel;
     private Dictionary<string, int> moduleInventory = new Dictionary<string, int>();
-    // La chiave è il tipo di slot, la lista contiene gli ID dei moduli equipaggiati in ordine
     private Dictionary<ModuleSlotType, List<string>> equippedModules = new Dictionary<ModuleSlotType, List<string>>();
-    
-    // --- NUOVO: Dizionario per accedere velocemente ai moduli per rarità ---
     private Dictionary<ModuleRarity, List<ModuleData>> modulesByRarity = new Dictionary<ModuleRarity, List<ModuleData>>();
-    // --- FINE NUOVO ---
 
     public static event System.Action OnValuesChanged;
 
     void Awake()
     {
-        if (_instance == null) 
-        { 
-            _instance = this; 
+        if (_instance == null)
+        {
+            _instance = this;
             DontDestroyOnLoad(gameObject);
-            InitializeModuleDatabase(); // --- NUOVO: Pre-organizza i moduli all'avvio ---
-            LoadData(); 
+            InitializeModuleDatabase();
+            LoadData();
         }
-        else if (_instance != this) 
-        { 
-            Destroy(gameObject); 
+        else if (_instance != this)
+        {
+            Destroy(gameObject);
         }
     }
-    
-    // --- NUOVO METODO PER APPLICARE TUTTE LE RICOMPENSE IN SOSPESO ---
+
     public void ApplyPendingRewards()
     {
         bool hasChanged = false;
-
-        // Applica le valute in sospeso
         if (PendingCoinsGained > 0)
         {
             coins += PendingCoinsGained;
@@ -125,20 +118,15 @@ public class ProgressionManager : MonoBehaviour
             specialCurrency += PendingGemsGained;
             hasChanged = true;
         }
-
-        // Resetta i contatori in sospeso
         PendingCoinsGained = 0;
         PendingGemsGained = 0;
-
-        // Se qualcosa è cambiato, salva i dati e notifica la UI
         if (hasChanged)
         {
             SaveData();
-            OnValuesChanged?.Invoke(); // Questo farà partire le animazioni di conteggio delle valute!
+            OnValuesChanged?.Invoke();
             Debug.Log("Applicate ricompense in valuta in sospeso.");
         }
     }
-
 
     void LoadData()
     {
@@ -146,12 +134,10 @@ public class ProgressionManager : MonoBehaviour
         coins = data.coins;
         specialCurrency = data.specialCurrency;
         equippedAbilityID = data.equippedAbilityID;
-        // Carica i record
         maxWaveReached = data.maxWaveReached;
         maxCoinsInSession = data.maxCoinsInSession;
-
-        // Carica navicelle
         equippedShipName = data.equippedShipName;
+        equippedWeaponName = data.equippedWeaponName;
         unlockedShipNamesSet = new HashSet<string>(data.unlockedShipNames);
 
         upgradeLevels.Clear();
@@ -159,9 +145,7 @@ public class ProgressionManager : MonoBehaviour
         {
             upgradeLevels[data.savedUpgradeTypes[i]] = data.savedUpgradeLevels[i];
         }
-        
-        // --- MODIFICATO --- Rimosso il vecchio ciclo che assegnava 'currentLevel'
-        // Ora i livelli sono solo nel dizionario 'upgradeLevels', che è la fonte di verità.
+
         foreach (var upgrade in availableUpgrades)
         {
             if (!upgradeLevels.ContainsKey(upgrade.upgradeType))
@@ -169,10 +153,9 @@ public class ProgressionManager : MonoBehaviour
                 upgradeLevels[upgrade.upgradeType] = 0;
             }
         }
-        
+
         unlockedAbilitiesSet = new HashSet<AbilityID>(data.unlockedSpecialAbilities);
 
-        // Assicurati che la navicella di default sia sempre sbloccata
         ShipData defaultShip = allShips.Find(s => s.isDefaultShip);
         if (defaultShip != null)
         {
@@ -182,8 +165,7 @@ public class ProgressionManager : MonoBehaviour
                 equippedShipName = defaultShip.shipName;
             }
         }
-        
-        // Caricamento dati missioni
+
         missionProgress.Clear();
         for (int i = 0; i < data.missionProgressID.Count; i++)
         {
@@ -198,8 +180,6 @@ public class ProgressionManager : MonoBehaviour
         }
 
         claimedCodexRewards = new HashSet<string>(data.claimedCodexRewardsID);
-
-        // --- NUOVA LOGICA DI CARICAMENTO PER I MODULI ---
         totalExperience = data.totalExperience;
         pilotLevel = data.pilotLevel;
 
@@ -210,22 +190,18 @@ public class ProgressionManager : MonoBehaviour
         }
 
         equippedModules.Clear();
-        // Inizializza la dictionary per tutti i tipi di slot
         foreach (ModuleSlotType slotType in System.Enum.GetValues(typeof(ModuleSlotType)))
         {
             equippedModules[slotType] = new List<string>();
         }
-        // Popola la dictionary con i dati salvati
         foreach (var savedModule in data.equippedModules)
         {
-            // Assicura che la lista sia abbastanza grande da contenere il modulo
             while (equippedModules[savedModule.slotType].Count <= savedModule.slotIndex)
             {
-                equippedModules[savedModule.slotType].Add(null); // Aggiunge slot vuoti se necessario
+                equippedModules[savedModule.slotType].Add(null);
             }
             equippedModules[savedModule.slotType][savedModule.slotIndex] = savedModule.moduleID;
         }
-        // --- FINE NUOVA LOGICA ---
     }
 
     void SaveData()
@@ -234,38 +210,30 @@ public class ProgressionManager : MonoBehaviour
         data.coins = coins;
         data.specialCurrency = specialCurrency;
         data.equippedAbilityID = equippedAbilityID;
-        // Salva i record
         data.maxWaveReached = maxWaveReached;
         data.maxCoinsInSession = maxCoinsInSession;
-
-        // Salva navicelle
         data.equippedShipName = equippedShipName;
+        data.equippedWeaponName = equippedWeaponName;
         data.unlockedShipNames = unlockedShipNamesSet.ToList();
         data.savedUpgradeTypes = upgradeLevels.Keys.ToList();
         data.savedUpgradeLevels = upgradeLevels.Values.ToList();
         data.unlockedSpecialAbilities = unlockedAbilitiesSet.ToList();
-        
-        // Salvataggio dati missioni
         data.missionProgressID = missionProgress.Keys.ToList();
         data.missionProgressValue = missionProgress.Values.ToList();
         data.claimedMissionsID = claimedMissions.ToList();
         data.sectorProgressID = sectorProgress.Keys.ToList();
         data.sectorProgressValue = sectorProgress.Values.ToList();
         data.claimedCodexRewardsID = claimedCodexRewards.ToList();
-
-        // --- NUOVA LOGICA DI SALVATAGGIO PER I MODULI ---
         data.totalExperience = totalExperience;
         data.pilotLevel = pilotLevel;
-        
         data.moduleInventory_keys = moduleInventory.Keys.ToList();
         data.moduleInventory_values = moduleInventory.Values.ToList();
-        
         data.equippedModules = new List<SerializableEquippedModule>();
         foreach (var entry in equippedModules)
         {
             for (int i = 0; i < entry.Value.Count; i++)
             {
-                if (!string.IsNullOrEmpty(entry.Value[i])) // Salva solo gli slot non vuoti
+                if (!string.IsNullOrEmpty(entry.Value[i]))
                 {
                     data.equippedModules.Add(new SerializableEquippedModule
                     {
@@ -276,13 +244,10 @@ public class ProgressionManager : MonoBehaviour
                 }
             }
         }
-        // --- FINE NUOVA LOGICA ---
-
         SaveSystem.SaveGame(data);
     }
-    
-    #region Metodi di Gioco e Valute
 
+    #region Metodi di Gioco e Valute
     public int GetMaxWave() => maxWaveReached;
     public int GetMaxCoins() => maxCoinsInSession;
 
@@ -305,12 +270,10 @@ public class ProgressionManager : MonoBehaviour
         }
         return newRecord;
     }
-    // --- FINE NUOVI METODI ---
 
     public int GetCoins() => coins;
     public int GetSpecialCurrency() => specialCurrency;
 
-    // --- METODI MODIFICATI: Ora operano sui valori diretti, non più chiamati da GameOver/Victory ---
     public void AddCoins(int value)
     {
         coins += value;
@@ -325,69 +288,53 @@ public class ProgressionManager : MonoBehaviour
         SaveData();
         OnValuesChanged?.Invoke();
     }
-
     #endregion
 
     #region Potenziamenti Permanenti
-
-    // --- AGGIUNTO --- Funzione richiesta da PermanentUpgradeButton.cs
     public int GetUpgradeLevel(PermanentUpgradeType type)
     {
-        // Cerca il livello nel dizionario, se non esiste restituisce 0
         return upgradeLevels.TryGetValue(type, out int level) ? level : 0;
     }
 
-    // --- AGGIUNTO --- Overload della funzione CanAfford richiesto da PermanentUpgradeButton.cs
     public bool CanAfford(PermanentUpgradeType type)
     {
         PermanentUpgradeData u = GetUpgrade(type);
         if (u == null) return false;
-
         int currentLevel = GetUpgradeLevel(type);
         if (currentLevel >= u.maxLevel) return false;
-
         int cost = u.GetCostForLevel(currentLevel);
         return coins >= cost;
     }
-    
-    // --- MODIFICATO --- Aggiornata per usare PermanentUpgradeData
+
     public void BuyUpgrade(PermanentUpgradeType type)
     {
         PermanentUpgradeData u = GetUpgrade(type);
         if (u == null) return;
-        
         int currentLevel = GetUpgradeLevel(type);
         if (currentLevel >= u.maxLevel) return;
-
         int cost = u.GetCostForLevel(currentLevel);
         if (coins >= cost)
         {
             coins -= cost;
-            upgradeLevels[type] = currentLevel + 1; // Incrementa il livello nel dizionario
+            upgradeLevels[type] = currentLevel + 1;
             SaveData();
             OnValuesChanged?.Invoke();
         }
     }
 
-    // --- MODIFICATO --- Ora restituisce PermanentUpgradeData
     public PermanentUpgradeData GetUpgrade(PermanentUpgradeType type) => availableUpgrades.Find(u => u.upgradeType == type);
-    
-    // --- MODIFICATO --- Aggiornata per usare i nuovi metodi
+
     public float GetTotalBonus(PermanentUpgradeType type)
     {
         PermanentUpgradeData u = GetUpgrade(type);
         int currentLevel = GetUpgradeLevel(type);
         return u != null ? currentLevel * u.bonusPerLevel : 0f;
     }
-    
     #endregion
-    
-    #region Abilità Speciali
 
-    // --- AGGIUNTO --- Funzione richiesta da ActiveAbilitiesHangar.cs e PassiveUpgradesStore.cs
+    #region Abilità Speciali
     public List<SpecialAbility> GetSpecialAbilities(AbilityBehaviorType behaviorType)
     {
-        // Usa LINQ per filtrare la lista di tutte le abilità e restituire solo quelle del tipo richiesto
         return allSpecialAbilities.Where(ability => ability.behaviorType == behaviorType).ToList();
     }
 
@@ -428,13 +375,33 @@ public class ProgressionManager : MonoBehaviour
         {
             equippedAbilityID = ability.abilityID;
             SaveData();
+            OnValuesChanged?.Invoke();
         }
     }
+    #endregion
 
+    #region Armi
+    public WeaponData GetEquippedWeapon()
+    {
+        if (string.IsNullOrEmpty(equippedWeaponName))
+        {
+            return allWeapons.FirstOrDefault();
+        }
+        return allWeapons.Find(w => w.weaponName == equippedWeaponName);
+    }
+
+    public void SetEquippedWeapon(WeaponData weapon)
+    {
+        if (weapon != null)
+        {
+            equippedWeaponName = weapon.weaponName;
+            SaveData();
+            OnValuesChanged?.Invoke();
+        }
+    }
     #endregion
 
     #region Navicelle
-
     public ShipData GetEquippedShip() => allShips.Find(s => s.shipName == equippedShipName);
 
     public void SetEquippedShip(ShipData ship)
@@ -459,31 +426,25 @@ public class ProgressionManager : MonoBehaviour
             OnValuesChanged?.Invoke();
         }
     }
-
     #endregion
-    
+
     #region Sistema di Reset
-
-    public void ResetProgress() 
-    { 
-        // 1. Cancella il vecchio file di salvataggio fisico
-        SaveSystem.ResetSave(); 
-
-        // 2. Resetta tutte le variabili in memoria allo stato iniziale
-        coins = 0; 
-        specialCurrency = 0; 
+    public void ResetProgress()
+    {
+        SaveSystem.ResetSave();
+        coins = 0;
+        specialCurrency = 0;
         maxWaveReached = 0;
         maxCoinsInSession = 0;
-        equippedAbilityID = AbilityID.None; 
-        upgradeLevels.Clear(); 
-        unlockedAbilitiesSet.Clear(); 
-        unlockedShipNamesSet.Clear(); 
-        missionProgress.Clear(); 
-        claimedMissions.Clear(); 
+        equippedAbilityID = AbilityID.None;
+        equippedWeaponName = null;
+        upgradeLevels.Clear();
+        unlockedAbilitiesSet.Clear();
+        unlockedShipNamesSet.Clear();
+        missionProgress.Clear();
+        claimedMissions.Clear();
         sectorProgress.Clear();
         claimedCodexRewards.Clear();
-        
-        // --- NUOVA LOGICA DI RESET PER I MODULI ---
         totalExperience = 0;
         pilotLevel = 1;
         moduleInventory.Clear();
@@ -492,9 +453,7 @@ public class ProgressionManager : MonoBehaviour
         {
             equippedModules[slotType] = new List<string>();
         }
-        // --- FINE NUOVA LOGICA ---
-        
-        // 3. Imposta esplicitamente lo stato della navicella di default
+
         ShipData defaultShip = allShips.Find(s => s.isDefaultShip);
         if (defaultShip != null)
         {
@@ -506,27 +465,18 @@ public class ProgressionManager : MonoBehaviour
             equippedShipName = null;
         }
 
-        // --- MODIFICATO --- Rimosso l'accesso a 'currentLevel'
         foreach (var upgrade in availableUpgrades)
         {
-            // Il dizionario 'upgradeLevels' è già stato svuotato.
-            // Al prossimo 'LoadData', verrà ripopolato con i livelli a 0.
         }
-        SaveData(); 
-
-        // 6. Notifica la UI per aggiornare la visualizzazione
-        OnValuesChanged?.Invoke(); 
+        SaveData();
+        OnValuesChanged?.Invoke();
         Debug.Log("Progresso resettato e nuovo stato iniziale salvato correttamente.");
     }
-
     #endregion
 
-    // ... Qui lascio invariate le altre regioni (Missioni, Settori, Codex, Module System) ...
-    // ... perché non sono coinvolte negli errori che hai segnalato.                 ...
     #region Metodi Missioni, Settori, Codex
-    public void AddEnemyKill(string enemyDataID) // Il parametro ora è l'ID dell'EnemyData
+    public void AddEnemyKill(string enemyDataID)
     {
-        // 1. Aggiorna il conteggio generico per il Codex e le missioni
         if (missionProgress.ContainsKey(enemyDataID))
         {
             missionProgress[enemyDataID]++;
@@ -535,12 +485,7 @@ public class ProgressionManager : MonoBehaviour
         {
             missionProgress[enemyDataID] = 1;
         }
-        
-        // 2. Aggiorna la missione di uccisioni totali
         UpdateMissionProgress(MissionType.KILL_ENEMIES_TOTAL, 1);
-        
-        // 3. Controlla se questa uccisione è rilevante per una missione specifica "Uccidi nemico di tipo X"
-        // NOTA: Questo richiede che il campo 'targetEnemyID' nelle MissionData corrisponda al nome dell'EnemyData (es. "ED_Kamikaze")
         UpdateMissionProgress(MissionType.KILL_ENEMIES_OF_TYPE, 1, enemyDataID);
     }
     public void AddCoinsCollected(int amount)
@@ -573,18 +518,16 @@ public class ProgressionManager : MonoBehaviour
                 int newProgress = (type == MissionType.SURVIVE_MINUTES_ENDLESS) ? Mathf.Max(currentProgress, amount) : currentProgress + amount;
                 missionProgress[mission.missionID] = Mathf.Min(newProgress, mission.targetValue);
 
-                // --- MODIFICA APPLICATA QUI ---
-                // Prima di stampare, controlla l'interruttore sul DebugManager.
                 if (DebugManager.Instance != null && DebugManager.Instance.showMissionLogs)
                 {
-                Debug.Log($"Progresso missione '{mission.title}': {missionProgress[mission.missionID]}/{mission.targetValue}");
+                    Debug.Log($"Progresso missione '{mission.title}': {missionProgress[mission.missionID]}/{mission.targetValue}");
                 }
-                
-                if(missionProgress[mission.missionID] >= mission.targetValue)
+
+                if (missionProgress[mission.missionID] >= mission.targetValue)
                 {
                     if (DebugManager.Instance != null && DebugManager.Instance.showMissionLogs)
-                {
-                    Debug.Log($"MISSIONE COMPLETATA: '{mission.title}'!");
+                    {
+                        Debug.Log($"MISSIONE COMPLETATA: '{mission.title}'!");
                     }
                     OnValuesChanged?.Invoke();
                 }
@@ -609,13 +552,12 @@ public class ProgressionManager : MonoBehaviour
                 AddSpecialCurrency(mission.gemReward);
                 claimedMissions.Add(missionID);
                 SaveData();
-            OnValuesChanged?.Invoke();
+                OnValuesChanged?.Invoke();
                 Debug.Log($"Ricompensa per la missione '{mission.title}' riscattata!");
             }
         }
     }
 
-    // --- METODI PROGRESSIONE SETTORI ---
     public void SetSectorProgress(string sectorID, SectorObjective objectivesAchieved)
     {
         int oldProgress = GetSectorProgressValue(sectorID);
@@ -625,7 +567,6 @@ public class ProgressionManager : MonoBehaviour
             sectorProgress[sectorID] = newProgress;
             SaveData();
 
-            // --- MODIFICA APPLICATA QUI ---
             if (DebugManager.Instance != null && DebugManager.Instance.showSectorProgressLogs)
             {
                 Debug.Log($"Progresso per il settore '{sectorID}' aggiornato a: {newProgress}");
@@ -649,7 +590,6 @@ public class ProgressionManager : MonoBehaviour
         return starCount;
     }
 
-    // --- METODI DEL CODEX AGGIORNATI ---
     public void ClaimCodexReward(EnemyData enemyData)
     {
         if (enemyData == null || IsCodexRewardClaimed(enemyData.name)) return;
@@ -669,14 +609,8 @@ public class ProgressionManager : MonoBehaviour
         return claimedCodexRewards.Contains(enemyID);
     }
     #endregion
-    
+
     #region Module System
-
-    // --- NUOVI METODI PER LA LOGICA DI LOOT BASATA SULLA RARITA' ---
-
-    /// <summary>
-    /// Pre-organizza tutti i moduli in un dizionario per efficienza, chiamato una sola volta all'avvio.
-    /// </summary>
     private void InitializeModuleDatabase()
     {
         modulesByRarity.Clear();
@@ -695,27 +629,20 @@ public class ProgressionManager : MonoBehaviour
         Debug.Log("Banca dati dei moduli per rarità inizializzata.");
     }
 
-    /// <summary>
-    /// Restituisce una lista di tutti i ModuleData di una specifica rarità.
-    /// </summary>
     public List<ModuleData> GetModulesByRarity(ModuleRarity rarity)
     {
         return modulesByRarity.ContainsKey(rarity) ? modulesByRarity[rarity] : new List<ModuleData>();
     }
 
-    /// <summary>
-    /// Esegue la logica di drop a 2 fasi: prima sceglie una rarità, poi un modulo a caso di quella rarità.
-    /// </summary>
     public ModuleData GetRandomModuleDrop(List<RarityDropChance> chances)
     {
         if (chances == null || chances.Count == 0) return null;
 
-        // FASE 1: Scegli la Rarità in base ai pesi
         float totalWeight = chances.Sum(c => c.weight);
         if (totalWeight <= 0) return null;
 
         float randomValue = Random.Range(0f, totalWeight);
-        ModuleRarity chosenRarity = chances.Last().rarity; // Fallback in caso di errori
+        ModuleRarity chosenRarity = chances.Last().rarity;
 
         foreach (var chance in chances)
         {
@@ -727,7 +654,6 @@ public class ProgressionManager : MonoBehaviour
             randomValue -= chance.weight;
         }
 
-        // FASE 2: Scegli un modulo a caso di quella rarità
         List<ModuleData> availableModules = GetModulesByRarity(chosenRarity);
         if (availableModules.Count == 0)
         {
@@ -737,15 +663,10 @@ public class ProgressionManager : MonoBehaviour
         int randomIndex = Random.Range(0, availableModules.Count);
         return availableModules[randomIndex];
     }
-    // --- FINE NUOVI METODI ---
 
-
-    // --- METODI ESISTENTI DEL MODULE SYSTEM ---
     public int GetPilotLevel() => pilotLevel;
     public long GetTotalExperience() => totalExperience;
 
-    // --- FORMULA XP AGGIORNATA ---
-    // Calcola l'XP totale necessario per raggiungere un dato livello
     public long GetTotalXPRequiredForLevel(int level)
     {
         if (level <= 1) return 0;
@@ -753,7 +674,6 @@ public class ProgressionManager : MonoBehaviour
         long totalXp = 0;
         for (int i = 1; i < level; i++)
         {
-            // La nuova formula calcola il costo di ogni singolo livello e lo somma
             totalXp += (long)(baseXpForLevel * Mathf.Pow(i, xpCurveExponent));
         }
         return totalXp;
@@ -764,19 +684,13 @@ public class ProgressionManager : MonoBehaviour
         return totalExperience - GetTotalXPRequiredForLevel(pilotLevel);
     }
 
-    // Overload per ottenere l'XP per un livello specifico (usato dalla UI)
     public long GetXPForNextLevel(int level)
     {
-        // Costo per il prossimo livello = base * (livello_attuale ^ esponente)
         return (long)(baseXpForLevel * Mathf.Pow(level, xpCurveExponent));
     }
 
-    // Metodo originale senza argomenti
     public long GetXPForNextLevel() => GetXPForNextLevel(pilotLevel);
 
-    /// <summary>
-    /// Calcola a quale livello corrisponde un dato ammontare di esperienza totale.
-    /// </summary>
     public int GetPilotLevelFromTotalXP(long totalXp)
     {
         int level = 1;
@@ -786,17 +700,11 @@ public class ProgressionManager : MonoBehaviour
         }
         return level;
     }
-    
-    /// <summary>
-    /// Aggiunge esperienza al totale del giocatore e gestisce i level up.
-    /// Da chiamare alla fine di una partita.
-    /// MODIFICATA: Ora memorizza solo l'XP. L'applicazione vera e propria
-    /// viene gestita da ApplyPendingExperience().
-    /// </summary>
+
     public void AddExperience(int amount)
     {
         if (amount <= 0) return;
-        lastRunXPGained = amount; // Memorizza l'XP per l'animazione della UI
+        lastRunXPGained = amount;
         Debug.Log($"[ProgressionManager] Memorizzati {amount} XP da applicare.");
     }
 
@@ -806,28 +714,18 @@ public class ProgressionManager : MonoBehaviour
         int amount = xpGained;
         totalExperience += amount;
 
-        // Controlla e aggiorna il livello del pilota in base alla nuova esperienza totale.
-        // Il ciclo while gestisce i level up multipli.
         while (totalExperience >= GetTotalXPRequiredForLevel(pilotLevel + 1))
         {
             pilotLevel++;
             Debug.Log($"Level Up Pilota! Nuovo livello: {pilotLevel}");
         }
 
-        // Le ricompense vengono ora applicate istantaneamente dal popup PilotLevelRewardPopup.
-        // Questa funzione ora si occupa solo di aggiornare l'esperienza e il livello del pilota.
-
-        // Non è necessario chiamare OnValuesChanged qui, perché viene già chiamato
-        // da ApplyPilotLevelReward al momento giusto.
         SaveData();
         Debug.Log($"[ProgressionManager] Applicati e salvati {amount} XP. Nuovo totale: {totalExperience}");
     }
-    
-    /// <summary>
-    /// Trova la ricompensa associata a un livello specifico.
-    /// </summary>
+
     public PilotLevelReward GetRewardForLevel(int level) => pilotLevelRewards.Find(r => r.level == level);
-    // --- FINE NUOVI METODI ---
+
     public void ApplyPilotLevelReward(PilotLevelReward reward)
     {
         Debug.Log($"Applicando ricompensa per il livello {reward.level}: {reward.rewardType}");
@@ -835,31 +733,22 @@ public class ProgressionManager : MonoBehaviour
         {
             case PilotRewardType.Coins:
                 AddCoins(reward.amount);
-                OnValuesChanged?.Invoke(); // Notifica la UI dell'aggiunta di monete
-                // TODO: Mostrare una notifica UI per la ricompensa
+                OnValuesChanged?.Invoke();
                 break;
             case PilotRewardType.Gems:
                 AddSpecialCurrency(reward.amount);
-                OnValuesChanged?.Invoke(); // Notifica la UI dell'aggiunta di gemme
-                // TODO: Mostrare una notifica UI per la ricompensa
+                OnValuesChanged?.Invoke();
                 break;
             case PilotRewardType.ModuleSlot:
-                // L'esistenza della ricompensa è sufficiente, GetUnlockedSlotsCount() farà il resto.
-                // TODO: Mostrare una notifica UI per lo sblocco dello slot
                 break;
         }
     }
-    
-    // --- METODI PER GLI SLOT ---
-    
-    /// <summary>
-    /// Calcola il numero di slot sbloccati per ogni tipo in base al livello pilota.
-    /// </summary>
+
     public Dictionary<ModuleSlotType, int> GetUnlockedSlotsCount()
     {
         var unlockedCount = new Dictionary<ModuleSlotType, int>
         {
-            { ModuleSlotType.Offensive, 1 }, // Inizia con 1 slot di ogni tipo
+            { ModuleSlotType.Offensive, 1 },
             { ModuleSlotType.Defensive, 1 },
             { ModuleSlotType.Utility, 1 }
         };
@@ -874,8 +763,6 @@ public class ProgressionManager : MonoBehaviour
         return unlockedCount;
     }
 
-    // --- METODI PER L'INVENTARIO DEI MODULI ---
-    
     public ModuleData GetModuleDataByID(string id)
     {
         return allModuleDataAssets.Find(m => m.moduleID == id);
@@ -903,11 +790,7 @@ public class ProgressionManager : MonoBehaviour
         SaveData();
         OnValuesChanged?.Invoke();
     }
-    
-    /// <summary>
-    /// Tenta di fondere 3 moduli per ottenerne uno di rarità superiore.
-    /// </summary>
-    /// <returns>True se la fusione è riuscita, altrimenti False.</returns>
+
     public bool FuseModules(string moduleID)
     {
         if (GetModuleCount(moduleID) < 3) return false;
@@ -919,32 +802,24 @@ public class ProgressionManager : MonoBehaviour
             return false;
         }
 
-        // Rimuovi 3 moduli sorgente
         moduleInventory[moduleID] -= 3;
         if (moduleInventory[moduleID] <= 0)
         {
             moduleInventory.Remove(moduleID);
         }
 
-        // Aggiungi 1 modulo risultato
         AddModule(sourceModule.fusionResult.moduleID, 1);
-        
         Debug.Log($"Fusione riuscita! 3x {sourceModule.moduleName} -> 1x {sourceModule.fusionResult.moduleName}");
         SaveData();
         OnValuesChanged?.Invoke();
         return true;
     }
-    
-    // --- METODI PER EQUIPAGGIARE I MODULI ---
-    
+
     public List<string> GetEquippedModules(ModuleSlotType slotType)
     {
         return equippedModules.ContainsKey(slotType) ? equippedModules[slotType] : new List<string>();
     }
-    
-    /// <summary>
-    /// Equipaggia un modulo in uno slot specifico.
-    /// </summary>
+
     public void EquipModule(string moduleID, int slotIndex)
     {
         ModuleData moduleToEquip = GetModuleDataByID(moduleID);
@@ -958,45 +833,36 @@ public class ProgressionManager : MonoBehaviour
             return;
         }
 
-        // Assicura che la lista sia abbastanza grande
         while (equippedModules[moduleToEquip.slotType].Count <= slotIndex)
         {
             equippedModules[moduleToEquip.slotType].Add(null);
         }
 
-        // Se c'è già un modulo in quello slot, lo restituisce all'inventario
         string currentlyEquippedID = equippedModules[moduleToEquip.slotType][slotIndex];
         if (!string.IsNullOrEmpty(currentlyEquippedID))
         {
             AddModule(currentlyEquippedID, 1);
         }
-        
-        // Equipaggia il nuovo modulo
+
         equippedModules[moduleToEquip.slotType][slotIndex] = moduleID;
-        // Rimuove 1 istanza dall'inventario
         moduleInventory[moduleID]--;
         if (moduleInventory[moduleID] <= 0)
         {
             moduleInventory.Remove(moduleID);
         }
-        
+
         SaveData();
         OnValuesChanged?.Invoke();
     }
-    
-    /// <summary>
-    /// Rimuove un modulo da uno slot e lo restituisce all'inventario.
-    /// </summary>
+
     public void UnequipModule(ModuleSlotType slotType, int slotIndex)
     {
         if (!equippedModules.ContainsKey(slotType) || slotIndex >= equippedModules[slotType].Count) return;
-        
+
         string moduleID = equippedModules[slotType][slotIndex];
         if (string.IsNullOrEmpty(moduleID)) return;
 
-        // Rimuovi dallo slot
         equippedModules[slotType][slotIndex] = null;
-        // Aggiungi all'inventario
         AddModule(moduleID, 1);
     }
     #endregion
