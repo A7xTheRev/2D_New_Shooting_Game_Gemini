@@ -2,69 +2,102 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System;
+using System.Collections; // Aggiunto per le Coroutine
 using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(ScrollRect))]
-public class SnapController : MonoBehaviour
+public class SnapController : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 {
+    //================================================================================
+    // Configurazione Pubblica (Visibile nell'Inspector)
+    //================================================================================
+
+    [Header("Configurazione dell'Aggancio (Snap)")]
+    [Tooltip("La velocità con cui l'elemento si aggancia al centro. Un valore più alto corrisponde a uno scatto più rapido e deciso.")]
     public float snapSpeed = 10f;
-    
+
+    [Tooltip("La distanza (in pixel) dal punto di aggancio sotto la quale lo snap si considera completato e il movimento si ferma. Un valore piccolo come 1.0 è solitamente sufficiente.")]
+    public float stopSnappingDistance = 1f;
+
+    [Header("Debug")]
+    [Tooltip("Se spuntato, lo script scriverà dei log di diagnostica nella Console per aiutarti a capire cosa sta facendo (es. quando inizia/finisce un drag, quale elemento viene selezionato).")]
+    public bool showDebugLogs = false;
+
+    [Space]
+    [Header("Stato Interno (Sola Lettura)")]
+    [Tooltip("DEBUG: L'indice dell'elemento attualmente considerato il più vicino al centro.")]
+    [SerializeField, Range(-1, 100)] private int _debug_nearestItemIndex = -1;
+    [Tooltip("DEBUG: Indica se lo script sta attualmente forzando l'aggancio al centro.")]
+    [SerializeField] private bool _debug_isSnapping = false;
+
+    //================================================================================
+    // Variabili Private
+    //================================================================================
+
     private ScrollRect scrollRect;
     private RectTransform contentPanel;
     private List<RectTransform> listItems;
-    private Action<int> onSelectionChangedCallback; 
-    
-    private bool isSnapping = false;
-    private int nearestItemIndex = -1;
+    private Action<int> onSelectionChangedCallback;
+
     private bool hasBeenInitialized = false;
+
+    //================================================================================
+    // Metodi di Unity (Awake, Update)
+    //================================================================================
 
     void Awake()
     {
         scrollRect = GetComponent<ScrollRect>();
-        if(scrollRect != null)
+        if (scrollRect != null)
         {
-        contentPanel = scrollRect.content;
-            var eventTrigger = gameObject.GetComponent<EventTrigger>();
-            if (eventTrigger == null)
-                eventTrigger = gameObject.AddComponent<EventTrigger>();
-
-            var entry = new EventTrigger.Entry();
-            entry.eventID = EventTriggerType.EndDrag;
-            entry.callback.AddListener((data) => { OnEndDrag(); });
-            eventTrigger.triggers.Add(entry);
+            contentPanel = scrollRect.content;
+        }
+        else
+        {
+            Debug.LogError("[SnapController] ScrollRect non trovato! Assicurati che lo script sia sullo stesso oggetto dello ScrollRect.");
         }
     }
 
     void Update()
     {
-        if (isSnapping && hasBeenInitialized)
+        if (!_debug_isSnapping || !hasBeenInitialized || Input.GetMouseButton(0))
         {
-            if (Input.GetMouseButton(0))
-            {
-                isSnapping = false;
-                return;
-            }
+            return;
+        }
 
-            if (listItems == null || nearestItemIndex < 0 || nearestItemIndex >= listItems.Count)
-            {
-                isSnapping = false;
-                return;
-            }
+        if (listItems == null || _debug_nearestItemIndex < 0 || _debug_nearestItemIndex >= listItems.Count)
+        {
+            _debug_isSnapping = false;
+            return;
+        }
 
-            float targetX = -listItems[nearestItemIndex].anchoredPosition.x;
-            Vector2 targetPosition = new Vector2(targetX, contentPanel.anchoredPosition.y);
-            contentPanel.anchoredPosition = Vector2.Lerp(contentPanel.anchoredPosition, targetPosition, Time.deltaTime * snapSpeed);
+        float targetX = -listItems[_debug_nearestItemIndex].anchoredPosition.x;
+        Vector2 targetPosition = new Vector2(targetX, contentPanel.anchoredPosition.y);
 
-            if (Vector2.Distance(contentPanel.anchoredPosition, targetPosition) < 1f)
-            {
-                contentPanel.anchoredPosition = targetPosition;
-                isSnapping = false;
-            }
+        contentPanel.anchoredPosition = Vector2.Lerp(contentPanel.anchoredPosition, targetPosition, Time.deltaTime * snapSpeed);
+
+        if (Vector2.Distance(contentPanel.anchoredPosition, targetPosition) < stopSnappingDistance)
+        {
+            contentPanel.anchoredPosition = targetPosition;
+            _debug_isSnapping = false;
+            if (showDebugLogs) Debug.Log("[SnapController] Snap completato.");
         }
     }
 
-    public void OnEndDrag()
+    //================================================================================
+    // Gestione degli Eventi di Drag
+    //================================================================================
+
+    public void OnBeginDrag(PointerEventData eventData)
     {
+        if (showDebugLogs) Debug.Log("[SnapController] Inizio Drag.");
+        _debug_isSnapping = false;
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (showDebugLogs) Debug.Log("[SnapController] Fine Drag. Calcolo l'elemento più vicino...");
+
         if (listItems == null || listItems.Count == 0 || !hasBeenInitialized) return;
 
         float minDistance = float.MaxValue;
@@ -79,43 +112,55 @@ public class SnapController : MonoBehaviour
                 newNearestIndex = i;
             }
         }
-        
-        if (newNearestIndex != nearestItemIndex)
+
+        if (newNearestIndex != _debug_nearestItemIndex)
         {
-            nearestItemIndex = newNearestIndex;
-            // Chiama la funzione che ci è stata passata, chiunque essa sia
-            onSelectionChangedCallback?.Invoke(nearestItemIndex); 
+            if (showDebugLogs) Debug.Log($"[SnapController] Nuovo elemento selezionato! Indice: {newNearestIndex}");
+            _debug_nearestItemIndex = newNearestIndex;
+            onSelectionChangedCallback?.Invoke(_debug_nearestItemIndex);
         }
-        
-        isSnapping = true;
+        else
+        {
+             if (showDebugLogs) Debug.Log($"[SnapController] L'elemento è rimasto lo stesso (Indice: {newNearestIndex}). Riancoro.");
+        }
+
+        scrollRect.velocity = Vector2.zero;
+        _debug_isSnapping = true;
     }
 
-    // --- METODO INITIALIZE AGGIORNATO ---
-    // Ora accetta un 'startingIndex' opzionale per partire da un elemento specifico.
+    //================================================================================
+    // Metodo di Inizializzazione e Coroutine
+    //================================================================================
+
     public void Initialize(List<RectTransform> items, Action<int> callback, int startingIndex = 0)
     {
         listItems = items;
         onSelectionChangedCallback = callback;
         hasBeenInitialized = true;
-        
-        // Controlla che l'indice sia valido
+
+        if (showDebugLogs) Debug.Log($"[SnapController] Inizializzato con {items.Count} elementi.");
+
         if (startingIndex < 0 || startingIndex >= items.Count)
         {
+            Debug.LogWarning($"[SnapController] Indice di partenza ({startingIndex}) non valido. Imposto a 0.");
             startingIndex = 0;
         }
 
-            nearestItemIndex = startingIndex;
-        
-        // **LA CORREZIONE FONDAMENTALE È QUI**
-        // Forziamo il pannello a posizionarsi istantaneamente sull'elemento iniziale.
-        // Questo viene eseguito una sola volta, quindi non c'è bisogno di aspettare il prossimo frame.
-        Canvas.ForceUpdateCanvases();
+        _debug_nearestItemIndex = startingIndex;
+
+        StartCoroutine(InitializePositionCoroutine(startingIndex));
+
+        onSelectionChangedCallback?.Invoke(_debug_nearestItemIndex);
+    }
+
+    private IEnumerator InitializePositionCoroutine(int startingIndex)
+    {
+        yield return new WaitForEndOfFrame();
+
         if (listItems != null && startingIndex < listItems.Count)
         {
-        contentPanel.anchoredPosition = new Vector2(-listItems[startingIndex].anchoredPosition.x, contentPanel.anchoredPosition.y);
+            contentPanel.anchoredPosition = new Vector2(-listItems[startingIndex].anchoredPosition.x, contentPanel.anchoredPosition.y);
+            if (showDebugLogs) Debug.Log($"[SnapController] Posizione visiva impostata sull'elemento con indice {startingIndex}.");
         }
-
-        // Notifica subito il listener per aggiornare la UI (descrizioni, highlight, etc.)
-        onSelectionChangedCallback?.Invoke(nearestItemIndex);
     }
 }
