@@ -285,7 +285,6 @@ GameObject:
   - component: {fileID: 1119213104204934340}
   - component: {fileID: 7806161600925958687}
   - component: {fileID: 3485260613873534483}
-  - component: {fileID: 4049827575083262104}
   - component: {fileID: 6693333138797344012}
   m_Layer: 0
   m_Name: PF_WeaponButton
@@ -425,22 +424,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3018592024829860831}
   m_CullTransparentMesh: 1
---- !u!114 &4049827575083262104
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3018592024829860831}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0a82e15636150d429b0461edecbda02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponButtonUI
-  weaponNameText: {fileID: 6169653606505090758}
-  weaponIconImage: {fileID: 9186533696190716802}
-  highlightImage: {fileID: 0}
-  weaponData: {fileID: 11400000, guid: a2106a96ff171d649a2d9ecef4c7eea6, type: 2}
 --- !u!114 &6693333138797344012
 MonoBehaviour:
   m_ObjectHideFlags: 0

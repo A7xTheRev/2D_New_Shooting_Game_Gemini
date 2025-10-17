@@ -47,14 +47,22 @@ public class PlayerController : MonoBehaviour
     {
         projectilePool = ProjectilePool.Instance;
 
-        // Legge l'arma selezionata dal GameDataManager e la equipaggia
-        if (GameDataManager.Instance != null && GameDataManager.Instance.selectedWeapon != null)
+        // Legge l'arma equipaggiata dal ProgressionManager
+        if (ProgressionManager.Instance != null)
         {
-            EquipWeapon(GameDataManager.Instance.selectedWeapon);
+            WeaponData equippedWeapon = ProgressionManager.Instance.GetEquippedWeapon();
+            if (equippedWeapon != null)
+            {
+                EquipWeapon(equippedWeapon);
+            }
+            else
+            {
+                Debug.LogError("Nessuna arma equipaggiata trovata nel ProgressionManager! Controlla che la lista 'allWeapons' sia popolata.");
+            }
         }
         else
         {
-            Debug.LogError("Nessuna arma selezionata trovata nel GameDataManager!");
+            Debug.LogError("ProgressionManager non trovato!");
         }
     }
 
