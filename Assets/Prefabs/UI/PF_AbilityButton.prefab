@@ -475,6 +475,8 @@ MonoBehaviour:
   abilityNameText: {fileID: 8977167441017297585}
   abilityDescriptionText: {fileID: 4246744670921404207}
   highlightImage: {fileID: 8580761093028287652}
+  equipButton: {fileID: 0}
+  equippedIndicator: {fileID: 4894831069976534600}
 --- !u!1 &4894831069976534600
 GameObject:
   m_ObjectHideFlags: 0

@@ -28,7 +28,7 @@ public class MenuManager : MonoBehaviour
     public GameObject missionsPanel;
     public GameObject gameModeSelectionPanel;
     public GameObject codexPanel;
-    public GameObject workshopPanel; // --- NUOVO: Riferimento al pannello Officina ---
+    public GameObject workshopPanel;
 
     [Header("Selezione Modalità di Gioco")]
     public List<WorldData> allWorlds;
@@ -372,23 +372,41 @@ public class MenuManager : MonoBehaviour
         // La chiamata a UpdateHangarAbilityUI è stata rimossa
     }
     
+    // --- METODO COMPLETAMENTE RISCRITTO PER RISOLVERE GLI ERRORI ---
     private void UpdateSingleUpgradeUI(UpgradeUIPanel panel)
     {
         if (panel == null || panel.buyButton == null || panel.levelText == null || panel.costText == null) return;
-        PermanentUpgrade upgrade = ProgressionManager.Instance.GetUpgrade(panel.upgradeType);
-        if (upgrade == null) { if (panel.buyButton != null) panel.buyButton.gameObject.SetActive(false); return; }
+
+        // 1. Ottiene i dati (ScriptableObject) del potenziamento dal ProgressionManager
+        PermanentUpgradeData upgradeData = ProgressionManager.Instance.GetUpgrade(panel.upgradeType);
+        if (upgradeData == null) 
+        { 
+            // Se non trova i dati, nasconde il pannello per sicurezza
+            if (panel.buyButton != null) panel.buyButton.gameObject.SetActive(false); 
+            return; 
+        }
         
-        panel.levelText.text = $"Liv. {upgrade.currentLevel}/{upgrade.maxLevel}";
-        if (upgrade.currentLevel >= upgrade.maxLevel) 
+        // 2. Ottiene il livello CORRENTE di questo potenziamento dal ProgressionManager
+        int currentLevel = ProgressionManager.Instance.GetUpgradeLevel(panel.upgradeType);
+
+        // 3. Aggiorna il testo del livello
+        panel.levelText.text = $"Liv. {currentLevel}/{upgradeData.maxLevel}";
+
+        // 4. Controlla se il potenziamento ha raggiunto il livello massimo
+        if (currentLevel >= upgradeData.maxLevel) 
         { 
             panel.costText.text = "MAX"; 
             panel.buyButton.interactable = false; 
         }
         else 
         { 
-            int cost = upgrade.GetNextLevelCost(); 
+            // 5. Se non è al massimo, calcola il costo per il prossimo livello
+            int cost = upgradeData.GetCostForLevel(currentLevel); 
             panel.costText.text = cost.ToString(); 
-            panel.buyButton.interactable = ProgressionManager.Instance.CanAfford(upgrade); 
+
+            // 6. Controlla se il giocatore può permetterselo usando la NUOVA funzione
+            //    che accetta il tipo di potenziamento (PermanentUpgradeType)
+            panel.buyButton.interactable = ProgressionManager.Instance.CanAfford(panel.upgradeType); 
         }
     }
     

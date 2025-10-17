@@ -35,7 +35,9 @@ public class ProgressionManager : MonoBehaviour
     }
 
     [Header("Potenziamenti Normali")] 
-    public List<PermanentUpgrade> availableUpgrades = new List<PermanentUpgrade>();
+    // --- MODIFICATO --- La lista ora usa PermanentUpgradeData come richiesto
+    public List<PermanentUpgradeData> availableUpgrades = new List<PermanentUpgradeData>(); 
+
     [Header("Potenziamenti Speciali")] 
     public List<SpecialAbility> allSpecialAbilities = new List<SpecialAbility>();
     [Tooltip("Trascina qui tutti gli asset ShipData di tutte le navicelle del gioco.")]
@@ -157,13 +159,15 @@ public class ProgressionManager : MonoBehaviour
         {
             upgradeLevels[data.savedUpgradeTypes[i]] = data.savedUpgradeLevels[i];
         }
+        
+        // --- MODIFICATO --- Rimosso il vecchio ciclo che assegnava 'currentLevel'
+        // Ora i livelli sono solo nel dizionario 'upgradeLevels', che è la fonte di verità.
         foreach (var upgrade in availableUpgrades)
         {
             if (!upgradeLevels.ContainsKey(upgrade.upgradeType))
             {
                 upgradeLevels[upgrade.upgradeType] = 0;
             }
-            upgrade.currentLevel = upgradeLevels[upgrade.upgradeType];
         }
         
         unlockedAbilitiesSet = new HashSet<AbilityID>(data.unlockedSpecialAbilities);
@@ -277,7 +281,7 @@ public class ProgressionManager : MonoBehaviour
         SaveSystem.SaveGame(data);
     }
     
-    #region Metodi Esistenti (con modifiche)
+    #region Metodi di Gioco e Valute
 
     public int GetMaxWave() => maxWaveReached;
     public int GetMaxCoins() => maxCoinsInSession;
@@ -322,28 +326,69 @@ public class ProgressionManager : MonoBehaviour
         OnValuesChanged?.Invoke();
     }
 
-    public bool CanAfford(PermanentUpgrade upgrade) => coins >= upgrade.GetNextLevelCost();
+    #endregion
 
+    #region Potenziamenti Permanenti
+
+    // --- AGGIUNTO --- Funzione richiesta da PermanentUpgradeButton.cs
+    public int GetUpgradeLevel(PermanentUpgradeType type)
+    {
+        // Cerca il livello nel dizionario, se non esiste restituisce 0
+        return upgradeLevels.TryGetValue(type, out int level) ? level : 0;
+    }
+
+    // --- AGGIUNTO --- Overload della funzione CanAfford richiesto da PermanentUpgradeButton.cs
+    public bool CanAfford(PermanentUpgradeType type)
+    {
+        PermanentUpgradeData u = GetUpgrade(type);
+        if (u == null) return false;
+
+        int currentLevel = GetUpgradeLevel(type);
+        if (currentLevel >= u.maxLevel) return false;
+
+        int cost = u.GetCostForLevel(currentLevel);
+        return coins >= cost;
+    }
+    
+    // --- MODIFICATO --- Aggiornata per usare PermanentUpgradeData
     public void BuyUpgrade(PermanentUpgradeType type)
     {
-        PermanentUpgrade u = GetUpgrade(type);
-        if (u == null || u.currentLevel >= u.maxLevel) return;
-        int c = u.GetNextLevelCost();
-        if (coins >= c)
+        PermanentUpgradeData u = GetUpgrade(type);
+        if (u == null) return;
+        
+        int currentLevel = GetUpgradeLevel(type);
+        if (currentLevel >= u.maxLevel) return;
+
+        int cost = u.GetCostForLevel(currentLevel);
+        if (coins >= cost)
         {
-            coins -= c;
-            u.currentLevel++;
-            upgradeLevels[type] = u.currentLevel;
+            coins -= cost;
+            upgradeLevels[type] = currentLevel + 1; // Incrementa il livello nel dizionario
             SaveData();
             OnValuesChanged?.Invoke();
         }
     }
 
-    public PermanentUpgrade GetUpgrade(PermanentUpgradeType type) => availableUpgrades.Find(u => u.upgradeType == type);
+    // --- MODIFICATO --- Ora restituisce PermanentUpgradeData
+    public PermanentUpgradeData GetUpgrade(PermanentUpgradeType type) => availableUpgrades.Find(u => u.upgradeType == type);
+    
+    // --- MODIFICATO --- Aggiornata per usare i nuovi metodi
     public float GetTotalBonus(PermanentUpgradeType type)
     {
-        PermanentUpgrade u = GetUpgrade(type);
-        return u != null ? u.currentLevel * u.bonusPerLevel : 0f;
+        PermanentUpgradeData u = GetUpgrade(type);
+        int currentLevel = GetUpgradeLevel(type);
+        return u != null ? currentLevel * u.bonusPerLevel : 0f;
+    }
+    
+    #endregion
+    
+    #region Abilità Speciali
+
+    // --- AGGIUNTO --- Funzione richiesta da ActiveAbilitiesHangar.cs e PassiveUpgradesStore.cs
+    public List<SpecialAbility> GetSpecialAbilities(AbilityBehaviorType behaviorType)
+    {
+        // Usa LINQ per filtrare la lista di tutte le abilità e restituire solo quelle del tipo richiesto
+        return allSpecialAbilities.Where(ability => ability.behaviorType == behaviorType).ToList();
     }
 
     public bool CanAfford(SpecialAbility ability) => specialCurrency >= ability.cost;
@@ -386,6 +431,10 @@ public class ProgressionManager : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Navicelle
+
     public ShipData GetEquippedShip() => allShips.Find(s => s.shipName == equippedShipName);
 
     public void SetEquippedShip(ShipData ship)
@@ -411,7 +460,10 @@ public class ProgressionManager : MonoBehaviour
         }
     }
 
-    // --- METODO RESETPROGRESS CORRETTO E RESO PIÙ ROBUSTO ---
+    #endregion
+    
+    #region Sistema di Reset
+
     public void ResetProgress() 
     { 
         // 1. Cancella il vecchio file di salvataggio fisico
@@ -454,9 +506,11 @@ public class ProgressionManager : MonoBehaviour
             equippedShipName = null;
         }
 
+        // --- MODIFICATO --- Rimosso l'accesso a 'currentLevel'
         foreach (var upgrade in availableUpgrades)
         {
-            upgrade.currentLevel = 0;
+            // Il dizionario 'upgradeLevels' è già stato svuotato.
+            // Al prossimo 'LoadData', verrà ripopolato con i livelli a 0.
         }
         SaveData(); 
 
@@ -465,7 +519,10 @@ public class ProgressionManager : MonoBehaviour
         Debug.Log("Progresso resettato e nuovo stato iniziale salvato correttamente.");
     }
 
-    // ... tutti gli altri metodi per missioni, settori e codex ...
+    #endregion
+
+    // ... Qui lascio invariate le altre regioni (Missioni, Settori, Codex, Module System) ...
+    // ... perché non sono coinvolte negli errori che hai segnalato.                 ...
     #region Metodi Missioni, Settori, Codex
     public void AddEnemyKill(string enemyDataID) // Il parametro ora è l'ID dell'EnemyData
     {
@@ -611,9 +668,6 @@ public class ProgressionManager : MonoBehaviour
     {
         return claimedCodexRewards.Contains(enemyID);
     }
-    
-    #endregion
-    
     #endregion
     
     #region Module System
@@ -680,7 +734,6 @@ public class ProgressionManager : MonoBehaviour
             Debug.LogWarning($"Nessun modulo trovato per la rarità estratta: {chosenRarity}. Controlla che 'allModuleDataAssets' sia popolato.");
             return null;
         }
-
         int randomIndex = Random.Range(0, availableModules.Count);
         return availableModules[randomIndex];
     }
